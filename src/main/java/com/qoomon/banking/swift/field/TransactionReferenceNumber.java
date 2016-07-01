@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class TransactionReferenceNumber {
+public class TransactionReferenceNumber implements SwiftMTField {
     /**
      * :20: – Transaction Reference Number
      */
@@ -20,5 +20,10 @@ public class TransactionReferenceNumber {
 
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public String getTag() {
+        return TAG;
     }
 }

@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class ClosingAvailableBalance {
+public class ClosingAvailableBalance implements SwiftMTField {
     /**
      * :64: – Closing Available Balance (Available Funds)
      */
@@ -18,4 +18,8 @@ public class ClosingAvailableBalance {
         this.value = field.getContent();
     }
 
+    @Override
+    public String getTag() {
+        return TAG;
+    }
 }

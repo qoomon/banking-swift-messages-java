@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class ClosingBalance {
+public class ClosingBalance implements SwiftMTField {
 
     /**
      * :62F: - Closing Balance (Booked Funds)
@@ -61,6 +61,11 @@ public class ClosingBalance {
 
     public String getAmount() {
         return amount;
+    }
+
+    @Override
+    public String getTag() {
+        return type == Type.CLOSING ? TAG : TAG_INTERMEDIATE;
     }
 
     public enum Type {

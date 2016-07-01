@@ -57,8 +57,9 @@ public class SwiftMT940Parser {
                     break;
                 }
                 case StatementLine.TAG: {
-                    Transaction transaction = new Transaction(field);
-                    transactionList.add(transaction);
+                    StatementLine statementLine = new StatementLine(field);
+                    // TODO add optional following new InformationToAccountOwner(field);
+                    transactionList.add(new Transaction(statementLine, null));
                     break;
                 }
                 case ClosingBalance.TAG_INTERMEDIATE:

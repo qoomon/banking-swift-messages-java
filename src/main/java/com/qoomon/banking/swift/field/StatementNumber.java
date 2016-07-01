@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class StatementNumber {
+public class StatementNumber implements SwiftMTField {
     /**
      * :28C: – Statement Number/Sequence Number
      */
@@ -16,5 +16,10 @@ public class StatementNumber {
     public StatementNumber(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
         this.value = field.getContent();
+    }
+
+    @Override
+    public String getTag() {
+        return TAG;
     }
 }

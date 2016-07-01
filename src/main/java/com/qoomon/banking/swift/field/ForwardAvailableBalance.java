@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class ForwardAvailableBalance {
+public class ForwardAvailableBalance implements SwiftMTField {
     /**
      * :65: – Forward Available Balance
      */
@@ -16,5 +16,10 @@ public class ForwardAvailableBalance {
     public ForwardAvailableBalance(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
         this.value = field.getContent();
+    }
+
+    @Override
+    public String getTag() {
+        return TAG;
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class OpeningBalance {
+public class OpeningBalance implements SwiftMTField {
 
     /**
      * :60F: – Opening Balance
@@ -61,6 +61,11 @@ public class OpeningBalance {
 
     public String getAmount() {
         return amount;
+    }
+
+    @Override
+    public String getTag() {
+        return type == Type.OPENING ? TAG : TAG_INTERMEDIATE;
     }
 
     public enum Type {

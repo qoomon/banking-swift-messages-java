@@ -10,14 +10,24 @@ public class Transaction {
     /**
      * @see StatementLine#TAG
      */
-    private StatementLine statementLine;
+    private final StatementLine statementLine;
 
     /**
      * @see InformationToAccountOwner#TAG
      */
-    private Optional<InformationToAccountOwner> informationToAccountOwner;
+    private final Optional<InformationToAccountOwner> informationToAccountOwner;
 
-    public Transaction(GeneralMTField field) {
+    public Transaction(StatementLine statementLine, InformationToAccountOwner informationToAccountOwner) {
 
+        this.statementLine = statementLine;
+        this.informationToAccountOwner = Optional.ofNullable(informationToAccountOwner);
+    }
+
+    public StatementLine getStatementLine() {
+        return statementLine;
+    }
+
+    public Optional<InformationToAccountOwner> getInformationToAccountOwner() {
+        return informationToAccountOwner;
     }
 }

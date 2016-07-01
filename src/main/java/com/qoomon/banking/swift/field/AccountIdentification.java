@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class AccountIdentification {
+public class AccountIdentification implements SwiftMTField {
     /**
      * :25: – Account Identification
      */
@@ -18,7 +18,8 @@ public class AccountIdentification {
         this.value = field.getContent();
     }
 
-    protected String getTag() {
+    @Override
+    public String getTag() {
         return TAG;
     }
 }

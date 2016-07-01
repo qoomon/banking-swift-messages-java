@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class RelatedReference {
+public class RelatedReference implements SwiftMTField {
     /**
      * :21: –  Related Reference
      */
@@ -16,5 +16,10 @@ public class RelatedReference {
     public RelatedReference(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
         this.value = field.getContent();
+    }
+
+    @Override
+    public String getTag() {
+        return TAG;
     }
 }

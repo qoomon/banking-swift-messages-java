@@ -1,7 +1,5 @@
 package com.qoomon.banking.swift.field;
 
-import java.io.IOException;
-
 /**
  * Created by qoomon on 27/06/16.
  */
