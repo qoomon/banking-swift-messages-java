@@ -1,15 +1,15 @@
 package com.qoomon.banking.swift.mt940;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.field.*;
 
 import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Created by qoomon on 27/06/16.
+ * Parser for {@link SwiftMT940}
  */
 public class SwiftMT940Parser {
 
@@ -33,79 +33,103 @@ public class SwiftMT940Parser {
         List<ForwardAvailableBalance> forwardAvailableBalanceList = new LinkedList<>();
         InformationToAccountOwner informationToAccountOwner = null;
 
-        int fieldNumber = 0;
+        int currentFieldNumber = 0;
 
         //TODO ensure fieldList right field order
+        Set<String> currentValidFieldSet = ImmutableSet.of(TransactionReferenceNumber.TAG);
 
         GeneralMTField previousField = null;
         for (GeneralMTField currentField : fieldList) {
-            fieldNumber++;
+            Set<String> nextValidFieldSet;
 
-            switch (currentField.getTag()) {
+            currentFieldNumber++;
+
+
+            String currentFieldTag = currentField.getTag();
+            switch (currentFieldTag) {
                 case TransactionReferenceNumber.TAG: {
                     transactionReferenceNumber = new TransactionReferenceNumber(currentField);
+                    nextValidFieldSet = ImmutableSet.of(RelatedReference.TAG, AccountIdentification.TAG);
                     break;
                 }
                 case RelatedReference.TAG: {
                     relatedReference = new RelatedReference(currentField);
+                    nextValidFieldSet = ImmutableSet.of(AccountIdentification.TAG);
                     break;
                 }
                 case AccountIdentification.TAG: {
                     accountIdentification = new AccountIdentification(currentField);
+                    nextValidFieldSet = ImmutableSet.of(StatementNumber.TAG);
                     break;
                 }
                 case StatementNumber.TAG: {
                     statementNumber = new StatementNumber(currentField);
+                    nextValidFieldSet = ImmutableSet.of(OpeningBalance.TAG, OpeningBalance.TAG_INTERMEDIATE);
                     break;
                 }
-                case OpeningBalance.TAG_INTERMEDIATE:
-                case OpeningBalance.TAG: {
+                case OpeningBalance.TAG:
+                case OpeningBalance.TAG_INTERMEDIATE: {
                     openingBalance = new OpeningBalance(currentField);
+                    nextValidFieldSet = ImmutableSet.of(StatementLine.TAG, ClosingBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     break;
                 }
                 case StatementLine.TAG: {
                     StatementLine statementLine = new StatementLine(currentField);
                     transactionList.add(new Transaction(statementLine, null));
+                    nextValidFieldSet = ImmutableSet.of(InformationToAccountOwner.TAG, ClosingBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     break;
                 }
-                case ClosingBalance.TAG_INTERMEDIATE:
-                case ClosingBalance.TAG: {
+                case ClosingBalance.TAG:
+                case ClosingBalance.TAG_INTERMEDIATE: {
                     closingBalance = new ClosingBalance(currentField);
+                    nextValidFieldSet = ImmutableSet.of(ClosingAvailableBalance.TAG, ForwardAvailableBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     break;
                 }
                 case ClosingAvailableBalance.TAG: {
                     closingAvailableBalance = new ClosingAvailableBalance(currentField);
+                    nextValidFieldSet = ImmutableSet.of(ForwardAvailableBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     break;
                 }
                 case ForwardAvailableBalance.TAG: {
                     ForwardAvailableBalance forwardAvailableBalance = new ForwardAvailableBalance(currentField);
                     forwardAvailableBalanceList.add(forwardAvailableBalance);
+                    nextValidFieldSet = ImmutableSet.of(ClosingBalance.TAG_INTERMEDIATE);
                     break;
                 }
                 case InformationToAccountOwner.TAG: {
-                    if (previousField.getTag().equals(StatementLine.TAG)) {
+                    if (previousField != null && previousField.getTag().equals(StatementLine.TAG)) {
+                        // amend transaction with transactionInformationToAccountOwner
                         int lastTransactionIndex = transactionList.size() - 1;
                         Transaction lastTransaction = transactionList.get(lastTransactionIndex);
                         InformationToAccountOwner transactionInformationToAccountOwner = new InformationToAccountOwner(currentField);
+
                         Transaction updatedTransaction = new Transaction(lastTransaction.getStatementLine(), transactionInformationToAccountOwner);
                         transactionList.set(lastTransactionIndex, updatedTransaction);
+                        
+                        nextValidFieldSet = ImmutableSet.of(StatementLine.TAG, ClosingBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     } else {
                         informationToAccountOwner = new InformationToAccountOwner(currentField);
+                        nextValidFieldSet = ImmutableSet.of();
                     }
                     break;
                 }
                 case SwiftMTFieldParser.SEPARATOR_FIELD_TAG: {
                     // see below at finish message
+                    nextValidFieldSet = ImmutableSet.of(TransactionReferenceNumber.TAG);
                     break;
                 }
                 default:
-                    new SwiftMT940ParserException("Parse error: unexpected field", fieldNumber, currentField.getTag());
+                    throw new SwiftMT940ParserException("Parse error: unexpected field", currentFieldNumber, currentFieldTag);
 
             }
 
-            // finish message
-            if (fieldList.size() == fieldNumber // last field
-                    || currentField.getTag().equals(SwiftMTFieldParser.SEPARATOR_FIELD_TAG)) {
+            if (!currentValidFieldSet.contains(currentFieldTag)) {
+                throw new SwiftMTFieldParserException("Parse error: unexpected order of field " + currentFieldTag, currentFieldNumber);
+            }
+
+            // handle finishing message
+            if (fieldList.size() == currentFieldNumber // last field
+                    || currentFieldTag.equals(SwiftMTFieldParser.SEPARATOR_FIELD_TAG)) {
 
                 result.add(new SwiftMT940(
                         transactionReferenceNumber,
@@ -121,7 +145,9 @@ public class SwiftMT940Parser {
                 ));
             }
 
+            // prepare for next iteration
             previousField = currentField;
+            currentValidFieldSet = nextValidFieldSet;
         }
 
         return result;

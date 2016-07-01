@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.field;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
@@ -26,24 +27,18 @@ public class SwiftMTFieldParser {
         List<GeneralMTField> fieldList = new LinkedList<>();
 
         try (LineNumberReader lineReader = new LineNumberReader(mt940TextReader)) {
-
-            String nextMessageLine = lineReader.readLine();
-            int nextMessageLineNumber = lineReader.getLineNumber();
-            MessageLineType nextMessageLineType = nextMessageLine != null ? determineMessageLineType(nextMessageLine) : null;
-
             GeneralMTFieldBuilder currentFieldBuilder = null;
 
-            Set<MessageLineType> validFieldSet = Sets.immutableEnumSet(MessageLineType.FIELD);
+            Set<MessageLineType> currentValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
+            String currentMessageLine = lineReader.readLine();
+            int currentMessageLineNumber = lineReader.getLineNumber();
 
-            while (nextMessageLine != null) {
-                String currentMessageLine = nextMessageLine;
-                int currentMessageLineNumber = nextMessageLineNumber;
-                MessageLineType currentMessageLineType = nextMessageLineType;
+            while (currentMessageLine != null) {
+                String nextMessageLine;
+                int nextMessageLineNumber;
+                Set<MessageLineType> nextValidFieldSet;
 
-                if (!validFieldSet.contains(currentMessageLineType)) {
-                    throw new SwiftMTFieldParserException("Parse error: unexpected line " + currentMessageLineType.name(), currentMessageLineNumber);
-                }
-
+                MessageLineType currentMessageLineType = determineMessageLineType(currentMessageLine);
                 switch (currentMessageLineType) {
                     case FIELD: {
                         Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentMessageLine);
@@ -56,7 +51,7 @@ public class SwiftMTFieldParser {
                                 .setTag(fieldMatcher.group("tag"))
                                 .appendContent(fieldMatcher.group("content"));
 
-                        validFieldSet = Sets.immutableEnumSet(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
+                        nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
                         break;
                     }
                     case FIELD_CONTINUATION: {
@@ -65,12 +60,12 @@ public class SwiftMTFieldParser {
                         }
                         currentFieldBuilder.appendContent("\n")
                                 .appendContent(currentMessageLine);
-                        validFieldSet = Sets.immutableEnumSet(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
+                        nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
                         break;
                     }
                     case SEPARATOR: {
                         currentFieldBuilder = new GeneralMTFieldBuilder().setTag(SEPARATOR_FIELD_TAG);
-                        validFieldSet = Sets.immutableEnumSet(MessageLineType.FIELD);
+                        nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
                         break;
                     }
                     default:
@@ -78,16 +73,32 @@ public class SwiftMTFieldParser {
 
                 }
 
+                if (!currentValidFieldSet.contains(currentMessageLineType)) {
+                    throw new SwiftMTFieldParserException("Parse error: unexpected line order of" + currentMessageLineType.name(), currentMessageLineNumber);
+                }
+
                 // prepare next line
                 nextMessageLine = lineReader.readLine();
                 nextMessageLineNumber = lineReader.getLineNumber();
-                nextMessageLineType = nextMessageLine != null ? determineMessageLineType(nextMessageLine) : null;
 
                 // handle finishing field
-                if (currentFieldBuilder != null && nextMessageLineType != MessageLineType.FIELD_CONTINUATION) {
-                    fieldList.add(currentFieldBuilder.build());
-                    currentFieldBuilder = null;
+                if (nextMessageLine != null) {
+                    MessageLineType nextMessageLineType = determineMessageLineType(nextMessageLine);
+                    if (nextMessageLineType != MessageLineType.FIELD_CONTINUATION) {
+                        fieldList.add(currentFieldBuilder.build());
+                        currentFieldBuilder = null;
+                    }
+                } else { // end of reader
+                    if (currentFieldBuilder != null) {
+                        fieldList.add(currentFieldBuilder.build());
+                        currentFieldBuilder = null;
+                    }
                 }
+
+                // prepare for next iteration
+                currentValidFieldSet = nextValidFieldSet;
+                currentMessageLine = nextMessageLine;
+                currentMessageLineNumber = nextMessageLineNumber;
             }
 
             return fieldList;
