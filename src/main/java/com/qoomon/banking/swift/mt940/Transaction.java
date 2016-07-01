@@ -1,4 +1,8 @@
-package com.qoomon.banking.swift.field;
+package com.qoomon.banking.swift.mt940;
+
+import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.field.InformationToAccountOwner;
+import com.qoomon.banking.swift.field.StatementLine;
 
 import java.util.Optional;
 
@@ -18,8 +22,7 @@ public class Transaction {
     private final Optional<InformationToAccountOwner> informationToAccountOwner;
 
     public Transaction(StatementLine statementLine, InformationToAccountOwner informationToAccountOwner) {
-
-        this.statementLine = statementLine;
+        this.statementLine = Preconditions.checkNotNull(statementLine);
         this.informationToAccountOwner = Optional.ofNullable(informationToAccountOwner);
     }
 
@@ -30,4 +33,5 @@ public class Transaction {
     public Optional<InformationToAccountOwner> getInformationToAccountOwner() {
         return informationToAccountOwner;
     }
+
 }

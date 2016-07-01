@@ -1,5 +1,7 @@
 package com.qoomon.banking.swift.mt940;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.qoomon.banking.swift.field.*;
 
 import java.io.Reader;
@@ -12,6 +14,7 @@ import java.util.List;
 public class SwiftMT940Parser {
 
     private final SwiftMTFieldParser swiftMTParser = new SwiftMTFieldParser();
+
 
     public List<SwiftMT940> parse(Reader mt940TextReader) {
 
@@ -31,66 +34,79 @@ public class SwiftMT940Parser {
         InformationToAccountOwner informationToAccountOwner = null;
 
         int fieldNumber = 0;
-        for (GeneralMTField field : fieldList) {
+
+        //TODO ensure fieldList right field order
+
+        GeneralMTField previousField = null;
+        for (GeneralMTField currentField : fieldList) {
             fieldNumber++;
 
-            switch (field.getTag()) {
+            switch (currentField.getTag()) {
                 case TransactionReferenceNumber.TAG: {
-                    transactionReferenceNumber = new TransactionReferenceNumber(field);
+                    transactionReferenceNumber = new TransactionReferenceNumber(currentField);
                     break;
                 }
                 case RelatedReference.TAG: {
-                    relatedReference = new RelatedReference(field);
+                    relatedReference = new RelatedReference(currentField);
                     break;
                 }
                 case AccountIdentification.TAG: {
-                    accountIdentification = new AccountIdentification(field);
+                    accountIdentification = new AccountIdentification(currentField);
                     break;
                 }
                 case StatementNumber.TAG: {
-                    statementNumber = new StatementNumber(field);
+                    statementNumber = new StatementNumber(currentField);
                     break;
                 }
                 case OpeningBalance.TAG_INTERMEDIATE:
                 case OpeningBalance.TAG: {
-                    openingBalance = new OpeningBalance(field);
+                    openingBalance = new OpeningBalance(currentField);
                     break;
                 }
                 case StatementLine.TAG: {
-                    StatementLine statementLine = new StatementLine(field);
-                    // TODO add optional following new InformationToAccountOwner(field);
+                    StatementLine statementLine = new StatementLine(currentField);
                     transactionList.add(new Transaction(statementLine, null));
                     break;
                 }
                 case ClosingBalance.TAG_INTERMEDIATE:
                 case ClosingBalance.TAG: {
-                    closingBalance = new ClosingBalance(field);
+                    closingBalance = new ClosingBalance(currentField);
                     break;
                 }
                 case ClosingAvailableBalance.TAG: {
-                    closingAvailableBalance = new ClosingAvailableBalance(field);
+                    closingAvailableBalance = new ClosingAvailableBalance(currentField);
                     break;
                 }
                 case ForwardAvailableBalance.TAG: {
-                    ForwardAvailableBalance forwardAvailableBalance = new ForwardAvailableBalance(field);
+                    ForwardAvailableBalance forwardAvailableBalance = new ForwardAvailableBalance(currentField);
                     forwardAvailableBalanceList.add(forwardAvailableBalance);
                     break;
                 }
                 case InformationToAccountOwner.TAG: {
-                    informationToAccountOwner = new InformationToAccountOwner(field);
+                    if (previousField.getTag().equals(StatementLine.TAG)) {
+                        int lastTransactionIndex = transactionList.size() - 1;
+                        Transaction lastTransaction = transactionList.get(lastTransactionIndex);
+                        InformationToAccountOwner transactionInformationToAccountOwner = new InformationToAccountOwner(currentField);
+                        Transaction updatedTransaction = new Transaction(lastTransaction.getStatementLine(), transactionInformationToAccountOwner);
+                        transactionList.set(lastTransactionIndex, updatedTransaction);
+                    } else {
+                        informationToAccountOwner = new InformationToAccountOwner(currentField);
+                    }
                     break;
                 }
                 case SwiftMTFieldParser.SEPARATOR_FIELD_TAG: {
-                    // handled below
+                    // see below at finish message
                     break;
                 }
                 default:
-                    new SwiftMT940ParserException("Parse error: unexpected field field", fieldNumber, field.getTag());
+                    new SwiftMT940ParserException("Parse error: unexpected field", fieldNumber, currentField.getTag());
 
             }
 
             // finish message
-            if (field.getTag().equals(SwiftMTFieldParser.SEPARATOR_FIELD_TAG) || fieldList.size() == fieldNumber) {
+            if (fieldList.size() == fieldNumber // last field
+                    || currentField.getTag().equals(SwiftMTFieldParser.SEPARATOR_FIELD_TAG)) {
+
                 result.add(new SwiftMT940(
                         transactionReferenceNumber,
                         relatedReference,
@@ -105,6 +121,7 @@ public class SwiftMT940Parser {
                 ));
             }
 
+            previousField = currentField;
         }
 
         return result;

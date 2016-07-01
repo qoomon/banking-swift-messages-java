@@ -26,4 +26,5 @@ public class GeneralMTField implements SwiftMTField {
     public String getContent() {
         return content;
     }
+
 }

@@ -1,8 +1,14 @@
 package com.qoomon.banking.swift.field;
 
-import java.io.*;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,82 +23,83 @@ public class SwiftMTFieldParser {
 
     public List<GeneralMTField> parse(Reader mt940TextReader) {
 
-        List<GeneralMTField> result = new LinkedList<>();
+        List<GeneralMTField> fieldList = new LinkedList<>();
 
         try (LineNumberReader lineReader = new LineNumberReader(mt940TextReader)) {
 
-            String currentFieldTag = null;
-            StringBuilder currentFieldContentBuilder = null;
+            String nextMessageLine = lineReader.readLine();
+            int nextMessageLineNumber = lineReader.getLineNumber();
+            MessageLineType nextMessageLineType = nextMessageLine != null ? determineMessageLineType(nextMessageLine) : null;
 
-            MessageLineType messageLineType = null;
-            while (messageLineType != MessageLineType.END) {
-                String messageLine = lineReader.readLine();
-                int messageLineNumber = lineReader.getLineNumber();
-                messageLineType = determineMessageLineType(messageLine);
+            GeneralMTFieldBuilder currentFieldBuilder = null;
 
-                // handle finishing field
-                if (currentFieldTag != null && messageLineType != MessageLineType.FIELD_CONTINUATION) {
-                    GeneralMTField field = new GeneralMTField(currentFieldTag, currentFieldContentBuilder.toString());
-                    result.add(field);
-                    currentFieldTag = null;
-                    currentFieldContentBuilder = null;
+            Set<MessageLineType> validFieldSet = Sets.immutableEnumSet(MessageLineType.FIELD);
+
+            while (nextMessageLine != null) {
+                String currentMessageLine = nextMessageLine;
+                int currentMessageLineNumber = nextMessageLineNumber;
+                MessageLineType currentMessageLineType = nextMessageLineType;
+
+                if (!validFieldSet.contains(currentMessageLineType)) {
+                    throw new SwiftMTFieldParserException("Parse error: unexpected line " + currentMessageLineType.name(), currentMessageLineNumber);
                 }
 
-                switch (messageLineType) {
+                switch (currentMessageLineType) {
                     case FIELD: {
-                        Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(messageLine);
+                        Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentMessageLine);
                         if (!fieldMatcher.matches()) {
-                            throw new SwiftMTFieldParserException("Parse error: " + messageLineType.name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), messageLineNumber);
+                            throw new SwiftMTFieldParserException("Parse error: " + currentMessageLineType.name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), currentMessageLineNumber);
                         }
 
                         // start of a new field
-                        currentFieldTag = fieldMatcher.group("tag");
-                        currentFieldContentBuilder = new StringBuilder();
+                        currentFieldBuilder = new GeneralMTFieldBuilder()
+                                .setTag(fieldMatcher.group("tag"))
+                                .appendContent(fieldMatcher.group("content"));
 
-                        String content = fieldMatcher.group("content");
-                        currentFieldContentBuilder.append(content);
+                        validFieldSet = Sets.immutableEnumSet(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
                         break;
                     }
                     case FIELD_CONTINUATION: {
-                        if (currentFieldTag == null) {
-                            throw new SwiftMTFieldParserException("Parse error: " + messageLineType.name() + " unexpected, no field to continue", messageLineNumber);
+                        if (currentFieldBuilder == null) {
+                            throw new SwiftMTFieldParserException("Bug: invalid order check for line type" + currentMessageLineType.name(), currentMessageLineNumber);
                         }
-                        // append line to content of current field
-                        currentFieldContentBuilder.append("\n").append(messageLine);
+                        currentFieldBuilder.appendContent("\n")
+                                .appendContent(currentMessageLine);
+                        validFieldSet = Sets.immutableEnumSet(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
                         break;
                     }
                     case SEPARATOR: {
-                        result.add(new GeneralMTField(SEPARATOR_FIELD_TAG, ""));
-                        break;
-                    }
-                    case EMPTY_LINE: {
-                        if (messageLineNumber != 1) {
-                            throw new SwiftMTFieldParserException("Parse error: " + messageLineType.name() + " unexpected", messageLineNumber);
-                        }
-                        break;
-                    }
-                    case END: {
-                        // do nothing
+                        currentFieldBuilder = new GeneralMTFieldBuilder().setTag(SEPARATOR_FIELD_TAG);
+                        validFieldSet = Sets.immutableEnumSet(MessageLineType.FIELD);
                         break;
                     }
                     default:
-                        throw new SwiftMTFieldParserException("Parse error: unexpected line " + messageLineType.name(), messageLineNumber);
+                        throw new SwiftMTFieldParserException("Bug: Missing handling for line type" + currentMessageLineType.name(), currentMessageLineNumber);
 
+                }
+
+                // prepare next line
+                nextMessageLine = lineReader.readLine();
+                nextMessageLineNumber = lineReader.getLineNumber();
+                nextMessageLineType = nextMessageLine != null ? determineMessageLineType(nextMessageLine) : null;
+
+                // handle finishing field
+                if (currentFieldBuilder != null && nextMessageLineType != MessageLineType.FIELD_CONTINUATION) {
+                    fieldList.add(currentFieldBuilder.build());
+                    currentFieldBuilder = null;
                 }
             }
 
-            return result;
+            return fieldList;
         } catch (IOException e) {
             throw new SwiftMTFieldParserException(e);
         }
     }
 
     private MessageLineType determineMessageLineType(String messageLine) {
-        if (messageLine == null) {
-            return MessageLineType.END;
-        }
+        Preconditions.checkNotNull(messageLine);
         if (messageLine.isEmpty()) {
-            return MessageLineType.EMPTY_LINE;
+            return MessageLineType.EMPTY;
         }
         if (messageLine.equals(SEPARATOR_FIELD_TAG)) {
             return MessageLineType.SEPARATOR;
@@ -108,9 +115,29 @@ public class SwiftMTFieldParser {
         FIELD,
         FIELD_CONTINUATION,
         SEPARATOR,
-        EMPTY_LINE,
-        END
+        EMPTY
     }
 
+
+    private class GeneralMTFieldBuilder {
+
+        String tag = null;
+
+        StringBuilder contentBuilder = new StringBuilder();
+
+        public GeneralMTField build() {
+            return new GeneralMTField(tag, contentBuilder.toString());
+        }
+
+        public GeneralMTFieldBuilder setTag(String tag) {
+            this.tag = tag;
+            return this;
+        }
+
+        public GeneralMTFieldBuilder appendContent(String content) {
+            this.contentBuilder.append(content);
+            return this;
+        }
+    }
 
 }
