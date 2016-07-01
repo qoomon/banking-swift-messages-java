@@ -17,7 +17,7 @@ public class SwiftMT940Parser {
 
         List<SwiftMT940> result = new LinkedList<>();
 
-        List<MTField> fieldList = swiftMTParser.parse(mt940TextReader);
+        List<GeneralMTField> fieldList = swiftMTParser.parse(mt940TextReader);
 
         TransactionReferenceNumber transactionReferenceNumber = null;
         RelatedReference relatedReference = null;
@@ -31,83 +31,52 @@ public class SwiftMT940Parser {
         InformationToAccountOwner informationToAccountOwner = null;
 
         int fieldNumber = 0;
-        for (MTField field : fieldList) {
+        for (GeneralMTField field : fieldList) {
             fieldNumber++;
 
             switch (field.getTag()) {
-                case TransactionReferenceNumber.TAG_20: {
-                    String content = field.getContent();
-                    transactionReferenceNumber = new TransactionReferenceNumber(content);
+                case TransactionReferenceNumber.TAG: {
+                    transactionReferenceNumber = new TransactionReferenceNumber(field);
                     break;
                 }
-                case RelatedReference.TAG_21: {
-                    String content = field.getContent();
-                    relatedReference = new RelatedReference(content);
+                case RelatedReference.TAG: {
+                    relatedReference = new RelatedReference(field);
                     break;
                 }
-                case AccountIdentification.TAG_25: {
-                    String content = field.getContent();
-                    accountIdentification = new AccountIdentification(content);
+                case AccountIdentification.TAG: {
+                    accountIdentification = new AccountIdentification(field);
                     break;
                 }
-                case StatementNumber.TAG_28C: {
-                    String content = field.getContent();
-                    statementNumber = new StatementNumber(content);
+                case StatementNumber.TAG: {
+                    statementNumber = new StatementNumber(field);
                     break;
                 }
-                case OpeningBalance.TAG_60F:
-                case OpeningBalance.TAG_60M: {
-                    OpeningBalance.Type type = field.getTag().equals(OpeningBalance.TAG_60F)
-                            ? OpeningBalance.Type.OPENING : OpeningBalance.Type.INTERMEDIATE;
-                    List<String> subFields = OpeningBalance.SWIFT_NOTATION.parse(field.getContent());
-                    String debitCreditMark = subFields.get(0);
-                    String date = subFields.get(1);
-                    String currency = subFields.get(2);
-                    String amount = subFields.get(3);
-                    openingBalance = new OpeningBalance(type,
-                            debitCreditMark,
-                            date,
-                            currency,
-                            amount);
+                case OpeningBalance.TAG_INTERMEDIATE:
+                case OpeningBalance.TAG: {
+                    openingBalance = new OpeningBalance(field);
                     break;
                 }
-
-                case StatementLine.TAG_61: {
-                    Transaction transaction = new Transaction();
+                case StatementLine.TAG: {
+                    Transaction transaction = new Transaction(field);
                     transactionList.add(transaction);
                     break;
                 }
-                case ClosingBalance.TAG_62F:
-                case ClosingBalance.TAG_62M: {
-                    ClosingBalance.Type type = field.getTag().equals(OpeningBalance.TAG_60F)
-                            ? ClosingBalance.Type.OPENING : ClosingBalance.Type.INTERMEDIATE;
-                    List<String> subFields = ClosingBalance.SWIFT_NOTATION.parse(field.getContent());
-                    String debitCreditMark = subFields.get(0);
-                    String date = subFields.get(1);
-                    String currency = subFields.get(2);
-                    String amount = subFields.get(3);
-                    closingBalance = new ClosingBalance(type,
-                            debitCreditMark,
-                            date,
-                            currency,
-                            amount);
+                case ClosingBalance.TAG_INTERMEDIATE:
+                case ClosingBalance.TAG: {
+                    closingBalance = new ClosingBalance(field);
                     break;
                 }
-
-                case ClosingAvailableBalance.TAG_64: {
-                    String content = field.getContent();
-                    closingAvailableBalance = new ClosingAvailableBalance(content);
+                case ClosingAvailableBalance.TAG: {
+                    closingAvailableBalance = new ClosingAvailableBalance(field);
                     break;
                 }
-                case ForwardAvailableBalance.TAG_65: {
-                    String content = field.getContent();
-                    ForwardAvailableBalance forwardAvailableBalance = new ForwardAvailableBalance(content);
+                case ForwardAvailableBalance.TAG: {
+                    ForwardAvailableBalance forwardAvailableBalance = new ForwardAvailableBalance(field);
                     forwardAvailableBalanceList.add(forwardAvailableBalance);
                     break;
                 }
-                case InformationToAccountOwner.TAG_86: {
-                    String content = field.getContent();
-                    informationToAccountOwner = new InformationToAccountOwner(content);
+                case InformationToAccountOwner.TAG: {
+                    informationToAccountOwner = new InformationToAccountOwner(field);
                     break;
                 }
                 case SwiftMTFieldParser.SEPARATOR_FIELD_TAG: {

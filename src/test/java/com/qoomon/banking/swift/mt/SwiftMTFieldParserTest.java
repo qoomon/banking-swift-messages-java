@@ -1,6 +1,6 @@
 package com.qoomon.banking.swift.mt;
 
-import com.qoomon.banking.swift.field.MTField;
+import com.qoomon.banking.swift.field.GeneralMTField;
 import com.qoomon.banking.swift.field.SwiftMTFieldParser;
 import com.qoomon.banking.swift.field.SwiftMTFieldParserException;
 import org.assertj.core.api.SoftAssertions;
@@ -27,7 +27,7 @@ public class SwiftMTFieldParserTest {
         String swiftMessage = ":1:fizz\n:2:buzz";
 
         // When
-        List<MTField> fieldList = classUnderTest.parse(new StringReader(swiftMessage));
+        List<GeneralMTField> fieldList = classUnderTest.parse(new StringReader(swiftMessage));
 
         // Then
         assertThat(fieldList).hasSize(2);
@@ -46,7 +46,7 @@ public class SwiftMTFieldParserTest {
         String swiftMessage = ":1:fizz\n:2:multi\r\nline";
 
         // When
-        List<MTField> fieldList = classUnderTest.parse(new StringReader(swiftMessage));
+        List<GeneralMTField> fieldList = classUnderTest.parse(new StringReader(swiftMessage));
 
         // Then
         assertThat(fieldList).hasSize(2);

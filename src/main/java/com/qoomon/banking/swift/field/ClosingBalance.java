@@ -1,19 +1,24 @@
 package com.qoomon.banking.swift.field;
 
+import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
+
+import java.util.List;
 
 /**
  * Created by qoomon on 24/06/16.
  */
 public class ClosingBalance {
+
     /**
      * :62F: - Closing Balance (Booked Funds)
      */
-    public static final String TAG_62F = "62F";
+    public static final String TAG = "62F";
+
     /**
      * :62M: - Intermediate Balance
      */
-    public static final String TAG_62M = "62M";
+    public static final String TAG_INTERMEDIATE = "62M";
 
     /**
      * 1!a6!n3!a15d - D/C | Date | Currency | Amount
@@ -27,16 +32,39 @@ public class ClosingBalance {
     private final String currency;
     private final String amount;
 
-    public ClosingBalance(Type type, String debitCreditMark, String date, String currency, String amount) {
-        this.type = type;
-        this.debitCreditMark = debitCreditMark;
-        this.date = date;
-        this.currency = currency;
-        this.amount = amount;
+    public ClosingBalance(GeneralMTField field) {
+        Preconditions.checkArgument(field.getTag().equals(TAG) || field.getTag().equals(TAG_INTERMEDIATE), "unexpected field tag '" + field.getTag() + "'");
+        this.type = field.getTag().equals(TAG) ? Type.CLOSING : Type.INTERMEDIATE;
+
+        List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
+        this.debitCreditMark = subFields.get(0);
+        this.date = subFields.get(1);
+        this.currency = subFields.get(2);
+        this.amount = subFields.get(3);
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public String getDebitCreditMark() {
+        return debitCreditMark;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public String getAmount() {
+        return amount;
     }
 
     public enum Type {
-        OPENING,
+        CLOSING,
         INTERMEDIATE
     }
 }

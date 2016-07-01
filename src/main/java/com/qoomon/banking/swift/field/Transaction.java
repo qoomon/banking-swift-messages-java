@@ -8,12 +8,16 @@ import java.util.Optional;
 public class Transaction {
 
     /**
-     * @see StatementLine#TAG_61
+     * @see StatementLine#TAG
      */
     private StatementLine statementLine;
 
     /**
-     * @see InformationToAccountOwner#TAG_86
+     * @see InformationToAccountOwner#TAG
      */
     private Optional<InformationToAccountOwner> informationToAccountOwner;
+
+    public Transaction(GeneralMTField field) {
+
+    }
 }

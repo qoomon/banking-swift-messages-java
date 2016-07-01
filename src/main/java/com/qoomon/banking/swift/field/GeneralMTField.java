@@ -1,14 +1,19 @@
 package com.qoomon.banking.swift.field;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Created by qoomon on 27/06/16.
  */
-public class MTField {
+public class GeneralMTField {
 
     private final String tag;
     private final String content;
 
-    public MTField(String tag, String content) {
+    public GeneralMTField(String tag, String content) {
+        Preconditions.checkNotNull(tag);
+        Preconditions.checkArgument(!tag.isEmpty());
+        Preconditions.checkNotNull(content);
         this.tag = tag;
         this.content = content;
     }

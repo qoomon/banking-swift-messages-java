@@ -1,5 +1,7 @@
 package com.qoomon.banking.swift.field;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Created by qoomon on 24/06/16.
  */
@@ -7,10 +9,13 @@ public class ClosingAvailableBalance {
     /**
      * :64: – Closing Available Balance (Available Funds)
      */
-    public static final String TAG_64 = "64";
-    private String value;
+    public static final String TAG = "64";
 
-    public ClosingAvailableBalance(String value) {
-        this.value = value;
+    private final String value;
+
+    public ClosingAvailableBalance(GeneralMTField field) {
+        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        this.value = field.getContent();
     }
+
 }

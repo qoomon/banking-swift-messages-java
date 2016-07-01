@@ -15,9 +15,9 @@ public class SwiftMTFieldParser {
 
     private static final Pattern FIELD_STRUCTURE_PATTERN = Pattern.compile(":(?<tag>[^:]+):(?<content>.*)");
 
-    public List<MTField> parse(Reader mt940TextReader) {
+    public List<GeneralMTField> parse(Reader mt940TextReader) {
 
-        List<MTField> result = new LinkedList<>();
+        List<GeneralMTField> result = new LinkedList<>();
 
         try (LineNumberReader lineReader = new LineNumberReader(mt940TextReader)) {
 
@@ -32,7 +32,7 @@ public class SwiftMTFieldParser {
 
                 // handle finishing field
                 if (currentFieldTag != null && messageLineType != MessageLineType.FIELD_CONTINUATION) {
-                    MTField field = new MTField(currentFieldTag, currentFieldContentBuilder.toString());
+                    GeneralMTField field = new GeneralMTField(currentFieldTag, currentFieldContentBuilder.toString());
                     result.add(field);
                     currentFieldTag = null;
                     currentFieldContentBuilder = null;
@@ -62,7 +62,7 @@ public class SwiftMTFieldParser {
                         break;
                     }
                     case SEPARATOR: {
-                        result.add(new MTField(SEPARATOR_FIELD_TAG, ""));
+                        result.add(new GeneralMTField(SEPARATOR_FIELD_TAG, ""));
                         break;
                     }
                     case EMPTY_LINE: {
