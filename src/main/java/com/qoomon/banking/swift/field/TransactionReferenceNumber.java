@@ -7,7 +7,7 @@ import com.google.common.base.Preconditions;
  */
 public class TransactionReferenceNumber implements SwiftMTField {
     /**
-     * :20: – Transaction Reference Number
+     * :20: – TransactionGroup Reference Number
      */
     public static final String TAG = "20";
 
@@ -15,7 +15,7 @@ public class TransactionReferenceNumber implements SwiftMTField {
 
     public TransactionReferenceNumber(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
-        this.value = field.getContent();
+        this.value = Preconditions.checkNotNull(field.getContent());
     }
 
     public String getValue() {

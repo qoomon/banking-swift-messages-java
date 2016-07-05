@@ -1,7 +1,8 @@
-package com.qoomon.banking.swift.mt940;
+package com.qoomon.banking.swift.mt.mt940;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.*;
+import com.qoomon.banking.swift.group.TransactionGroup;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ import java.util.Optional;
  * <p>An MT940 is a standard structured&nbsp;SWIFT Customer Statement message. In short, it is an electronic bank account statement which has been developed by SWIFT. It is a end of day statement&nbsp;file which details all entries booked to an account.</p>
  * <h4><strong>MT940 Format Details:</strong></h4>
  * <p>The MT940 file format consists of the following sections and tags:</p>
- * <h5>Tag 20 – Transaction Reference Number</h5>
+ * <h5>Tag 20 – TransactionGroup Reference Number</h5>
  * <ul>
  * <li><i></i>Mandatory – 16x</li>
  * <li><i></i>Used by the Sender to unambiguously identify the message</li>
@@ -26,7 +27,7 @@ import java.util.Optional;
  * <h5>Tag 21 – Related Reference</h5>
  * <ul>
  * <li><i></i>Optional – 16x</li>
- * <li><i></i>If the MT&nbsp;940 is sent in response to an MT&nbsp;920 Request Message, this field must contain the field 20 Transaction Reference Number of the request message</li>
+ * <li><i></i>If the MT&nbsp;940 is sent in response to an MT&nbsp;920 Request Message, this field must contain the field 20 TransactionGroup Reference Number of the request message</li>
  * </ul>
  * <h5>Tag 25 – Account Identification</h5>
  * <ul>
@@ -72,7 +73,7 @@ import java.util.Optional;
  * <li><i></i>2a Debit/Credit Mark</li>
  * <li><i></i>[1!a] Funds Code (3rd character of the currency code, if needed)</li>
  * <li><i></i>15d Amount</li>
- * <li><i></i>1!a3!c Transaction Type Identification Code</li>
+ * <li><i></i>1!a3!c TransactionGroup Type Identification Code</li>
  * <li><i></i>16x Customer Reference</li>
  * <li><i></i>[//16x] Bank Reference</li>
  * <li><i></i>[34x] Supplementary Details (this will be on a new/separate line)</li>
@@ -169,7 +170,7 @@ public class SwiftMT940 {
     * @see StatementLine#TAG
     * @see InformationToAccountOwner#TAG
     */
-    private final List<Transaction> transactionList;
+    private final List<TransactionGroup> transactionList;
 
     /**
      * @see ClosingBalance#TAG
@@ -198,7 +199,7 @@ public class SwiftMT940 {
             AccountIdentification accountIdentification,
             StatementNumber statementNumber,
             OpeningBalance openingBalance,
-            List<Transaction> transactionList,
+            List<TransactionGroup> transactionList,
             ClosingBalance closingBalance,
             ClosingAvailableBalance closingAvailableBalance,
             List<ForwardAvailableBalance> forwardAvailableBalanceList,
@@ -236,7 +237,7 @@ public class SwiftMT940 {
         return openingBalance;
     }
 
-    public List<Transaction> getTransactionList() {
+    public List<TransactionGroup> getTransactionList() {
         return transactionList;
     }
 

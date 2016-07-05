@@ -15,7 +15,7 @@ public class AccountIdentification implements SwiftMTField {
 
     public AccountIdentification(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(getTag()), "unexpected field tag '" + field.getTag() + "'");
-        this.value = field.getContent();
+        this.value = Preconditions.checkNotNull(field.getContent());
     }
 
     @Override

@@ -15,7 +15,7 @@ public class RelatedReference implements SwiftMTField {
 
     public RelatedReference(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
-        this.value = field.getContent();
+        this.value = Preconditions.checkNotNull(field.getContent());
     }
 
     @Override

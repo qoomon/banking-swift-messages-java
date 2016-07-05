@@ -1,4 +1,4 @@
-package com.qoomon.banking.swift.mt;
+package com.qoomon.banking.swift.field;
 
 import com.qoomon.banking.swift.field.GeneralMTField;
 import com.qoomon.banking.swift.field.SwiftMTFieldParser;

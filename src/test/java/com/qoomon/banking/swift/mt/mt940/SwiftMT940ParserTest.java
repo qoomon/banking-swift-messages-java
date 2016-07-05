@@ -1,4 +1,4 @@
-package com.qoomon.banking.swift.mt940;
+package com.qoomon.banking.swift.mt.mt940;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -34,7 +34,5 @@ public class SwiftMT940ParserTest {
         // Then
         assertThat(mt940MessageList).hasSize(1);
         assertThat(mt940MessageList.get(0).getTransactionList()).hasSize(3);
-
-
     }
 }

@@ -16,9 +16,9 @@ import java.util.regex.Pattern;
  * e = space
  * s = sign ( + or _ )
  * h = hex ( 0 to 9, A to F)
- * x = SWIFT X character set : A to Z, a to z, 0 to 9, SPACE CrLF and / - ? : ( ) . , ' +
- * y = SWIFT Y character set : A to Z, a to z, 0 to 9, SPACE and . , - ( ) / = ' + : ? ! " % & * < > ;
- * z = SWIFT Z character set : A to Z, a to z, 0 to 9, SPACE CrLf and . , - ( ) / = ' + : ? ! " % & * < > ;
+ * x = SWIFT X character set : A to Z, a to z, 0 to 9, and  + - / ? . : , ( ) '                   and  SPACE, CrLF
+ * y = SWIFT Y character set : A to Z, a to z, 0 to 9, and  + - / ? . : , ( ) ' = ! " % & * < > ; and  SPACE,
+ * z = SWIFT Z character set : A to Z, a to z, 0 to 9, and  + - / ? . : , ( ) ' = ! " % & * < > ; and  SPACE, CrLf
  * A = alphabetic, A through Z, upper and lower case
  * B = alphanumeric upper case or lower case, and numeric digits
  *
@@ -49,9 +49,9 @@ public class SwiftFieldNotation {
         put("e", " ");
         put("s", "[+_]");
         put("h", "[0-9A-F]");
-        put("x", "[0-9A-Za-z]"); // TODO [0-9A-Za-z TODO]
-        put("y", "[0-9A-Za-z]"); // TODO [0-9A-Za-z TODO]
-        put("z", "[0-9A-Za-z]"); // TODO [0-9A-Za-z TODO]
+        put("x", "[0-9A-Za-z+-]"); // TODO add missing chars see class description
+        put("y", "[0-9A-Za-z+-]"); // TODO add missing chars see class description
+        put("z", "[0-9A-Za-z+-]"); // TODO add missing chars see class description
         put("A", "[A-Za-z]");
         put("B", "[0-9A-Za-z]");
     }};
@@ -118,8 +118,8 @@ public class SwiftFieldNotation {
                 }
 
             }
-
-            result.add(subFieldMatcher.group("fieldValue"));
+            String fieldValue = subFieldMatcher.group("fieldValue");
+            result.add(fieldValue.isEmpty() ? null : fieldValue);
 
         }
 
@@ -129,7 +129,7 @@ public class SwiftFieldNotation {
     public List<SubField> parseSwiftNotation(String swiftNotation) {
         List<SubField> result = new LinkedList<>();
 
-        Pattern fieldNotationPattern = Pattern.compile("([0-9]{1,2})(!|([-*][0-9]{1,2}))?([acdehnsxyzAB])");
+        Pattern fieldNotationPattern = Pattern.compile("(//)?([0-9]{1,2})(!|(?:[-*][0-9]{1,2}))?([acdehnsxyzAB])");
         Pattern fieldNotationOptionalPattern = Pattern.compile("(" + "(\\[(?<Optional>" + fieldNotationPattern + ")\\])" + "|" + "(?<Mandatory>" + fieldNotationPattern + ")" + ")");
         Matcher fieldNotationMatcher = fieldNotationOptionalPattern.matcher(swiftNotation);
 
@@ -154,8 +154,13 @@ public class SwiftFieldNotation {
                 throw new RuntimeException("Unexpected mismatch");
             }
 
-            int length0 = Integer.parseInt(fieldPropertiesMatcher.group(1));
-            String lengthExtra = fieldPropertiesMatcher.group(2);
+            String prefix = fieldPropertiesMatcher.group(1);
+            if (prefix != null) {
+                swiftSubField.prefix = prefix;
+            }
+
+            int length0 = Integer.parseInt(fieldPropertiesMatcher.group(2));
+            String lengthExtra = fieldPropertiesMatcher.group(3);
 
             swiftSubField.length0 = length0;
             if (lengthExtra != null) {
@@ -175,7 +180,7 @@ public class SwiftFieldNotation {
 
             swiftSubField.charSet = fieldPropertiesMatcher.group(4);
 
-
+            // add field
             result.add(swiftSubField);
         }
         if(parseIndex != swiftNotation.length()){
@@ -190,6 +195,7 @@ public class SwiftFieldNotation {
 
     public class SubField {
         private boolean optional = false;
+        private String prefix = "";
         private Integer length0 = null;
         private Integer length1 = null;
         private String charSet = null;

@@ -37,10 +37,13 @@ public class ClosingBalance implements SwiftMTField {
         this.type = field.getTag().equals(TAG) ? Type.CLOSING : Type.INTERMEDIATE;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
+        Preconditions.checkArgument(subFields.get(0).equals("")
+                || subFields.get(0).equals("C")
+                || subFields.get(0).equals("D"));
         this.debitCreditMark = subFields.get(0);
-        this.date = subFields.get(1);
-        this.currency = subFields.get(2);
-        this.amount = subFields.get(3);
+        this.date = Preconditions.checkNotNull(subFields.get(1));
+        this.currency = Preconditions.checkNotNull(subFields.get(2));
+        this.amount = Preconditions.checkNotNull(subFields.get(3));
     }
 
     public Type getType() {
