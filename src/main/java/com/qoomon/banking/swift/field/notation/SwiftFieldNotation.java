@@ -43,6 +43,8 @@ import static java.util.regex.Pattern.*;
  */
 public class SwiftFieldNotation {
 
+    private static final String SEPARATOR_SET = "(?:/|//|BR|ISIN)";
+
     private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<String, String>() {{
         put("a", "[A-Z]");
         put("n", "[0-9]");
@@ -51,9 +53,9 @@ public class SwiftFieldNotation {
         put("e", " ");
         put("s", "[+_]");
         put("h", "[0-9A-F]");
-        put("x", "[ 0-9A-Za-z+-/?.:,()'\\n]"); // TODO add missing chars see class description
-        put("y", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;]"); // TODO add missing chars see class description
-        put("z", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;\\n]"); // TODO add missing chars see class description
+        put("x", "[ 0-9A-Za-z+-/?.:,()'\\n]");
+        put("y", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;]");
+        put("z", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;\\n]");
         put("A", "[A-Za-z]");
         put("B", "[0-9A-Za-z]");
     }};
@@ -160,7 +162,7 @@ public class SwiftFieldNotation {
         String optionalFieldGroupName = "optional";
         String mandatoryFieldGroupName = "mandatory";
 
-        Pattern fieldValueNotationPattern = Pattern.compile("(/|//)?([0-9]{1,2})(!|(?:[-*][0-9]{1,2}))?([acdehnsxyzAB])");
+        Pattern fieldValueNotationPattern = Pattern.compile("(" + SEPARATOR_SET + ")?([0-9]{1,2})(!|(?:[-*][0-9]{1,2}))?([acdehnsxyzAB])");
 
         Pattern fieldNotationPattern = Pattern.compile(quote("[") + groupRegex(optionalFieldGroupName, fieldValueNotationPattern) + quote("]") + "|" + groupRegex(mandatoryFieldGroupName, fieldValueNotationPattern));
         Matcher fieldNotationMatcher = fieldNotationPattern.matcher(swiftNotation);
