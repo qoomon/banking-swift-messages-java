@@ -6,18 +6,23 @@ import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
 import java.text.ParseException;
 import java.util.List;
 
+
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Transaction Reference Number</b>
+ * <p>
+ * <b>Field Tag</b> :20:
+ * <p>
+ * <b>Format</b> 20x
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 20x    - Value
+ * </pre>
  */
 public class TransactionReferenceNumber implements SwiftMTField {
-    /**
-     * :20: – TransactionGroup Reference Number
-     */
-    public static final String TAG = "20";
 
-    /**
-     * 20x - Value
-     */
+    public static final String FIELD_TAG_20 = "20";
+
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("20x");
 
     private final String value;
@@ -27,7 +32,7 @@ public class TransactionReferenceNumber implements SwiftMTField {
     }
 
     public static TransactionReferenceNumber of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_20), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -42,6 +47,6 @@ public class TransactionReferenceNumber implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_20;
     }
 }

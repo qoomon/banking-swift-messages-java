@@ -141,7 +141,7 @@ import java.util.Optional;
 public class SwiftMT940 {
 
     /**
-     * @see TransactionReferenceNumber#TAG
+     * @see TransactionReferenceNumber#FIELD_TAG_20
      */
     private final TransactionReferenceNumber transactionReferenceNumber;
 
@@ -151,45 +151,45 @@ public class SwiftMT940 {
     private final Optional<RelatedReference> relatedReference;
 
     /**
-     * @see AccountIdentification#TAG
+     * @see AccountIdentification#FIELD_TAG_25
      */
     private final AccountIdentification accountIdentification;
 
     /**
-     * @see StatementNumber#TAG
+     * @see StatementNumber#FIELD_TAG_28C
      */
     private final StatementNumber statementNumber;
 
     /**
-     * @see OpeningBalance#TAG
+     * @see OpeningBalance#FIELD_TAG_60F
      * @see OpeningBalance#TAG_INTERMEDIATE
      */
     private final OpeningBalance openingBalance;
 
     /**
-    * @see StatementLine#TAG
-    * @see InformationToAccountOwner#TAG
+    * @see StatementLine#FIELD_TAG_61
+    * @see InformationToAccountOwner#FIELD_TAG_86
     */
     private final List<TransactionGroup> transactionList;
 
     /**
-     * @see ClosingBalance#TAG
-     * @see ClosingBalance#TAG_INTERMEDIATE
+     * @see ClosingBalance#FIELD_TAG_62F
+     * @see ClosingBalance#FIELD_TAG_62M
      */
     private final ClosingBalance closingBalance;
 
     /**
-     * @see ClosingAvailableBalance#TAG
+     * @see ClosingAvailableBalance#FIELD_TAG_64
      */
     private final Optional<ClosingAvailableBalance> closingAvailableBalance;
 
     /**
-     * @see ForwardAvailableBalance#TAG
+     * @see ForwardAvailableBalance#FIELD_TAG_65
      */
     private final List<ForwardAvailableBalance> forwardAvailableBalanceList;
 
     /**
-     * @see InformationToAccountOwner#TAG
+     * @see InformationToAccountOwner#FIELD_TAG_86
      */
     private final Optional<InformationToAccountOwner> informationToAccountOwner;
 

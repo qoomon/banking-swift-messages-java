@@ -2,7 +2,6 @@ package com.qoomon.banking.swift.field;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.io.LineNumberReader;

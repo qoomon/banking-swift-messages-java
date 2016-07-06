@@ -8,21 +8,27 @@ import org.joda.money.Money;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Closing Available Balance (Available Funds)</b>
+ * <p>
+ * <b>Field Tag</b> :64:
+ * <p>
+ * <b>Format</b> 1!a6!n3!a15d
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 1!a - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ * 2: 6!n - Entry Date - Format 'YYMMDD'
+ * 3: 3!a - Currency - Three Digit Code
+ * 4: 15d - Amount
+ * </pre>
  */
 public class ClosingAvailableBalance implements SwiftMTField {
-    /**
-     * :64: – Closing Available Balance (Available Funds)
-     */
-    public static final String TAG = "64";
 
-    /**
-     * 1!a6!n3!a15d - Debit/Credit | Entry Date | Currency | Amount
-     */
+    public static final String FIELD_TAG_64 = "64";
+
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("1!a6!n3!a15d");
 
     private static final DateTimeFormatter ENTRY_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
@@ -38,7 +44,7 @@ public class ClosingAvailableBalance implements SwiftMTField {
     }
 
     public static ClosingAvailableBalance of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_64), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -65,6 +71,6 @@ public class ClosingAvailableBalance implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_64;
     }
 }

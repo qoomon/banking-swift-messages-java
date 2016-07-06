@@ -12,12 +12,12 @@ import java.util.Optional;
 public class TransactionGroup {
 
     /**
-     * @see StatementLine#TAG
+     * @see StatementLine#FIELD_TAG_61
      */
     private final StatementLine statementLine;
 
     /**
-     * @see InformationToAccountOwner#TAG
+     * @see InformationToAccountOwner#FIELD_TAG_86
      */
     private final Optional<InformationToAccountOwner> informationToAccountOwner;
 

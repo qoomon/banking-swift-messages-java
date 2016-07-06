@@ -11,17 +11,24 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Forward Available Balance</b>
+ * <p>
+ * <b>Field Tag</b> :65:
+ * <p>
+ * <b>Format</b> 1!a6!n3!a15d
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 1!a - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ * 2: 6!n - Entry date - Format 'YYMMDD'
+ * 3: 3!a - Currency - Three Digit Code
+ * 3: 15d - Amount
+ * </pre>
  */
 public class ForwardAvailableBalance implements SwiftMTField {
-    /**
-     * :65: – Forward Available Balance
-     */
-    public static final String TAG = "65";
 
-    /**
-     * 1!a6!n3!a15d - Debit/Credit | Entry date | Currency | Amount
-     */
+    public static final String FIELD_TAG_65 = "65";
+
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("1!a6!n3!a15d");
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
@@ -37,7 +44,7 @@ public class ForwardAvailableBalance implements SwiftMTField {
     }
 
     public static ForwardAvailableBalance of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_65), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -65,6 +72,6 @@ public class ForwardAvailableBalance implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_65;
     }
 }

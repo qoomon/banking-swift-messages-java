@@ -8,23 +8,30 @@ import java.text.ParseException;
 import java.util.List;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Transaction Summary</b>
+ * <p>
+ * <b>Field Tag</b> :90D: - Debit
+ * <b>Field Tag</b> :90C: - Credit
+ * <p>
+ * <b>Format</b> 5n3!a15d
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 5n - Transaction Count
+ * 2: 3!a - Currency - Three Digit Code
+ * 4: 15d - Amount
+ * </pre>
+ * <p>
+ * <b>Example</b>
+ * <pre>
+ * 4USD5782,64
+ * </pre>
  */
 public class TransactionSummary implements SwiftMTField {
 
-    /**
-     * :90D: - Closing Balance (Booked Funds)
-     */
-    public static final String TAG_DEBIT = "90D";
+    public static final String FIELD_TAG_90D = "90D";
+    public static final String FIED_TAG_90C = "90C";
 
-    /**
-     * :90C: - Intermediate Balance
-     */
-    public static final String TAG_CREDIT = "90C";
-
-    /**
-     * 5n3!a15d - TransactionGroup Count | Currency | Amount - e.g. 4PLN5782,64
-     */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("5n3!a15d");
 
     private final Type type;
@@ -39,8 +46,8 @@ public class TransactionSummary implements SwiftMTField {
     }
 
     public static TransactionSummary of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG_DEBIT) || field.getTag().equals(TAG_CREDIT), "unexpected field tag '" + field.getTag() + "'");
-        Type type = field.getTag().equals(TAG_DEBIT) ? Type.DEBIT : Type.CREDIT;
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_90D) || field.getTag().equals(FIED_TAG_90C), "unexpected field tag '" + field.getTag() + "'");
+        Type type = field.getTag().equals(FIELD_TAG_90D) ? Type.DEBIT : Type.CREDIT;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -66,7 +73,7 @@ public class TransactionSummary implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return type == Type.DEBIT ? TAG_DEBIT : TAG_CREDIT;
+        return type == Type.DEBIT ? FIELD_TAG_90D : FIED_TAG_90C;
     }
 
     public enum Type {

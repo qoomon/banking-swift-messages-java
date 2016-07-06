@@ -8,27 +8,29 @@ import org.joda.money.Money;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Closing Balance (Booked Funds)</b>
+ * <p>
+ * <b>Field Tag</b> :62F:
+ * <b>Field Tag</b> :62M: - Intermediate Balance
+ * <p>
+ * <b>Format</b> 1!a6!n3!a15d
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 1!a - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ * 2: 6!n - Date - Format 'YYMMDD'
+ * 3: 6!n - Currency - Three Digit Code
+ * 4: 15d - Amount
+ * </pre>
  */
 public class ClosingBalance implements SwiftMTField {
 
-    /**
-     * :62F: - Closing Balance (Booked Funds)
-     */
-    public static final String TAG = "62F";
+    public static final String FIELD_TAG_62F = "62F";
+    public static final String FIELD_TAG_62M = "62M";
 
-    /**
-     * :62M: - Intermediate Balance
-     */
-    public static final String TAG_INTERMEDIATE = "62M";
-
-    /**
-     * 1!a6!n3!a15d - Debit/Credit | Date | Currency | Amount
-     */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("1!a6!n3!a15d");
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
@@ -46,8 +48,8 @@ public class ClosingBalance implements SwiftMTField {
     }
 
     public static ClosingBalance of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG) || field.getTag().equals(TAG_INTERMEDIATE), "unexpected field tag '" + field.getTag() + "'");
-        Type type = field.getTag().equals(TAG) ? Type.CLOSING : Type.INTERMEDIATE;
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_62F) || field.getTag().equals(FIELD_TAG_62M), "unexpected field tag '" + field.getTag() + "'");
+        Type type = field.getTag().equals(FIELD_TAG_62F) ? Type.CLOSING : Type.INTERMEDIATE;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -78,7 +80,7 @@ public class ClosingBalance implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return type == Type.CLOSING ? TAG : TAG_INTERMEDIATE;
+        return type == Type.CLOSING ? FIELD_TAG_62F : FIELD_TAG_62M;
     }
 
     public enum Type {

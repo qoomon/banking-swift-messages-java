@@ -7,17 +7,21 @@ import java.text.ParseException;
 import java.util.List;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Related Reference</b>
+ * <p>
+ * <b>Field Tag</b> :21:
+ * <p>
+ * <b>Format</b> 16x
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 16x - Value
+ * </pre>
  */
 public class RelatedReference implements SwiftMTField {
-    /**
-     * :21: –  Related Reference
-     */
+
     public static final String TAG = "21";
 
-    /**
-     * 16x - Value
-     */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("16x");
 
     private final String value;

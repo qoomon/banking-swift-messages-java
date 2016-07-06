@@ -14,20 +14,29 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Statement Line</b>
+ * <p>
+ * <b>Field Tag</b> :61:
+ * <p>
+ * <b>Format</b> 6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][34x]
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 6!n     - Value Date - Format 'YYMMDD'
+ * 2: [4!n]   - Entry Date - Format 'MMDD'
+ * 3: 2a      - Capital Code - 'D' = Debit, 'RD' = Reversal of Debit, 'C' = Credit, 'RC' = Reversal of Credit,
+ * 4: [1!a]   - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ * 5: 15d     - Amount
+ * 6: 1!a3!c  - Transaction Type Identification Code {@link TransactionTypeIdentificationCode}
+ * 7: 16x     - Reference for the Account Owner
+ * 8: [//16x] - Reference for the Bank
+ * 9: [34x]   - Transaction Description
+ * </pre>
  */
 public class StatementLine implements SwiftMTField {
 
-    /**
-     * :61: – Statement Line
-     */
-    public static final String TAG = "61";
+    public static final String FIELD_TAG_61 = "61";
 
-    /**
-     * 6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][34x] -  Value Date | Entry Date | Debit/Credit Mark | Funds Code | Amount | Transaction Type | Reference for the Account Owner | Reference for the bank | Transaction Description
-     * <br>
-     * Founds Code: C = credit, RC = Reversal of credit, D = debit, RD = Reversal of debit
-     */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][34x]");
 
     private static final DateTimeFormatter VALUE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
@@ -64,7 +73,7 @@ public class StatementLine implements SwiftMTField {
     }
 
     public static StatementLine of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_61), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -128,6 +137,6 @@ public class StatementLine implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_61;
     }
 }

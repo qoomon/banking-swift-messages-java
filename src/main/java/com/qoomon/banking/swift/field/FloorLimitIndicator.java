@@ -10,19 +10,23 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by qoomon on 04/07/16.
+ * <b>Floor Limit Indicator Debit/Credit</b>
+ * <p>
+ * <b>Field Tag</b> :34F:
+ * <p>
+ * <b>Format</b> 3!a[1!a]15d
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 3!a   - Currency - Three Digit Code
+ * 2: [1!a] - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ * 3: 15d   - Amount
+ * </pre>
  */
 public class FloorLimitIndicator implements SwiftMTField {
 
+    public static final String FIELD_TAG_34F = "34F";
 
-    /**
-     * :34F: - Floor limit indicator debit/credit
-     */
-    public static final String TAG = "34F";
-
-    /**
-     * 3!a[1!a]15d - Currency | Debit/Credit | Amount
-     */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("3!a[1!a]15d");
 
     private final Optional<DebitCreditMark> debitCreditMark;
@@ -34,7 +38,7 @@ public class FloorLimitIndicator implements SwiftMTField {
     }
 
     public static FloorLimitIndicator of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_34F), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -57,6 +61,6 @@ public class FloorLimitIndicator implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_34F;
     }
 }

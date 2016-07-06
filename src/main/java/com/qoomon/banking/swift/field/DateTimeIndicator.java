@@ -10,18 +10,29 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by qoomon on 04/07/16.
+ * <b>Date Time Indicator</b>
+ * <p>
+ * <b>Field Tag</b> :13D:
+ * <p>
+ * <b>Format</b> 6!n4!n1x4!n
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 6!n - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ * 2: 4!n - Date - Format 'YYMMDD'
+ * 3: 1x  - Offset sign - '+' or '-'
+ * 4: 4!n - Offset - Format 'hhmm'
+ * </pre>
+ * <p>
+ * <b>Example</b>
+ * <pre>
+ * 1605191047+0100
+ * </pre>
  */
 public class DateTimeIndicator implements SwiftMTField {
 
-    /**
-     * :13D: - Date/Time Indicator
-     */
-    public static final String TAG = "13D";
+    public static final String FIELD_TAG_13D = "13D";
 
-    /**
-     * 6!n4!n1x4!n - yyMMdd | HHmm | +/- | Zone Offset  - e.g. 1605191047+0100
-     */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("6!n4!n1x4!n");
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmZ");
@@ -33,7 +44,7 @@ public class DateTimeIndicator implements SwiftMTField {
     }
 
     public static DateTimeIndicator of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_13D), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -48,7 +59,7 @@ public class DateTimeIndicator implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_13D;
     }
 
 

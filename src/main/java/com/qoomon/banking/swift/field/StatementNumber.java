@@ -8,19 +8,22 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Statement Number</b>
+ * <p>
+ * <b>Field Tag</b> :28C:
+ * <p>
+ * <b>Format</b> 5n[/5n]
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 5n    - Value
+ * 2: [/5n] - Sequence Number
+ * </pre>
  */
 public class StatementNumber implements SwiftMTField {
-    /**
-     * :28C: – Statement Number/Sequence Number
-     */
-    public static final String TAG = "28C";
 
-    /**
-     * 5n[/5n] -  Statement Number | Sequence Number
-     * <br>
-     * Founds Code: C = credit, RC = Reversal of credit, D = debit, RD = Reversal of debit
-     */
+    public static final String FIELD_TAG_28C = "28C";
+
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("5n[/5n]");
 
     private final String value;
@@ -32,7 +35,7 @@ public class StatementNumber implements SwiftMTField {
     }
 
     public static StatementNumber of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_28C), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -52,6 +55,6 @@ public class StatementNumber implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_28C;
     }
 }

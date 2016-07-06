@@ -5,32 +5,32 @@ import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.field.subfield.DebitCreditMark;
 import org.joda.money.Money;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Opening Balance</b>
+ * <p>
+ * <b>Field Tag</b> :60F:
+ * <b>Field Tag</b> :60M: - Intermediate Balance
+ * <p>
+ * <b>Format</b> 1!a6!n3!a15d
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 1!a - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ * 2: 6!n - Date - Format 'YYMMDD'
+ * 3: 6!n - Currency - Three Digit Code
+ * 4: 15d - Amount
+ * </pre>
  */
 public class OpeningBalance implements SwiftMTField {
 
-    /**
-     * :60F: – Opening Balance
-     */
-    public static final String TAG = "60F";
-
-    /**
-     * :60M: - Intermediate Balance
-     */
+    public static final String FIELD_TAG_60F = "60F";
     public static final String TAG_INTERMEDIATE = "60M";
 
-    /**
-     * 1!a6!n3!a15d - D/C | Date | Currency | Amount
-     */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("1!a6!n3!a15d");
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
@@ -49,8 +49,8 @@ public class OpeningBalance implements SwiftMTField {
     }
 
     public static OpeningBalance of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG) || field.getTag().equals(TAG_INTERMEDIATE), "unexpected field tag '" + field.getTag() + "'");
-        Type type = field.getTag().equals(TAG) ? Type.OPENING : Type.INTERMEDIATE;
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_60F) || field.getTag().equals(TAG_INTERMEDIATE), "unexpected field tag '" + field.getTag() + "'");
+        Type type = field.getTag().equals(FIELD_TAG_60F) ? Type.OPENING : Type.INTERMEDIATE;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -81,7 +81,7 @@ public class OpeningBalance implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return type == Type.OPENING ? TAG : TAG_INTERMEDIATE;
+        return type == Type.OPENING ? FIELD_TAG_60F : TAG_INTERMEDIATE;
     }
 
     public enum Type {

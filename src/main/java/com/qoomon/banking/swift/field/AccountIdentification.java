@@ -7,17 +7,21 @@ import java.text.ParseException;
 import java.util.List;
 
 /**
- * Created by qoomon on 24/06/16.
+ * <b>Account Identification</b>
+ * <p>
+ * <b>Field Tag</b> :25:
+ * <p>
+ * <b>Format</b> 1!a6!n3!a15d
+ * <p>
+ * <b>SubFields</b>
+ * <pre>
+ * 1: 35x - Value
+ * </pre>
  */
 public class AccountIdentification implements SwiftMTField {
-    /**
-     * :25: – Account Identification
-     */
-    public static final String TAG = "25";
 
-    /**
-     * 35x - Value
-     */
+    public static final String FIELD_TAG_25 = "25";
+
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("35x");
 
     private final String value;
@@ -27,7 +31,7 @@ public class AccountIdentification implements SwiftMTField {
     }
 
     public static AccountIdentification of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_25), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -42,6 +46,6 @@ public class AccountIdentification implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_25;
     }
 }
