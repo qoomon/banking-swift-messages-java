@@ -49,51 +49,72 @@ public class SwiftMT940Parser {
             switch (currentField.getTag()) {
                 case TransactionReferenceNumber.FIELD_TAG_20: {
                     transactionReferenceNumber = TransactionReferenceNumber.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(RelatedReference.TAG, AccountIdentification.FIELD_TAG_25);
+                    nextValidFieldSet = ImmutableSet.of(
+                            RelatedReference.FIELD_TAG_21,
+                            AccountIdentification.FIELD_TAG_25);
                     break;
                 }
-                case RelatedReference.TAG: {
+                case RelatedReference.FIELD_TAG_21: {
                     relatedReference = RelatedReference.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(AccountIdentification.FIELD_TAG_25);
+                    nextValidFieldSet = ImmutableSet.of(
+                            AccountIdentification.FIELD_TAG_25);
                     break;
                 }
                 case AccountIdentification.FIELD_TAG_25: {
                     accountIdentification = AccountIdentification.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(StatementNumber.FIELD_TAG_28C);
+                    nextValidFieldSet = ImmutableSet.of(
+                            StatementNumber.FIELD_TAG_28C);
                     break;
                 }
                 case StatementNumber.FIELD_TAG_28C: {
                     statementNumber = StatementNumber.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(OpeningBalance.FIELD_TAG_60F, OpeningBalance.TAG_INTERMEDIATE);
+                    nextValidFieldSet = ImmutableSet.of(
+                            OpeningBalance.FIELD_TAG_60F,
+                            OpeningBalance.FIELD_TAG_60M);
                     break;
                 }
                 case OpeningBalance.FIELD_TAG_60F:
-                case OpeningBalance.TAG_INTERMEDIATE: {
+                case OpeningBalance.FIELD_TAG_60M: {
                     openingBalance = OpeningBalance.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(StatementLine.FIELD_TAG_61, ClosingBalance.FIELD_TAG_62F, ClosingBalance.FIELD_TAG_62M);
+                    nextValidFieldSet = ImmutableSet.of(
+                            StatementLine.FIELD_TAG_61,
+                            ClosingBalance.FIELD_TAG_62F,
+                            ClosingBalance.FIELD_TAG_62M);
                     break;
                 }
                 case StatementLine.FIELD_TAG_61: {
                     StatementLine statementLine = StatementLine.of(currentField);
                     transactionList.add(new TransactionGroup(statementLine, null));
-                    nextValidFieldSet = ImmutableSet.of(InformationToAccountOwner.FIELD_TAG_86, ClosingBalance.FIELD_TAG_62F, ClosingBalance.FIELD_TAG_62M);
+                    nextValidFieldSet = ImmutableSet.of(
+                            InformationToAccountOwner.FIELD_TAG_86,
+                            ClosingBalance.FIELD_TAG_62F,
+                            ClosingBalance.FIELD_TAG_62M);
                     break;
                 }
                 case ClosingBalance.FIELD_TAG_62F:
                 case ClosingBalance.FIELD_TAG_62M: {
                     closingBalance = ClosingBalance.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(ClosingAvailableBalance.FIELD_TAG_64, ForwardAvailableBalance.FIELD_TAG_65, InformationToAccountOwner.FIELD_TAG_86);
+                    nextValidFieldSet = ImmutableSet.of(
+                            ClosingAvailableBalance.FIELD_TAG_64,
+                            ForwardAvailableBalance.FIELD_TAG_65,
+                            InformationToAccountOwner.FIELD_TAG_86,
+                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case ClosingAvailableBalance.FIELD_TAG_64: {
                     closingAvailableBalance = ClosingAvailableBalance.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(ForwardAvailableBalance.FIELD_TAG_65, ClosingBalance.FIELD_TAG_62M);
+                    nextValidFieldSet = ImmutableSet.of(
+                            ForwardAvailableBalance.FIELD_TAG_65,
+                            InformationToAccountOwner.FIELD_TAG_86,
+                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case ForwardAvailableBalance.FIELD_TAG_65: {
                     ForwardAvailableBalance forwardAvailableBalance = ForwardAvailableBalance.of(currentField);
                     forwardAvailableBalanceList.add(forwardAvailableBalance);
-                    nextValidFieldSet = ImmutableSet.of(ClosingBalance.FIELD_TAG_62M);
+                    nextValidFieldSet = ImmutableSet.of(
+                            InformationToAccountOwner.FIELD_TAG_86,
+                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case InformationToAccountOwner.FIELD_TAG_86: {
@@ -106,16 +127,20 @@ public class SwiftMT940Parser {
                         TransactionGroup updatedTransaction = new TransactionGroup(lastTransaction.getStatementLine(), transactionInformationToAccountOwner);
                         transactionList.set(lastTransactionIndex, updatedTransaction);
 
-                        nextValidFieldSet = ImmutableSet.of(StatementLine.FIELD_TAG_61, ClosingBalance.FIELD_TAG_62F, ClosingBalance.FIELD_TAG_62M);
+                        nextValidFieldSet = ImmutableSet.of(
+                                StatementLine.FIELD_TAG_61,
+                                ClosingBalance.FIELD_TAG_62F,
+                                ClosingBalance.FIELD_TAG_62M);
                     } else {
                         informationToAccountOwner = InformationToAccountOwner.of(currentField);
-                        nextValidFieldSet = ImmutableSet.of();
+                        nextValidFieldSet = ImmutableSet.of(SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     }
                     break;
                 }
                 case SwiftMTFieldParser.SEPARATOR_FIELD_TAG: {
                     // see below at finish message
-                    nextValidFieldSet = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
+                    nextValidFieldSet = ImmutableSet.of(
+                            TransactionReferenceNumber.FIELD_TAG_20);
                     break;
                 }
                 default:

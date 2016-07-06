@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class RelatedReference implements SwiftMTField {
 
-    public static final String TAG = "21";
+    public static final String FIELD_TAG_21 = "21";
 
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("16x");
 
@@ -31,7 +31,7 @@ public class RelatedReference implements SwiftMTField {
     }
 
     public static RelatedReference of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_21), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -46,6 +46,6 @@ public class RelatedReference implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return TAG;
+        return FIELD_TAG_21;
     }
 }

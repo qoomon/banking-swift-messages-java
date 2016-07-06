@@ -29,7 +29,7 @@ import java.util.List;
 public class OpeningBalance implements SwiftMTField {
 
     public static final String FIELD_TAG_60F = "60F";
-    public static final String TAG_INTERMEDIATE = "60M";
+    public static final String FIELD_TAG_60M = "60M";
 
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("1!a6!n3!a15d");
 
@@ -49,7 +49,7 @@ public class OpeningBalance implements SwiftMTField {
     }
 
     public static OpeningBalance of(GeneralMTField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_60F) || field.getTag().equals(TAG_INTERMEDIATE), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_60F) || field.getTag().equals(FIELD_TAG_60M), "unexpected field tag '" + field.getTag() + "'");
         Type type = field.getTag().equals(FIELD_TAG_60F) ? Type.OPENING : Type.INTERMEDIATE;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
@@ -81,7 +81,7 @@ public class OpeningBalance implements SwiftMTField {
 
     @Override
     public String getTag() {
-        return type == Type.OPENING ? FIELD_TAG_60F : TAG_INTERMEDIATE;
+        return type == Type.OPENING ? FIELD_TAG_60F : FIELD_TAG_60M;
     }
 
     public enum Type {

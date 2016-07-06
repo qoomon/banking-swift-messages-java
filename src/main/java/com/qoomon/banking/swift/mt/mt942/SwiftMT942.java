@@ -18,7 +18,7 @@ public class SwiftMT942 {
     private final TransactionReferenceNumber transactionReferenceNumber;
 
     /**
-     * @see RelatedReference#TAG
+     * @see RelatedReference#FIELD_TAG_21
      */
     private final Optional<RelatedReference> relatedReference;
 

@@ -146,7 +146,7 @@ public class SwiftMT940 {
     private final TransactionReferenceNumber transactionReferenceNumber;
 
     /**
-     * @see RelatedReference#TAG
+     * @see RelatedReference#FIELD_TAG_21
      */
     private final Optional<RelatedReference> relatedReference;
 
@@ -162,7 +162,7 @@ public class SwiftMT940 {
 
     /**
      * @see OpeningBalance#FIELD_TAG_60F
-     * @see OpeningBalance#TAG_INTERMEDIATE
+     * @see OpeningBalance#FIELD_TAG_60M
      */
     private final OpeningBalance openingBalance;
 
@@ -170,7 +170,7 @@ public class SwiftMT940 {
     * @see StatementLine#FIELD_TAG_61
     * @see InformationToAccountOwner#FIELD_TAG_86
     */
-    private final List<TransactionGroup> transactionList;
+    private final List<TransactionGroup> transactionGroupList;
 
     /**
      * @see ClosingBalance#FIELD_TAG_62F
@@ -199,7 +199,7 @@ public class SwiftMT940 {
             AccountIdentification accountIdentification,
             StatementNumber statementNumber,
             OpeningBalance openingBalance,
-            List<TransactionGroup> transactionList,
+            List<TransactionGroup> transactionGroupList,
             ClosingBalance closingBalance,
             ClosingAvailableBalance closingAvailableBalance,
             List<ForwardAvailableBalance> forwardAvailableBalanceList,
@@ -210,7 +210,7 @@ public class SwiftMT940 {
         this.accountIdentification = Preconditions.checkNotNull(accountIdentification);
         this.statementNumber = Preconditions.checkNotNull(statementNumber);
         this.openingBalance = Preconditions.checkNotNull(openingBalance);
-        this.transactionList = Preconditions.checkNotNull(transactionList);
+        this.transactionGroupList = Preconditions.checkNotNull(transactionGroupList);
         this.closingBalance = Preconditions.checkNotNull(closingBalance);
         this.closingAvailableBalance = Optional.ofNullable(closingAvailableBalance);
         this.forwardAvailableBalanceList = Preconditions.checkNotNull(forwardAvailableBalanceList);
@@ -237,8 +237,8 @@ public class SwiftMT940 {
         return openingBalance;
     }
 
-    public List<TransactionGroup> getTransactionList() {
-        return transactionList;
+    public List<TransactionGroup> getTransactionGroupList() {
+        return transactionGroupList;
     }
 
     public ClosingBalance getClosingBalance() {

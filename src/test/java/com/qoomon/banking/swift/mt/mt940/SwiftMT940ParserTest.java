@@ -33,6 +33,6 @@ public class SwiftMT940ParserTest {
 
         // Then
         assertThat(mt940MessageList).hasSize(1);
-        assertThat(mt940MessageList.get(0).getTransactionList()).hasSize(3);
+        assertThat(mt940MessageList.get(0).getTransactionGroupList()).hasSize(3);
     }
 }

@@ -50,23 +50,29 @@ public class SwiftMT942Parser {
             switch (currentFieldTag) {
                 case TransactionReferenceNumber.FIELD_TAG_20: {
                     transactionReferenceNumber = TransactionReferenceNumber.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(RelatedReference.TAG, AccountIdentification.FIELD_TAG_25);
+                    nextValidFieldSet = ImmutableSet.of(
+                            RelatedReference.FIELD_TAG_21,
+                            AccountIdentification.FIELD_TAG_25);
                     break;
                 }
                 case AccountIdentification.FIELD_TAG_25: {
                     accountIdentification = AccountIdentification.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(StatementNumber.FIELD_TAG_28C);
+                    nextValidFieldSet = ImmutableSet.of(
+                            StatementNumber.FIELD_TAG_28C);
                     break;
                 }
                 case StatementNumber.FIELD_TAG_28C: {
                     statementNumber = StatementNumber.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(FloorLimitIndicator.FIELD_TAG_34F);
+                    nextValidFieldSet = ImmutableSet.of(
+                            FloorLimitIndicator.FIELD_TAG_34F);
                     break;
                 }
                 case FloorLimitIndicator.FIELD_TAG_34F: {
                     if (floorLimitIndicatorDebitCredit == null) {
                         floorLimitIndicatorDebitCredit = FloorLimitIndicator.of(currentField);
-                        nextValidFieldSet = ImmutableSet.of(FloorLimitIndicator.FIELD_TAG_34F, DateTimeIndicator.FIELD_TAG_13D);
+                        nextValidFieldSet = ImmutableSet.of(
+                                FloorLimitIndicator.FIELD_TAG_34F,
+                                DateTimeIndicator.FIELD_TAG_13D);
                     } else {
                         floorLimitIndicatorCredit = FloorLimitIndicator.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(DateTimeIndicator.FIELD_TAG_13D);
@@ -75,23 +81,38 @@ public class SwiftMT942Parser {
                 }
                 case DateTimeIndicator.FIELD_TAG_13D: {
                     dateTimeIndicator = DateTimeIndicator.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(StatementLine.FIELD_TAG_61, TransactionSummary.FIELD_TAG_90D, TransactionSummary.FIED_TAG_90C, InformationToAccountOwner.FIELD_TAG_86);
+                    nextValidFieldSet = ImmutableSet.of(
+                            StatementLine.FIELD_TAG_61,
+                            TransactionSummary.FIELD_TAG_90D,
+                            TransactionSummary.FIED_TAG_90C,
+                            InformationToAccountOwner.FIELD_TAG_86,
+                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case StatementLine.FIELD_TAG_61: {
                     StatementLine statementLine = StatementLine.of(currentField);
                     transactionList.add(new TransactionGroup(statementLine, null));
-                    nextValidFieldSet = ImmutableSet.of(StatementLine.FIELD_TAG_61, TransactionSummary.FIELD_TAG_90D, TransactionSummary.FIED_TAG_90C, InformationToAccountOwner.FIELD_TAG_86);
+                    nextValidFieldSet = ImmutableSet.of(
+                            StatementLine.FIELD_TAG_61,
+                            TransactionSummary.FIELD_TAG_90D,
+                            TransactionSummary.FIED_TAG_90C,
+                            InformationToAccountOwner.FIELD_TAG_86,
+                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case TransactionSummary.FIELD_TAG_90D: {
                     transactionSummaryDebit = TransactionSummary.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(TransactionSummary.FIED_TAG_90C, InformationToAccountOwner.FIELD_TAG_86);
+                    nextValidFieldSet = ImmutableSet.of(
+                            TransactionSummary.FIED_TAG_90C,
+                            InformationToAccountOwner.FIELD_TAG_86,
+                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case TransactionSummary.FIED_TAG_90C: {
                     transactionSummaryCredit = TransactionSummary.of(currentField);
-                    nextValidFieldSet = ImmutableSet.of(InformationToAccountOwner.FIELD_TAG_86);
+                    nextValidFieldSet = ImmutableSet.of(
+                            InformationToAccountOwner.FIELD_TAG_86,
+                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case InformationToAccountOwner.FIELD_TAG_86: {
@@ -104,16 +125,22 @@ public class SwiftMT942Parser {
                         TransactionGroup updatedTransaction = new TransactionGroup(lastTransaction.getStatementLine(), transactionInformationToAccountOwner);
                         transactionList.set(lastTransactionIndex, updatedTransaction);
 
-                        nextValidFieldSet = ImmutableSet.of(StatementLine.FIELD_TAG_61, TransactionSummary.FIELD_TAG_90D, TransactionSummary.FIED_TAG_90C, InformationToAccountOwner.FIELD_TAG_86);
+                        nextValidFieldSet = ImmutableSet.of(
+                                StatementLine.FIELD_TAG_61,
+                                TransactionSummary.FIELD_TAG_90D,
+                                TransactionSummary.FIED_TAG_90C,
+                                InformationToAccountOwner.FIELD_TAG_86);
                     } else {
                         informationToAccountOwner = InformationToAccountOwner.of(currentField);
-                        nextValidFieldSet = ImmutableSet.of();
+                        nextValidFieldSet = ImmutableSet.of(
+                                SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
                     }
                     break;
                 }
                 case SwiftMTFieldParser.SEPARATOR_FIELD_TAG: {
                     // see below at finish message
-                    nextValidFieldSet = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
+                    nextValidFieldSet = ImmutableSet.of(
+                            TransactionReferenceNumber.FIELD_TAG_20);
                     break;
                 }
                 default:
