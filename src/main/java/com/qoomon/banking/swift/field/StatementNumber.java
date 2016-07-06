@@ -3,6 +3,7 @@ package com.qoomon.banking.swift.field;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class StatementNumber implements SwiftMTField {
         this.sequenceNumber = Optional.ofNullable(sequenceNumber);
     }
 
-    public static StatementNumber of(GeneralMTField field) {
+    public static StatementNumber of(GeneralMTField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

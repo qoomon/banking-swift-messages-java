@@ -3,7 +3,13 @@ package com.qoomon.banking.swift.field;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.field.subfield.DebitCreditMark;
+import com.qoomon.banking.swift.field.subfield.TransactionTypeIdentificationCode;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.MonthDay;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,47 +30,50 @@ public class StatementLine implements SwiftMTField {
      */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][34x]");
 
-    private final String valueDate;
-    private final Optional<String> entryDate;
+    private static final DateTimeFormatter VALUE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
+    private static final DateTimeFormatter ENTRY_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMdd");
+
+    private final LocalDate valueDate;
+    private final LocalDate entryDate;
     private final DebitCreditMark debitCreditMark;
-    private final Optional<String> foundsCode;
-    private final String amount;
-    private final String transactionType;
+    private final Optional<String> capitalCode;
+    private final BigDecimal amount;
+    private final TransactionTypeIdentificationCode transactionTypeIdentificationCode;
     private final String referenceForAccountOwner;
     private final Optional<String> referenceForBank;
     private final Optional<String> supplementaryDetails;
 
-    public StatementLine(String valueDate,
-                         String entryDate,
+    public StatementLine(LocalDate valueDate,
+                         LocalDate entryDate,
                          DebitCreditMark debitCreditMark,
-                         String foundsCode,
-                         String amount,
-                         String transactionType,
+                         String capitalCode,
+                         BigDecimal amount,
+                         TransactionTypeIdentificationCode transactionTypeIdentificationCode,
                          String referenceForAccountOwner,
                          String referenceForBank,
                          String supplementaryDetails) {
         this.valueDate = Preconditions.checkNotNull(valueDate);
-        this.entryDate = Optional.ofNullable(entryDate);
+        this.entryDate = entryDate != null ? entryDate : valueDate;
         this.debitCreditMark = Preconditions.checkNotNull(debitCreditMark);
-        this.foundsCode = Optional.ofNullable(foundsCode);
+        this.capitalCode = Optional.ofNullable(capitalCode);
         this.amount = Preconditions.checkNotNull(amount);
-        this.transactionType = Preconditions.checkNotNull(transactionType);
+        this.transactionTypeIdentificationCode = Preconditions.checkNotNull(transactionTypeIdentificationCode);
         this.referenceForAccountOwner = Preconditions.checkNotNull(referenceForAccountOwner);
         this.referenceForBank = Optional.ofNullable(referenceForBank);
         this.supplementaryDetails = Optional.ofNullable(supplementaryDetails);
     }
 
-    public static StatementLine of(GeneralMTField field) {
+    public static StatementLine of(GeneralMTField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        String valueDate = subFields.get(0);
-        String entryDate = subFields.get(1);
-        DebitCreditMark debitCreditMark = subFields.get(2) != null ? DebitCreditMark.of(subFields.get(2)) : null;
+        LocalDate valueDate = LocalDate.parse(subFields.get(0), VALUE_DATE_FORMATTER);
+        LocalDate entryDate = subFields.get(1) == null ? null : MonthDay.parse(subFields.get(1), ENTRY_DATE_FORMATTER).atYear(valueDate.getYear());
+        DebitCreditMark debitCreditMark = DebitCreditMark.of(subFields.get(2));
         String foundsCode = subFields.get(3);
-        String amount = subFields.get(4);
-        String transactionType = subFields.get(5) + subFields.get(6);
+        BigDecimal amount = new BigDecimal(subFields.get(4).replaceFirst(",", "."));
+        TransactionTypeIdentificationCode transactionTypeIdentificationCode = TransactionTypeIdentificationCode.parse(subFields.get(5) + subFields.get(6));
         String referenceForAccountOwner = subFields.get(7);
         String referenceForBank = subFields.get(8);
         String supplementaryDetails = subFields.get(9);
@@ -75,17 +84,17 @@ public class StatementLine implements SwiftMTField {
                 debitCreditMark,
                 foundsCode,
                 amount,
-                transactionType,
+                transactionTypeIdentificationCode,
                 referenceForAccountOwner,
                 referenceForBank,
                 supplementaryDetails);
     }
 
-    public String getValueDate() {
+    public LocalDate getValueDate() {
         return valueDate;
     }
 
-    public Optional<String> getEntryDate() {
+    public LocalDate getEntryDate() {
         return entryDate;
     }
 
@@ -93,16 +102,16 @@ public class StatementLine implements SwiftMTField {
         return debitCreditMark;
     }
 
-    public Optional<String> getFoundsCode() {
-        return foundsCode;
+    public Optional<String> getCapitalCode() {
+        return capitalCode;
     }
 
-    public String getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public String getTransactionType() {
-        return transactionType;
+    public TransactionTypeIdentificationCode getTransactionTypeIdentificationCode() {
+        return transactionTypeIdentificationCode;
     }
 
     public String getReferenceForAccountOwner() {

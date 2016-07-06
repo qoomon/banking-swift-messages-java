@@ -3,7 +3,9 @@ package com.qoomon.banking.swift.field;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.field.subfield.DebitCreditMark;
+import org.joda.money.Money;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,26 +25,25 @@ public class FloorLimitIndicator implements SwiftMTField {
      */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("3!a[1!a]15d");
 
-    private final String currency;
     private final Optional<DebitCreditMark> debitCreditMark;
-    private final String amount;
+    private final Money amount;
 
-    public FloorLimitIndicator(String currency, DebitCreditMark debitCreditMark, String amount) {
-        this.currency = Preconditions.checkNotNull(currency);
+    public FloorLimitIndicator(DebitCreditMark debitCreditMark, Money amount) {
         this.debitCreditMark = Optional.ofNullable(debitCreditMark);
         this.amount = Preconditions.checkNotNull(amount);
     }
 
-    public static FloorLimitIndicator of(GeneralMTField field) {
+    public static FloorLimitIndicator of(GeneralMTField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        String currency = subFields.get(0);
+        String amountCurrency = subFields.get(0);
         DebitCreditMark debitCreditMark = subFields.get(1) != null ? DebitCreditMark.of(subFields.get(1)) : null;
-        String amount = subFields.get(2);
+        String amountValue = subFields.get(2);
+        Money amount = Money.parse(amountCurrency + amountValue.replaceFirst(",", "."));
 
-        return new FloorLimitIndicator(currency, debitCreditMark, amount);
+        return new FloorLimitIndicator(debitCreditMark, amount);
     }
 
 
@@ -50,11 +51,7 @@ public class FloorLimitIndicator implements SwiftMTField {
         return debitCreditMark;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public String getAmount() {
+    public Money getAmount() {
         return amount;
     }
 

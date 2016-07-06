@@ -3,6 +3,7 @@ package com.qoomon.banking.swift.field;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
 
+import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,24 +26,24 @@ public class DateTimeIndicator implements SwiftMTField {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmZ");
 
-    private final OffsetDateTime dateTime;
+    private final OffsetDateTime value;
 
-    public DateTimeIndicator(OffsetDateTime dateTime) {
-        this.dateTime = Preconditions.checkNotNull(dateTime);
+    public DateTimeIndicator(OffsetDateTime value) {
+        this.value = Preconditions.checkNotNull(value);
     }
 
-    public static DateTimeIndicator of(GeneralMTField field) {
+    public static DateTimeIndicator of(GeneralMTField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        OffsetDateTime dateTime = OffsetDateTime.parse(subFields.stream().collect(Collectors.joining()), DATE_TIME_FORMATTER);
+        OffsetDateTime value = OffsetDateTime.parse(subFields.stream().collect(Collectors.joining()), DATE_TIME_FORMATTER);
 
-        return new DateTimeIndicator(dateTime);
+        return new DateTimeIndicator(value);
     }
 
-    public OffsetDateTime getDateTime() {
-        return dateTime;
+    public OffsetDateTime getValue() {
+        return value;
     }
 
     @Override

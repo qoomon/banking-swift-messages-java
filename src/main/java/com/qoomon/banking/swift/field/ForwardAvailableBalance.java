@@ -3,7 +3,11 @@ package com.qoomon.banking.swift.field;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.field.subfield.DebitCreditMark;
+import org.joda.money.Money;
 
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -20,44 +24,42 @@ public class ForwardAvailableBalance implements SwiftMTField {
      */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("1!a6!n3!a15d");
 
-    private final DebitCreditMark debitCreditMark;
-    private final String entryDate;
-    private final String currency;
-    private final String amount;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public ForwardAvailableBalance(DebitCreditMark debitCreditMark, String entryDate, String currency, String amount) {
+    private final DebitCreditMark debitCreditMark;
+    private final LocalDate entryDate;
+    private final Money amount;
+
+    public ForwardAvailableBalance(DebitCreditMark debitCreditMark, LocalDate entryDate, Money amount) {
         this.debitCreditMark = Preconditions.checkNotNull(debitCreditMark);
         this.entryDate = Preconditions.checkNotNull(entryDate);
-        this.currency = Preconditions.checkNotNull(currency);
         this.amount = Preconditions.checkNotNull(amount);
     }
 
-    public static ForwardAvailableBalance of(GeneralMTField field) {
+    public static ForwardAvailableBalance of(GeneralMTField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        String currency = subFields.get(0);
-        String entryDate = subFields.get(1);
-        DebitCreditMark debitCreditMark = subFields.get(2) != null ? DebitCreditMark.of(subFields.get(2)) : null;
-        String amount = subFields.get(3);
+        String amountCurrency = subFields.get(0);
+        LocalDate entryDate = LocalDate.parse(subFields.get(1), DATE_FORMATTER);
+        DebitCreditMark debitCreditMark = DebitCreditMark.of(subFields.get(2));
+        String amountValue = subFields.get(3);
 
-        return new ForwardAvailableBalance(debitCreditMark, entryDate, currency, amount);
+        Money amount = Money.parse(amountCurrency + amountValue.replaceFirst(",", "."));
+
+        return new ForwardAvailableBalance(debitCreditMark, entryDate, amount);
     }
 
     public DebitCreditMark getDebitCreditMark() {
         return debitCreditMark;
     }
 
-    public String getEntryDate() {
+    public LocalDate getEntryDate() {
         return entryDate;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public String getAmount() {
+    public Money getAmount() {
         return amount;
     }
 

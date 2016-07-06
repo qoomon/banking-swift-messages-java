@@ -2,7 +2,9 @@ package com.qoomon.banking.swift.field;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
+import org.joda.money.Money;
 
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -27,27 +29,27 @@ public class TransactionSummary implements SwiftMTField {
 
     private final Type type;
     private final int transactionCount;
-    private final String currency;
-    private final String amount;
+    private final Money amount;
 
-    public TransactionSummary(Type type, int transactionCount, String currency, String amount) {
-        this.type = type;
+    public TransactionSummary(Type type, int transactionCount, Money amount) {
+        this.type = Preconditions.checkNotNull(type);
+        Preconditions.checkArgument(transactionCount >= 0, "transaction count can't be negative. was: " + transactionCount);
         this.transactionCount = transactionCount;
-        this.currency = currency;
-        this.amount = amount;
+        this.amount = Preconditions.checkNotNull(amount);
     }
 
-    public static TransactionSummary of(GeneralMTField field) {
+    public static TransactionSummary of(GeneralMTField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(TAG_DEBIT) || field.getTag().equals(TAG_CREDIT), "unexpected field tag '" + field.getTag() + "'");
         Type type = field.getTag().equals(TAG_DEBIT) ? Type.DEBIT : Type.CREDIT;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
-        Preconditions.checkNotNull(subFields.get(0));
-        int transactionCount = Integer.parseInt(subFields.get(0));
-        String currency = Preconditions.checkNotNull(subFields.get(1));
-        String amount = Preconditions.checkNotNull(subFields.get(2));
 
-        return new TransactionSummary(type, transactionCount, currency, amount);
+        int transactionCount = Integer.parseInt(subFields.get(0));
+        String amountCurrency = subFields.get(1);
+        String amountValue = subFields.get(2);
+        Money amount = Money.parse(amountCurrency + amountValue.replace(",", "."));
+
+        return new TransactionSummary(type, transactionCount, amount);
     }
 
     public Type getType() {
@@ -58,11 +60,7 @@ public class TransactionSummary implements SwiftMTField {
         return transactionCount;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public String getAmount() {
+    public Money getAmount() {
         return amount;
     }
 

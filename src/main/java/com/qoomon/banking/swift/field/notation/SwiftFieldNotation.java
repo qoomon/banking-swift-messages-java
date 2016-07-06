@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.field.notation;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class SwiftFieldNotation {
         this.notation = notation;
     }
 
-    public List<String> parse(String fieldText) {
+    public List<String> parse(String fieldText) throws ParseException {
 
         int parseIndex = 0;
 
@@ -82,7 +83,7 @@ public class SwiftFieldNotation {
             String charSet = swiftSubField.getCharSet();
             String charSetRegex = CHARSET_REGEX_MAP.get(charSet);
             if (charSetRegex == null) {
-                throw new RuntimeException("Parse error: " + " Unknown charset " + swiftSubField.getCharSet() + "." + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())));
+                throw new ParseException("Parse error: " + " Unknown charset " + swiftSubField.getCharSet() + "." + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())), parseIndex);
             }
 
             String subFieldRegex = "";
@@ -98,7 +99,7 @@ public class SwiftFieldNotation {
                     subFieldRegex += "(?:" + "\n" + charSetRegex + "{1," + swiftSubField.getLength1() + "}" + ")?";
                 }
             } else {
-                throw new UnsupportedOperationException("Parse error: Unexpected length sign '" + swiftSubField.getLengthSign() + "'");
+                throw new ParseException("Unexpected length sign '" + swiftSubField.getLengthSign() + "'", parseIndex);
             }
 
             if (!swiftSubField.getPrefix().isEmpty()) {
@@ -117,8 +118,8 @@ public class SwiftFieldNotation {
                     .matcher(fieldText)
                     .region(Math.min(parseIndex, fieldText.length() ), fieldText.length());
             if (!subFieldMatcher.matches()) {
-                throw new RuntimeException("Parse error: " + swiftSubField + " did not found matching characters."
-                        + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'");
+                throw new ParseException(swiftSubField + " did not found matching characters."
+                        + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
             }
             parseIndex = subFieldMatcher.end(subFieldGroupName);
 
@@ -126,8 +127,8 @@ public class SwiftFieldNotation {
             if (charSet.equals("d")) {
                 Matcher dCharsetMatcher = Pattern.compile("[^,]+,[^,]*").matcher(fieldText);
                 if (!dCharsetMatcher.matches()) {
-                    throw new RuntimeException("Parse error: " + swiftSubField + " did not found matching characters."
-                            + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'");
+                    throw new ParseException(swiftSubField + " did not found matching characters."
+                            + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
                 }
             }
             String fieldValue = subFieldMatcher.group(subFieldGroupName);
@@ -141,7 +142,7 @@ public class SwiftFieldNotation {
         }
 
         if (parseIndex != fieldText.length()) {
-            throw new RuntimeException("Parse error: Unparsed characters remain."
+            throw new RuntimeException("Unparsed characters remain."
                     + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'");
         }
 

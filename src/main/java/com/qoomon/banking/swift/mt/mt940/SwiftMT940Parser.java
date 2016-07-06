@@ -6,6 +6,7 @@ import com.qoomon.banking.swift.group.TransactionGroup;
 import com.qoomon.banking.swift.mt.exception.SwiftMTParserException;
 
 import java.io.Reader;
+import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +19,7 @@ public class SwiftMT940Parser {
     private final SwiftMTFieldParser swiftMTParser = new SwiftMTFieldParser();
 
 
-    public List<SwiftMT940> parse(Reader mt940TextReader) {
+    public List<SwiftMT940> parse(Reader mt940TextReader) throws ParseException {
 
         List<SwiftMT940> result = new LinkedList<>();
 
