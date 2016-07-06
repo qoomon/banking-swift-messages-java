@@ -49,48 +49,48 @@ public class SwiftMT942Parser {
             String currentFieldTag = currentField.getTag();
             switch (currentFieldTag) {
                 case TransactionReferenceNumber.TAG: {
-                    transactionReferenceNumber = new TransactionReferenceNumber(currentField);
+                    transactionReferenceNumber = TransactionReferenceNumber.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(RelatedReference.TAG, AccountIdentification.TAG);
                     break;
                 }
                 case AccountIdentification.TAG: {
-                    accountIdentification = new AccountIdentification(currentField);
+                    accountIdentification = AccountIdentification.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(StatementNumber.TAG);
                     break;
                 }
                 case StatementNumber.TAG: {
-                    statementNumber = new StatementNumber(currentField);
+                    statementNumber = StatementNumber.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(FloorLimitIndicator.TAG);
                     break;
                 }
                 case FloorLimitIndicator.TAG: {
                     if (floorLimitIndicatorDebitCredit == null) {
-                        floorLimitIndicatorDebitCredit = new FloorLimitIndicator(currentField);
+                        floorLimitIndicatorDebitCredit = FloorLimitIndicator.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(FloorLimitIndicator.TAG, DateTimeIndicator.TAG);
                     } else {
-                        floorLimitIndicatorCredit = new FloorLimitIndicator(currentField);
+                        floorLimitIndicatorCredit = FloorLimitIndicator.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(DateTimeIndicator.TAG);
                     }
                     break;
                 }
                 case DateTimeIndicator.TAG: {
-                    dateTimeIndicator = new DateTimeIndicator(currentField);
+                    dateTimeIndicator = DateTimeIndicator.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(StatementLine.TAG, TransactionSummary.TAG_DEBIT, TransactionSummary.TAG_CREDIT, InformationToAccountOwner.TAG);
                     break;
                 }
                 case StatementLine.TAG: {
-                    StatementLine statementLine = new StatementLine(currentField);
+                    StatementLine statementLine = StatementLine.of(currentField);
                     transactionList.add(new TransactionGroup(statementLine, null));
                     nextValidFieldSet = ImmutableSet.of(StatementLine.TAG, TransactionSummary.TAG_DEBIT, TransactionSummary.TAG_CREDIT, InformationToAccountOwner.TAG);
                     break;
                 }
                 case TransactionSummary.TAG_DEBIT: {
-                    transactionSummaryDebit = new TransactionSummary(currentField);
+                    transactionSummaryDebit = TransactionSummary.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(TransactionSummary.TAG_CREDIT, InformationToAccountOwner.TAG);
                     break;
                 }
                 case TransactionSummary.TAG_CREDIT: {
-                    transactionSummaryCredit = new TransactionSummary(currentField);
+                    transactionSummaryCredit = TransactionSummary.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(InformationToAccountOwner.TAG);
                     break;
                 }
@@ -99,14 +99,14 @@ public class SwiftMT942Parser {
                         // amend transaction with transactionInformationToAccountOwner
                         int lastTransactionIndex = transactionList.size() - 1;
                         TransactionGroup lastTransaction = transactionList.get(lastTransactionIndex);
-                        InformationToAccountOwner transactionInformationToAccountOwner = new InformationToAccountOwner(currentField);
+                        InformationToAccountOwner transactionInformationToAccountOwner = InformationToAccountOwner.of(currentField);
 
                         TransactionGroup updatedTransaction = new TransactionGroup(lastTransaction.getStatementLine(), transactionInformationToAccountOwner);
                         transactionList.set(lastTransactionIndex, updatedTransaction);
 
                         nextValidFieldSet = ImmutableSet.of(StatementLine.TAG, TransactionSummary.TAG_DEBIT, TransactionSummary.TAG_CREDIT, InformationToAccountOwner.TAG);
                     } else {
-                        informationToAccountOwner = new InformationToAccountOwner(currentField);
+                        informationToAccountOwner = InformationToAccountOwner.of(currentField);
                         nextValidFieldSet = ImmutableSet.of();
                     }
                     break;

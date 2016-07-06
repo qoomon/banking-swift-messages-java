@@ -33,7 +33,10 @@ public class SwiftMT942ParserTest {
 
         // Then
         assertThat(mt942MessageList).hasSize(1);
-        assertThat(mt942MessageList.get(0).getTransactionList()).hasSize(3);
+        SwiftMT942 swiftMT942 = mt942MessageList.get(0);
+        assertThat(swiftMT942.getTransactionList()).hasSize(3);
+        assertThat(swiftMT942.getStatementNumber().getValue()).isEqualTo("1");
+        assertThat(swiftMT942.getStatementNumber().getSequenceNumber()).contains("1");
     }
 
 }

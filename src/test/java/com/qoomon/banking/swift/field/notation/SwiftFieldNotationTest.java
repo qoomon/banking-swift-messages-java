@@ -4,6 +4,7 @@ import org.assertj.core.data.Index;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -26,17 +27,15 @@ public class SwiftFieldNotationTest {
 
         // Then
 
-        assertThat(fieldValueList).hasSize(4)
-                .contains("A", Index.atIndex(0))
-                .contains("123456", Index.atIndex(1))
-                .contains("ABC", Index.atIndex(2))
-                .contains("1234,", Index.atIndex(3));
-
-
+        assertThat(fieldValueList).hasSize(4);
+        assertThat(fieldValueList.get(0)).isEqualTo("A");
+        assertThat(fieldValueList.get(1)).isEqualTo("123456");;
+        assertThat(fieldValueList.get(2)).isEqualTo("ABC");;
+        assertThat(fieldValueList.get(3)).isEqualTo("1234,");;
     }
 
     @Test
-    public void parse_SCHOULD_accept_multiline_subfield() throws Exception {
+    public void parse_SHOULD_accept_multiline_subfields() throws Exception {
 
         // Given
 
@@ -50,8 +49,30 @@ public class SwiftFieldNotationTest {
 
         // Then
 
-        assertThat(fieldValueList).hasSize(1)
-                .contains(fieldText, Index.atIndex(0));
+        assertThat(fieldValueList).hasSize(1);
+        assertThat(fieldValueList.get(0)).isEqualTo(fieldText);
 
     }
+
+    @Test
+    public void parse_SHOULD_ignore_field_separators() throws Exception {
+
+        // Given
+
+        String swiftFieldNotation = "5n[/5n]";
+
+        String fieldText = "123/11";
+
+        // When
+
+        List<String> fieldValueList = new SwiftFieldNotation(swiftFieldNotation).parse(fieldText);
+
+        // Then
+
+        assertThat(fieldValueList).hasSize(2);
+        assertThat(fieldValueList.get(0)).isEqualTo("123");
+        assertThat(fieldValueList.get(1)).isEqualTo("11");
+
+    }
+
 }

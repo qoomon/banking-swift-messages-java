@@ -2,6 +2,7 @@ package com.qoomon.banking.swift.field;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
+import com.qoomon.banking.swift.field.subfield.DebitCreditMark;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,29 +19,34 @@ public class FloorLimitIndicator implements SwiftMTField {
     public static final String TAG = "34F";
 
     /**
-     * 3!a[1!a]15d -  Currency | D/C | Amount
+     * 3!a[1!a]15d - Currency | Debit/Credit | Amount
      */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("3!a[1!a]15d");
 
-
     private final String currency;
-    private final Optional<String> debitCreditMark;
+    private final Optional<DebitCreditMark> debitCreditMark;
     private final String amount;
 
-    public FloorLimitIndicator(GeneralMTField field) {
+    public FloorLimitIndicator(String currency, DebitCreditMark debitCreditMark, String amount) {
+        this.currency = Preconditions.checkNotNull(currency);
+        this.debitCreditMark = Optional.ofNullable(debitCreditMark);
+        this.amount = Preconditions.checkNotNull(amount);
+    }
+
+    public static FloorLimitIndicator of(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(TAG), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
-        this.currency = Preconditions.checkNotNull(subFields.get(0));
-        Preconditions.checkArgument(subFields.get(1) == null
-                || subFields.get(1).equals("C")
-                || subFields.get(1).equals("D"));
-        this.debitCreditMark = Optional.ofNullable(subFields.get(1));
-        this.amount = Preconditions.checkNotNull(subFields.get(2));
+
+        String currency = subFields.get(0);
+        DebitCreditMark debitCreditMark = subFields.get(1) != null ? DebitCreditMark.of(subFields.get(1)) : null;
+        String amount = subFields.get(2);
+
+        return new FloorLimitIndicator(currency, debitCreditMark, amount);
     }
 
 
-    public Optional<String> getDebitCreditMark() {
+    public Optional<DebitCreditMark> getDebitCreditMark() {
         return debitCreditMark;
     }
 

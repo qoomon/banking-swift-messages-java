@@ -2,6 +2,7 @@ package com.qoomon.banking.swift.field;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.field.notation.SwiftFieldNotation;
+import com.qoomon.banking.swift.field.subfield.DebitCreditMark;
 
 import java.util.List;
 
@@ -21,36 +22,45 @@ public class ClosingBalance implements SwiftMTField {
     public static final String TAG_INTERMEDIATE = "62M";
 
     /**
-     * 1!a6!n3!a15d - D/C | Date | Currency | Amount
+     * 1!a6!n3!a15d - Debit/Credit | Date | Currency | Amount
      */
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("1!a6!n3!a15d");
 
     private final Type type;
 
-    private final String debitCreditMark;
+    private final DebitCreditMark debitCreditMark;
     private final String date;
     private final String currency;
     private final String amount;
 
-    public ClosingBalance(GeneralMTField field) {
+    public ClosingBalance(Type type, DebitCreditMark debitCreditMark, String date, String currency, String amount) {
+        this.type = Preconditions.checkNotNull(type);
+        this.debitCreditMark = Preconditions.checkNotNull(debitCreditMark);
+        this.date = Preconditions.checkNotNull(date);
+        this.currency = Preconditions.checkNotNull(currency);
+        this.amount = Preconditions.checkNotNull(amount);
+    }
+
+    public static ClosingBalance of(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(TAG) || field.getTag().equals(TAG_INTERMEDIATE), "unexpected field tag '" + field.getTag() + "'");
-        this.type = field.getTag().equals(TAG) ? Type.CLOSING : Type.INTERMEDIATE;
+        Type type = field.getTag().equals(TAG) ? Type.CLOSING : Type.INTERMEDIATE;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
-        Preconditions.checkArgument(subFields.get(0).equals("")
-                || subFields.get(0).equals("C")
-                || subFields.get(0).equals("D"));
-        this.debitCreditMark = subFields.get(0);
-        this.date = Preconditions.checkNotNull(subFields.get(1));
-        this.currency = Preconditions.checkNotNull(subFields.get(2));
-        this.amount = Preconditions.checkNotNull(subFields.get(3));
+
+        DebitCreditMark debitCreditMark = subFields.get(0) != null ? DebitCreditMark.of(subFields.get(0)) : null;
+
+        String date = subFields.get(1);
+        String currency = subFields.get(2);
+        String amount = subFields.get(3);
+
+        return new ClosingBalance(type, debitCreditMark, date, currency, amount);
     }
 
     public Type getType() {
         return type;
     }
 
-    public String getDebitCreditMark() {
+    public DebitCreditMark getDebitCreditMark() {
         return debitCreditMark;
     }
 

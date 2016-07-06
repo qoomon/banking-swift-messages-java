@@ -47,50 +47,50 @@ public class SwiftMT940Parser {
 
             switch (currentField.getTag()) {
                 case TransactionReferenceNumber.TAG: {
-                    transactionReferenceNumber = new TransactionReferenceNumber(currentField);
+                    transactionReferenceNumber = TransactionReferenceNumber.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(RelatedReference.TAG, AccountIdentification.TAG);
                     break;
                 }
                 case RelatedReference.TAG: {
-                    relatedReference = new RelatedReference(currentField);
+                    relatedReference = RelatedReference.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(AccountIdentification.TAG);
                     break;
                 }
                 case AccountIdentification.TAG: {
-                    accountIdentification = new AccountIdentification(currentField);
+                    accountIdentification = AccountIdentification.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(StatementNumber.TAG);
                     break;
                 }
                 case StatementNumber.TAG: {
-                    statementNumber = new StatementNumber(currentField);
+                    statementNumber = StatementNumber.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(OpeningBalance.TAG, OpeningBalance.TAG_INTERMEDIATE);
                     break;
                 }
                 case OpeningBalance.TAG:
                 case OpeningBalance.TAG_INTERMEDIATE: {
-                    openingBalance = new OpeningBalance(currentField);
+                    openingBalance = OpeningBalance.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(StatementLine.TAG, ClosingBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     break;
                 }
                 case StatementLine.TAG: {
-                    StatementLine statementLine = new StatementLine(currentField);
+                    StatementLine statementLine = StatementLine.of(currentField);
                     transactionList.add(new TransactionGroup(statementLine, null));
                     nextValidFieldSet = ImmutableSet.of(InformationToAccountOwner.TAG, ClosingBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     break;
                 }
                 case ClosingBalance.TAG:
                 case ClosingBalance.TAG_INTERMEDIATE: {
-                    closingBalance = new ClosingBalance(currentField);
+                    closingBalance = ClosingBalance.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(ClosingAvailableBalance.TAG, ForwardAvailableBalance.TAG, InformationToAccountOwner.TAG);
                     break;
                 }
                 case ClosingAvailableBalance.TAG: {
-                    closingAvailableBalance = new ClosingAvailableBalance(currentField);
+                    closingAvailableBalance = ClosingAvailableBalance.of(currentField);
                     nextValidFieldSet = ImmutableSet.of(ForwardAvailableBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     break;
                 }
                 case ForwardAvailableBalance.TAG: {
-                    ForwardAvailableBalance forwardAvailableBalance = new ForwardAvailableBalance(currentField);
+                    ForwardAvailableBalance forwardAvailableBalance = ForwardAvailableBalance.of(currentField);
                     forwardAvailableBalanceList.add(forwardAvailableBalance);
                     nextValidFieldSet = ImmutableSet.of(ClosingBalance.TAG_INTERMEDIATE);
                     break;
@@ -100,14 +100,14 @@ public class SwiftMT940Parser {
                         // amend transaction with transactionInformationToAccountOwner
                         int lastTransactionIndex = transactionList.size() - 1;
                         TransactionGroup lastTransaction = transactionList.get(lastTransactionIndex);
-                        InformationToAccountOwner transactionInformationToAccountOwner = new InformationToAccountOwner(currentField);
+                        InformationToAccountOwner transactionInformationToAccountOwner = InformationToAccountOwner.of(currentField);
 
                         TransactionGroup updatedTransaction = new TransactionGroup(lastTransaction.getStatementLine(), transactionInformationToAccountOwner);
                         transactionList.set(lastTransactionIndex, updatedTransaction);
 
                         nextValidFieldSet = ImmutableSet.of(StatementLine.TAG, ClosingBalance.TAG, ClosingBalance.TAG_INTERMEDIATE);
                     } else {
-                        informationToAccountOwner = new InformationToAccountOwner(currentField);
+                        informationToAccountOwner = InformationToAccountOwner.of(currentField);
                         nextValidFieldSet = ImmutableSet.of();
                     }
                     break;

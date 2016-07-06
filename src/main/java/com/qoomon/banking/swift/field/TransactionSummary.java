@@ -30,15 +30,24 @@ public class TransactionSummary implements SwiftMTField {
     private final String currency;
     private final String amount;
 
-    public TransactionSummary(GeneralMTField field) {
+    public TransactionSummary(Type type, int transactionCount, String currency, String amount) {
+        this.type = type;
+        this.transactionCount = transactionCount;
+        this.currency = currency;
+        this.amount = amount;
+    }
+
+    public static TransactionSummary of(GeneralMTField field) {
         Preconditions.checkArgument(field.getTag().equals(TAG_DEBIT) || field.getTag().equals(TAG_CREDIT), "unexpected field tag '" + field.getTag() + "'");
-        this.type = field.getTag().equals(TAG_DEBIT) ? Type.DEBIT : Type.CREDIT;
+        Type type = field.getTag().equals(TAG_DEBIT) ? Type.DEBIT : Type.CREDIT;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
         Preconditions.checkNotNull(subFields.get(0));
-        this.transactionCount = Integer.parseInt(subFields.get(0));
-        this.currency = Preconditions.checkNotNull(subFields.get(1));
-        this.amount = Preconditions.checkNotNull(subFields.get(2));
+        int transactionCount = Integer.parseInt(subFields.get(0));
+        String currency = Preconditions.checkNotNull(subFields.get(1));
+        String amount = Preconditions.checkNotNull(subFields.get(2));
+
+        return new TransactionSummary(type, transactionCount, currency, amount);
     }
 
     public Type getType() {

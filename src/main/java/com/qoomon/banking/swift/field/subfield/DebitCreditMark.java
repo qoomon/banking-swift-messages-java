@@ -6,5 +6,18 @@ package com.qoomon.banking.swift.field.subfield;
 public enum DebitCreditMark {
 
     DEBIT,
-    CREDIT
+    CREDIT;
+
+    public static DebitCreditMark of(String value) {
+        switch (value) {
+            case "DEBIT":
+            case "D":
+                return DEBIT;
+            case "CREDIT":
+            case "C":
+                return CREDIT;
+            default:
+                throw new IllegalArgumentException("No mapping found for value '" + value + "'");
+        }
+    }
 }
