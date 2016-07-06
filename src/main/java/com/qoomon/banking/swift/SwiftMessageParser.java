@@ -35,11 +35,8 @@ public class SwiftMessageParser {
             }
 
             if (blockBuilder.length() == 0) {
-                if (Character.isWhitespace(messageCharacter)) {
-                    continue;
-                }
                 if (messageCharacter != "{".charAt(0)) {
-                    throw new SwiftMessageParserException("Parse error: expected '{' but found " + messageCharacter, lineIndex);
+                    throw new SwiftMessageParserException("Characters between blocks ar not allowed, but was: '" + messageCharacter + "'", lineIndex);
                 }
             }
 
@@ -57,7 +54,7 @@ public class SwiftMessageParser {
 
                 Matcher matcher = blockStructurePattern.matcher(block);
                 if (!matcher.matches()) {
-                    throw new SwiftMessageParserException("Parse error: unexpected block structure", lineIndex);
+                    throw new SwiftMessageParserException("Unexpected block structure", lineIndex);
                 }
 
                 String blockId = matcher.group("id");
