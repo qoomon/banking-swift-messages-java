@@ -24,7 +24,7 @@ public class SwiftMT940Parser {
 
         List<SwiftMT940> result = new LinkedList<>();
 
-        List<GeneralMTField> fieldList = swiftMTParser.parse(mt940TextReader);
+        List<GeneralField> fieldList = swiftMTParser.parse(mt940TextReader);
 
         TransactionReferenceNumber transactionReferenceNumber = null;
         RelatedReference relatedReference = null;
@@ -41,8 +41,8 @@ public class SwiftMT940Parser {
 
         Set<String> currentValidFieldSet = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
 
-        GeneralMTField previousField = null;
-        for (GeneralMTField currentField : fieldList) {
+        GeneralField previousField = null;
+        for (GeneralField currentField : fieldList) {
             try {
             Set<String> nextValidFieldSet;
 

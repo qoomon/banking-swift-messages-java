@@ -45,7 +45,7 @@ public class TransactionSummary implements SwiftMTField {
         this.amount = Preconditions.checkNotNull(amount);
     }
 
-    public static TransactionSummary of(GeneralMTField field) throws ParseException {
+    public static TransactionSummary of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_90D) || field.getTag().equals(FIED_TAG_90C), "unexpected field tag '" + field.getTag() + "'");
         Type type = field.getTag().equals(FIELD_TAG_90D) ? Type.DEBIT : Type.CREDIT;
 

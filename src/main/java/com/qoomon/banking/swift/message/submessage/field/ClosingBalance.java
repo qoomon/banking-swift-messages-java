@@ -47,7 +47,7 @@ public class ClosingBalance implements SwiftMTField {
         this.amount = Preconditions.checkNotNull(amount);
     }
 
-    public static ClosingBalance of(GeneralMTField field) throws ParseException {
+    public static ClosingBalance of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_62F) || field.getTag().equals(FIELD_TAG_62M), "unexpected field tag '" + field.getTag() + "'");
         Type type = field.getTag().equals(FIELD_TAG_62F) ? Type.CLOSING : Type.INTERMEDIATE;
 

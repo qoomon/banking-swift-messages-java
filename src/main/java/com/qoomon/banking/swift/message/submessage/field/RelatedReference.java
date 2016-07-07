@@ -30,7 +30,7 @@ public class RelatedReference implements SwiftMTField {
         this.value = Preconditions.checkNotNull(value);
     }
 
-    public static RelatedReference of(GeneralMTField field) throws ParseException {
+    public static RelatedReference of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_21), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

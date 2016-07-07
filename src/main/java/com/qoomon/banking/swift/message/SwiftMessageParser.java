@@ -1,7 +1,6 @@
 package com.qoomon.banking.swift.message;
 
-import com.qoomon.banking.swift.message.SwiftMessage;
-import com.qoomon.banking.swift.message.block.SwiftMessageTextBlock;
+import com.qoomon.banking.swift.message.block.*;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParserException;
 
 import java.io.IOException;
@@ -22,7 +21,11 @@ public class SwiftMessageParser {
 
     public SwiftMessage parse(Reader swiftMessageTextReader) throws IOException {
 
-        SwiftMessageTextBlock swiftMessageTextBlock = null;
+        BasicHeaderBlock basicHeaderBlock = null;
+        ApplicationHeaderBlock applicationHeaderBlock = null;
+        UserHeaderBlock userHeaderBlock = null;
+        TextBlock textBlock = null;
+        TrailerBlock trailerBlock = null;
 
         int lineIndex = 0;
         StringBuilder blockBuilder = new StringBuilder();
@@ -54,44 +57,43 @@ public class SwiftMessageParser {
             blockBuilder.append(messageCharacter);
 
             if (openingBrackets == closingBrackets) {
-                String block = blockBuilder.toString();
+                String blockText = blockBuilder.toString();
 
-                Matcher matcher = blockStructurePattern.matcher(block);
-                if (!matcher.matches()) {
+                Matcher blockMatcher = blockStructurePattern.matcher(blockText);
+                if (!blockMatcher.matches()) {
                     throw new SwiftMessageParserException("Unexpected block structure", lineIndex);
                 }
 
-                String blockId = matcher.group("id");
-                String blockContent = matcher.group("content");
+                String blockId = blockMatcher.group("id");
+                String blockContent = blockMatcher.group("content");
+                GeneralBlock block = new GeneralBlock(blockId, blockContent);
 
                 if (parsedBlockIdSet.contains(blockId)) {
                     throw new SwiftMessageParserException("Parse error: multiple blocks of " + blockId, lineIndex);
                 }
 
                 switch (blockId) {
-                    case "1": {
-
+                    case BasicHeaderBlock.BLOCK_ID_1: {
+                        basicHeaderBlock = BasicHeaderBlock.of(block);
                         break;
                     }
-                    case "2": {
-
+                    case ApplicationHeaderBlock.BLOCK_ID_2: {
+                        applicationHeaderBlock = ApplicationHeaderBlock.of(block);
                         break;
                     }
-                    case "3": {
-
+                    case UserHeaderBlock.BLOCK_ID_3: {
+                        userHeaderBlock = UserHeaderBlock.of(block);
                         break;
                     }
-                    case SwiftMessageTextBlock.ID_4: {
+                    case TextBlock.BLOCK_ID_4: {
                         if (!blockContent.endsWith("-")) {
                             throw new SwiftMessageParserException("Parse error: block" + blockId + " must end in '-'", lineIndex);
                         }
-                        // remove trailing '-'
-                        blockContent = blockContent.replaceFirst("-$", "");
-                        swiftMessageTextBlock = new SwiftMessageTextBlock(blockContent);
+                        textBlock = TextBlock.of(block);
                         break;
                     }
-                    case "5": {
-
+                    case TrailerBlock.BLOCK_ID_5: {
+                        trailerBlock = TrailerBlock.of(block);
                         break;
                     }
                     default:
@@ -113,6 +115,11 @@ public class SwiftMessageParser {
             throw new SwiftMessageParserException("Parse error: unclosed '{'", lineIndex);
         }
 
-        return new SwiftMessage(swiftMessageTextBlock);
+        return new SwiftMessage(
+                basicHeaderBlock,
+                applicationHeaderBlock,
+                userHeaderBlock,
+                textBlock,
+                trailerBlock);
     }
 }

@@ -22,12 +22,12 @@ public class SwiftMTFieldParser {
 
     private static final Pattern FIELD_STRUCTURE_PATTERN = Pattern.compile(":(?<tag>[^:]+):(?<content>.*)");
 
-    public List<GeneralMTField> parse(Reader mt940TextReader) throws SwiftMTFieldParseException {
+    public List<GeneralField> parse(Reader mt940TextReader) throws SwiftMTFieldParseException {
 
-        List<GeneralMTField> fieldList = new LinkedList<>();
+        List<GeneralField> fieldList = new LinkedList<>();
 
         try (LineNumberReader lineReader = new LineNumberReader(mt940TextReader)) {
-            GeneralMTFieldBuilder currentFieldBuilder = null;
+            GeneralField.Builder currentFieldBuilder = null;
 
             Set<MessageLineType> currentValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
             String currentMessageLine = lineReader.readLine();
@@ -47,7 +47,7 @@ public class SwiftMTFieldParser {
                         }
 
                         // start of a new field
-                        currentFieldBuilder = new GeneralMTFieldBuilder()
+                        currentFieldBuilder = GeneralField.newBuilder()
                                 .setTag(fieldMatcher.group("tag"))
                                 .appendContent(fieldMatcher.group("content"));
 
@@ -64,7 +64,7 @@ public class SwiftMTFieldParser {
                         break;
                     }
                     case SEPARATOR: {
-                        currentFieldBuilder = new GeneralMTFieldBuilder().setTag(SEPARATOR_FIELD_TAG);
+                        currentFieldBuilder = GeneralField.newBuilder().setTag(SEPARATOR_FIELD_TAG);
                         nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
                         break;
                     }
@@ -130,25 +130,6 @@ public class SwiftMTFieldParser {
     }
 
 
-    private class GeneralMTFieldBuilder {
 
-        String tag = null;
-
-        StringBuilder contentBuilder = new StringBuilder();
-
-        public GeneralMTField build() {
-            return new GeneralMTField(tag, contentBuilder.toString());
-        }
-
-        public GeneralMTFieldBuilder setTag(String tag) {
-            this.tag = tag;
-            return this;
-        }
-
-        public GeneralMTFieldBuilder appendContent(String content) {
-            this.contentBuilder.append(content);
-            return this;
-        }
-    }
 
 }

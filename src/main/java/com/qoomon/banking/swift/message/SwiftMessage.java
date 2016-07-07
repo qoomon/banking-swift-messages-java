@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message;
 
-import com.qoomon.banking.swift.message.block.SwiftMessageTextBlock;
+import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.message.block.*;
 
 /**
  * Created by qoomon on 24/06/16.
@@ -94,38 +95,61 @@ import com.qoomon.banking.swift.message.block.SwiftMessageTextBlock;
  */
 public class SwiftMessage {
 
-
     /**
      * {1:} Basic Header Block
      */
-//    private Object basicHeaderBlock;
+    private final BasicHeaderBlock basicHeaderBlock;
 
     /**
      * {2:} Application Header Block
      */
-//    private Object applicationHeaderBlock;
+    private final ApplicationHeaderBlock applicationHeaderBlock;
 
     /**
      * {3:} User Header Block
      */
-//    private Object userhHeaderBlock;
+    private final UserHeaderBlock userHeaderBlock;
 
     /**
      * {4:} Text Block
      */
-    private SwiftMessageTextBlock textBlock;
+    private final TextBlock textBlock;
 
     /**
      * {5:} Trailer Block
      */
-//    private Object trailerBlock;
+    private final TrailerBlock trailerBlock;
 
 
-    public SwiftMessage(SwiftMessageTextBlock textBlock) {
-        this.textBlock = textBlock;
+    public SwiftMessage(BasicHeaderBlock basicHeaderBlock,
+                        ApplicationHeaderBlock applicationHeaderBlock,
+                        UserHeaderBlock userHeaderBlock,
+                        TextBlock textBlock,
+                        TrailerBlock trailerBlock) {
+        this.basicHeaderBlock = Preconditions.checkNotNull(basicHeaderBlock);
+        this.applicationHeaderBlock = Preconditions.checkNotNull(applicationHeaderBlock);
+        this.userHeaderBlock = Preconditions.checkNotNull(userHeaderBlock);
+        this.textBlock = Preconditions.checkNotNull(textBlock);
+        this.trailerBlock = Preconditions.checkNotNull(trailerBlock);
     }
 
-    public SwiftMessageTextBlock getTextBlock() {
+    public BasicHeaderBlock getBasicHeaderBlock() {
+        return basicHeaderBlock;
+    }
+
+    public ApplicationHeaderBlock getApplicationHeaderBlock() {
+        return applicationHeaderBlock;
+    }
+
+    public UserHeaderBlock getUserHeaderBlock() {
+        return userHeaderBlock;
+    }
+
+    public TextBlock getTextBlock() {
         return textBlock;
+    }
+
+    public TrailerBlock getTrailerBlock() {
+        return trailerBlock;
     }
 }

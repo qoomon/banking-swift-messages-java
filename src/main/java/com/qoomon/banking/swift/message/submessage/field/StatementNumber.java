@@ -34,7 +34,7 @@ public class StatementNumber implements SwiftMTField {
         this.sequenceNumber = Optional.ofNullable(sequenceNumber);
     }
 
-    public static StatementNumber of(GeneralMTField field) throws ParseException {
+    public static StatementNumber of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_28C), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

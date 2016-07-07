@@ -37,7 +37,7 @@ public class FloorLimitIndicator implements SwiftMTField {
         this.amount = Preconditions.checkNotNull(amount);
     }
 
-    public static FloorLimitIndicator of(GeneralMTField field) throws ParseException {
+    public static FloorLimitIndicator of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_34F), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

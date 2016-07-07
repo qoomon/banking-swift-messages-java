@@ -30,7 +30,7 @@ public class InformationToAccountOwner implements SwiftMTField {
         this.value = Preconditions.checkNotNull(value);
     }
 
-    public static InformationToAccountOwner of(GeneralMTField field) throws ParseException {
+    public static InformationToAccountOwner of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_86), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

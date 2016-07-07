@@ -20,18 +20,19 @@ public class SwiftMessageParserTest {
     private SwiftMessageParser classUnderTest = new SwiftMessageParser();
 
     @Test
-    public void parse_WHEN_detecting_whitespaces_between_blocks_THEN_ignore_them() throws Exception {
+    public void parse_WHEN_detecting_whitespaces_between_blocks_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = "{1:}{2:}{3:}{4:x\nx x   x   -}{5:}";
+        String swiftMessageText = "{1:}{2:}{3:} {4:x\nx x   x   -}{5:}";
 
         // When
-        SwiftMessage swiftMessage = classUnderTest.parse(new StringReader(swiftMessageText));
+        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
 
         // Then
-        assertThat(swiftMessage.getTextBlock()).isNotNull();
-        softly.assertThat(swiftMessage.getTextBlock().getContent()).isEqualTo("x\nx x   x   ");
-        softly.assertAll();
+        assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParserException.class);
+
+        SwiftMessageParserException parseException = (SwiftMessageParserException) exception;
+        assertThat(parseException.getLineNumber()).isEqualTo(1);
     }
 
     @Test

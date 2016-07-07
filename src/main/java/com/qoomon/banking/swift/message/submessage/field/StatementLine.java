@@ -72,7 +72,7 @@ public class StatementLine implements SwiftMTField {
         this.supplementaryDetails = Optional.ofNullable(supplementaryDetails);
     }
 
-    public static StatementLine of(GeneralMTField field) throws ParseException {
+    public static StatementLine of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_61), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

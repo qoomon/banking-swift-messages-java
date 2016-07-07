@@ -48,7 +48,7 @@ public class OpeningBalance implements SwiftMTField {
         this.amount = Preconditions.checkNotNull(amount);
     }
 
-    public static OpeningBalance of(GeneralMTField field) throws ParseException {
+    public static OpeningBalance of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_60F) || field.getTag().equals(FIELD_TAG_60M), "unexpected field tag '" + field.getTag() + "'");
         Type type = field.getTag().equals(FIELD_TAG_60F) ? Type.OPENING : Type.INTERMEDIATE;
 

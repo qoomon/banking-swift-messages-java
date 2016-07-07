@@ -31,7 +31,7 @@ public class TransactionReferenceNumber implements SwiftMTField {
         this.value = Preconditions.checkNotNull(value);
     }
 
-    public static TransactionReferenceNumber of(GeneralMTField field) throws ParseException {
+    public static TransactionReferenceNumber of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_20), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

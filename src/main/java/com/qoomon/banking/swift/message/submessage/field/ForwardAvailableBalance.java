@@ -43,7 +43,7 @@ public class ForwardAvailableBalance implements SwiftMTField {
         this.amount = Preconditions.checkNotNull(amount);
     }
 
-    public static ForwardAvailableBalance of(GeneralMTField field) throws ParseException {
+    public static ForwardAvailableBalance of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_65), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

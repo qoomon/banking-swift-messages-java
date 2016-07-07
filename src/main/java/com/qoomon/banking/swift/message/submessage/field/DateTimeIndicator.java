@@ -43,7 +43,7 @@ public class DateTimeIndicator implements SwiftMTField {
         this.value = Preconditions.checkNotNull(value);
     }
 
-    public static DateTimeIndicator of(GeneralMTField field) throws ParseException {
+    public static DateTimeIndicator of(GeneralField field) throws ParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_13D), "unexpected field tag '" + field.getTag() + "'");
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
