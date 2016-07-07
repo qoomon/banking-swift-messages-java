@@ -93,7 +93,7 @@ import com.qoomon.banking.swift.message.block.*;
  *
  * @see <a href="http://www.sepaforcorporates.com/swift-for-corporates/read-swift-message-structure/">http://www.sepaforcorporates.com/swift-for-corporates/read-swift-message-structure/</a>
  */
-public class SwiftMessage {
+public class SwiftOutputMessage {
 
     /**
      * {1:} Basic Header Block
@@ -103,7 +103,7 @@ public class SwiftMessage {
     /**
      * {2:} Application Header Block
      */
-    private final ApplicationHeaderBlock applicationHeaderBlock;
+    private final OutputApplicationHeaderBlock applicationHeaderBlock;
 
     /**
      * {3:} User Header Block
@@ -121,11 +121,11 @@ public class SwiftMessage {
     private final TrailerBlock trailerBlock;
 
 
-    public SwiftMessage(BasicHeaderBlock basicHeaderBlock,
-                        ApplicationHeaderBlock applicationHeaderBlock,
-                        UserHeaderBlock userHeaderBlock,
-                        TextBlock textBlock,
-                        TrailerBlock trailerBlock) {
+    public SwiftOutputMessage(BasicHeaderBlock basicHeaderBlock,
+                              OutputApplicationHeaderBlock applicationHeaderBlock,
+                              UserHeaderBlock userHeaderBlock,
+                              TextBlock textBlock,
+                              TrailerBlock trailerBlock) {
         this.basicHeaderBlock = Preconditions.checkNotNull(basicHeaderBlock);
         this.applicationHeaderBlock = Preconditions.checkNotNull(applicationHeaderBlock);
         this.userHeaderBlock = Preconditions.checkNotNull(userHeaderBlock);
@@ -137,7 +137,7 @@ public class SwiftMessage {
         return basicHeaderBlock;
     }
 
-    public ApplicationHeaderBlock getApplicationHeaderBlock() {
+    public OutputApplicationHeaderBlock getApplicationHeaderBlock() {
         return applicationHeaderBlock;
     }
 

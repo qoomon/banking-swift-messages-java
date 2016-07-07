@@ -17,12 +17,7 @@ public class TextBlock {
 
         this.content = content;
     }
-
-    public String getContent() {
-        return content;
-    }
-
-
+    
     public static TextBlock of(GeneralBlock block) throws BlockParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_4), "unexpected block id '" + block.getId() + "'");
 
@@ -37,4 +32,10 @@ public class TextBlock {
         blockContent = blockContent.replaceFirst("-$", "");
         return new TextBlock(blockContent);
     }
+
+    public String getContent() {
+        return content;
+    }
+
+
 }

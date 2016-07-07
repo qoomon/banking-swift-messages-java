@@ -10,14 +10,14 @@ import java.util.List;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class SwiftMessageParser {
+public class SwiftOutputMessageParser {
 
     private final SwiftBlockParser blockParser = new SwiftBlockParser();
 
-    public SwiftMessage parse(Reader swiftMessageTextReader) throws SwiftMessageParseException, BlockParseException {
+    public SwiftOutputMessage parse(Reader swiftMessageTextReader) throws SwiftMessageParseException, BlockParseException {
 
         BasicHeaderBlock basicHeaderBlock = null;
-        ApplicationHeaderBlock applicationHeaderBlock = null;
+        OutputApplicationHeaderBlock applicationHeaderBlock = null;
         UserHeaderBlock userHeaderBlock = null;
         TextBlock textBlock = null;
         TrailerBlock trailerBlock = null;
@@ -35,12 +35,12 @@ public class SwiftMessageParser {
                 case BasicHeaderBlock.BLOCK_ID_1: {
                     ensureValidBlockId(currentBlock.getId(), currentValidBlockId, currentBlockNumber);
                     basicHeaderBlock = BasicHeaderBlock.of(currentBlock);
-                    currentValidBlockId = ApplicationHeaderBlock.BLOCK_ID_2;
+                    currentValidBlockId = OutputApplicationHeaderBlock.BLOCK_ID_2;
                     break;
                 }
-                case ApplicationHeaderBlock.BLOCK_ID_2: {
+                case OutputApplicationHeaderBlock.BLOCK_ID_2: {
                     ensureValidBlockId(currentBlock.getId(), currentValidBlockId, currentBlockNumber);
-                    applicationHeaderBlock = ApplicationHeaderBlock.of(currentBlock);
+                    applicationHeaderBlock = OutputApplicationHeaderBlock.of(currentBlock);
                     currentValidBlockId = UserHeaderBlock.BLOCK_ID_3;
                     break;
                 }
@@ -67,7 +67,7 @@ public class SwiftMessageParser {
             }
         }
 
-        return new SwiftMessage(
+        return new SwiftOutputMessage(
                 basicHeaderBlock,
                 applicationHeaderBlock,
                 userHeaderBlock,
