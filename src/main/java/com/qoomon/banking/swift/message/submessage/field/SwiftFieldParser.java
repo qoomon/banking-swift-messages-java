@@ -2,7 +2,7 @@ package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.qoomon.banking.swift.message.submessage.field.exception.SwiftMTFieldParseException;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -16,13 +16,13 @@ import java.util.regex.Pattern;
 /**
  * Created by qoomon on 27/06/16.
  */
-public class SwiftMTFieldParser {
+public class SwiftFieldParser {
 
     public static final String SEPARATOR_FIELD_TAG = "--";
 
     private static final Pattern FIELD_STRUCTURE_PATTERN = Pattern.compile(":(?<tag>[^:]+):(?<content>.*)");
 
-    public List<GeneralField> parse(Reader mt940TextReader) throws SwiftMTFieldParseException {
+    public List<GeneralField> parse(Reader mt940TextReader) throws FieldParseException {
 
         List<GeneralField> fieldList = new LinkedList<>();
 
@@ -43,7 +43,7 @@ public class SwiftMTFieldParser {
                     case FIELD: {
                         Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentMessageLine);
                         if (!fieldMatcher.matches()) {
-                            throw new SwiftMTFieldParseException("Parse error: " + currentMessageLineType.name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), currentMessageLineNumber);
+                            throw new FieldParseException("Parse error: " + currentMessageLineType.name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), currentMessageLineNumber);
                         }
 
                         // start of a new field
@@ -56,7 +56,7 @@ public class SwiftMTFieldParser {
                     }
                     case FIELD_CONTINUATION: {
                         if (currentFieldBuilder == null) {
-                            throw new SwiftMTFieldParseException("Bug: invalid order check for line type" + currentMessageLineType.name(), currentMessageLineNumber);
+                            throw new FieldParseException("Bug: invalid order check for line type" + currentMessageLineType.name(), currentMessageLineNumber);
                         }
                         currentFieldBuilder.appendContent("\n")
                                 .appendContent(currentMessageLine);
@@ -69,12 +69,12 @@ public class SwiftMTFieldParser {
                         break;
                     }
                     default:
-                        throw new SwiftMTFieldParseException("Bug: Missing handling for line type" + currentMessageLineType.name(), currentMessageLineNumber);
+                        throw new FieldParseException("Bug: Missing handling for line type" + currentMessageLineType.name(), currentMessageLineNumber);
 
                 }
 
                 if (!currentValidFieldSet.contains(currentMessageLineType)) {
-                    throw new SwiftMTFieldParseException("Parse error: unexpected line order of" + currentMessageLineType.name(), currentMessageLineNumber);
+                    throw new FieldParseException("Parse error: unexpected line order of" + currentMessageLineType.name(), currentMessageLineNumber);
                 }
 
                 // prepare next line
@@ -103,7 +103,7 @@ public class SwiftMTFieldParser {
 
             return fieldList;
         } catch (IOException e) {
-            throw new SwiftMTFieldParseException(e);
+            throw new FieldParseException(e);
         }
     }
 

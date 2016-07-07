@@ -25,7 +25,7 @@ import java.util.List;
  * 3: 15d - Amount
  * </pre>
  */
-public class ForwardAvailableBalance implements SwiftMTField {
+public class ForwardAvailableBalance implements SwiftField {
 
     public static final String FIELD_TAG_65 = "65";
 

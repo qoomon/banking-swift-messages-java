@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * 1605191047+0100
  * </pre>
  */
-public class DateTimeIndicator implements SwiftMTField {
+public class DateTimeIndicator implements SwiftField {
 
     public static final String FIELD_TAG_13D = "13D";
 

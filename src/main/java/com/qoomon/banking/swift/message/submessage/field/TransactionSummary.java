@@ -27,7 +27,7 @@ import java.util.List;
  * 4USD5782,64
  * </pre>
  */
-public class TransactionSummary implements SwiftMTField {
+public class TransactionSummary implements SwiftField {
 
     public static final String FIELD_TAG_90D = "90D";
     public static final String FIED_TAG_90C = "90C";

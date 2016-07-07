@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by qoomon on 27/06/16.
  */
-public class GeneralField implements SwiftMTField {
+public class GeneralField implements SwiftField {
 
     private final String tag;
     private final String content;

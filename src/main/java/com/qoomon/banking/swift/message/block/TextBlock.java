@@ -1,10 +1,15 @@
 package com.qoomon.banking.swift.message.block;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.message.block.exception.BlockParseException;
+
+import java.util.regex.Pattern;
 
 public class TextBlock {
 
     public static final String BLOCK_ID_4 = "4";
+
+    public static final Pattern FIELD_PATTERN = Pattern.compile("\\n(.*\\n)?-", Pattern.DOTALL);
 
     private final String content;
 
@@ -18,11 +23,18 @@ public class TextBlock {
     }
 
 
-    public static TextBlock of(GeneralBlock block) {
+    public static TextBlock of(GeneralBlock block) throws BlockParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_4), "unexpected block id '" + block.getId() + "'");
 
+        String blockContent = block.getContent();
+
+        if (!FIELD_PATTERN.matcher(block.getContent()).matches()) {
+            throw new BlockParseException("Block " + BLOCK_ID_4 + " did not match pattern " + FIELD_PATTERN);
+        }
+        // remove first empty line
+        blockContent = blockContent.replaceFirst("^\\n", "");
         // remove trailing '-'
-        String blockContent = block.getContent().replaceFirst("-$", "");
+        blockContent = blockContent.replaceFirst("-$", "");
         return new TextBlock(blockContent);
     }
 }

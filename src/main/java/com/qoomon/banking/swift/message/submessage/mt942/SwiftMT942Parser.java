@@ -3,8 +3,8 @@ package com.qoomon.banking.swift.message.submessage.mt942;
 import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.submessage.field.*;
 import com.qoomon.banking.swift.message.submessage.field.TransactionGroup;
-import com.qoomon.banking.swift.message.submessage.exception.SwiftMTParserException;
-import com.qoomon.banking.swift.message.submessage.field.exception.SwiftMTFieldParseException;
+import com.qoomon.banking.swift.message.submessage.exception.SubMessageParserException;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 
 import java.io.Reader;
 import java.text.ParseException;
@@ -17,13 +17,13 @@ import java.util.Set;
  */
 public class SwiftMT942Parser {
 
-    private final SwiftMTFieldParser swiftMTParser = new SwiftMTFieldParser();
+    private final SwiftFieldParser fieldParser = new SwiftFieldParser();
 
-    public List<SwiftMT942> parse(Reader mt940TextReader) throws SwiftMTFieldParseException {
+    public List<SwiftMT942> parse(Reader mt940TextReader) throws FieldParseException {
 
         List<SwiftMT942> result = new LinkedList<>();
 
-        List<GeneralField> fieldList = swiftMTParser.parse(mt940TextReader);
+        List<GeneralField> fieldList = fieldParser.parse(mt940TextReader);
 
         TransactionReferenceNumber transactionReferenceNumber = null;
         RelatedReference relatedReference = null;
@@ -89,7 +89,7 @@ public class SwiftMT942Parser {
                                 TransactionSummary.FIELD_TAG_90D,
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                                SwiftFieldParser.SEPARATOR_FIELD_TAG);
                         break;
                     }
                     case StatementLine.FIELD_TAG_61: {
@@ -100,7 +100,7 @@ public class SwiftMT942Parser {
                                 TransactionSummary.FIELD_TAG_90D,
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                                SwiftFieldParser.SEPARATOR_FIELD_TAG);
                         break;
                     }
                     case TransactionSummary.FIELD_TAG_90D: {
@@ -108,14 +108,14 @@ public class SwiftMT942Parser {
                         nextValidFieldSet = ImmutableSet.of(
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                                SwiftFieldParser.SEPARATOR_FIELD_TAG);
                         break;
                     }
                     case TransactionSummary.FIED_TAG_90C: {
                         transactionSummaryCredit = TransactionSummary.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                                SwiftFieldParser.SEPARATOR_FIELD_TAG);
                         break;
                     }
                     case InformationToAccountOwner.FIELD_TAG_86: {
@@ -136,32 +136,32 @@ public class SwiftMT942Parser {
                         } else {
                             informationToAccountOwner = InformationToAccountOwner.of(currentField);
                             nextValidFieldSet = ImmutableSet.of(
-                                    SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                                    SwiftFieldParser.SEPARATOR_FIELD_TAG);
                         }
                         break;
                     }
-                    case SwiftMTFieldParser.SEPARATOR_FIELD_TAG: {
+                    case SwiftFieldParser.SEPARATOR_FIELD_TAG: {
                         // see below at finish message
                         nextValidFieldSet = ImmutableSet.of(
                                 TransactionReferenceNumber.FIELD_TAG_20);
                         break;
                     }
                     default:
-                        throw new SwiftMTParserException("Unexpected field", currentFieldNumber, currentFieldTag);
+                        throw new SubMessageParserException("Unexpected field", currentFieldNumber, currentFieldTag);
 
                 }
 
                 if (!currentValidFieldSet.contains(currentField.getTag())) {
                     if (previousField == null) {
-                        throw new SwiftMTParserException("Field " + currentField.getTag() + " is not allowed as first field", currentFieldNumber, currentField.getTag());
+                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed as first field", currentFieldNumber, currentField.getTag());
                     } else {
-                        throw new SwiftMTParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), currentFieldNumber, currentField.getTag());
+                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), currentFieldNumber, currentField.getTag());
                     }
                 }
 
                 // handle finishing message
                 if (fieldList.size() == currentFieldNumber // last field
-                        || currentFieldTag.equals(SwiftMTFieldParser.SEPARATOR_FIELD_TAG)) {
+                        || currentFieldTag.equals(SwiftFieldParser.SEPARATOR_FIELD_TAG)) {
 
                     result.add(new SwiftMT942(
                             transactionReferenceNumber,
@@ -194,7 +194,7 @@ public class SwiftMT942Parser {
                 previousField = currentField;
                 currentValidFieldSet = nextValidFieldSet;
             } catch (ParseException parseException) {
-                throw new SwiftMTParserException("Subfield parse error", currentFieldNumber, currentField.getTag(), parseException);
+                throw new SubMessageParserException("Subfield parse error", currentFieldNumber, currentField.getTag(), parseException);
             }
         }
 

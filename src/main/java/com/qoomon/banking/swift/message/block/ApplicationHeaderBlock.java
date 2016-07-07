@@ -9,9 +9,13 @@ public class ApplicationHeaderBlock {
 
     public static final String BLOCK_ID_2 = "2";
 
+
+
     public static ApplicationHeaderBlock of(GeneralBlock block) {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '" + block.getId() + "'");
 
         return new ApplicationHeaderBlock();
     }
+
+
 }

@@ -18,7 +18,7 @@ import java.util.List;
  * 1: 16x - Value
  * </pre>
  */
-public class RelatedReference implements SwiftMTField {
+public class RelatedReference implements SwiftField {
 
     public static final String FIELD_TAG_21 = "21";
 

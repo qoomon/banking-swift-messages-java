@@ -3,8 +3,8 @@ package com.qoomon.banking.swift.message.submessage.mt940;
 import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.submessage.field.*;
 import com.qoomon.banking.swift.message.submessage.field.TransactionGroup;
-import com.qoomon.banking.swift.message.submessage.exception.SwiftMTParserException;
-import com.qoomon.banking.swift.message.submessage.field.exception.SwiftMTFieldParseException;
+import com.qoomon.banking.swift.message.submessage.exception.SubMessageParserException;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 
 import java.io.Reader;
 import java.text.ParseException;
@@ -17,14 +17,13 @@ import java.util.Set;
  */
 public class SwiftMT940Parser {
 
-    private final SwiftMTFieldParser swiftMTParser = new SwiftMTFieldParser();
+    private final SwiftFieldParser fieldParser = new SwiftFieldParser();
 
-
-    public List<SwiftMT940> parse(Reader mt940TextReader) throws SwiftMTFieldParseException {
+    public List<SwiftMT940> parse(Reader mt940TextReader) throws FieldParseException {
 
         List<SwiftMT940> result = new LinkedList<>();
 
-        List<GeneralField> fieldList = swiftMTParser.parse(mt940TextReader);
+        List<GeneralField> fieldList = fieldParser.parse(mt940TextReader);
 
         TransactionReferenceNumber transactionReferenceNumber = null;
         RelatedReference relatedReference = null;
@@ -100,7 +99,7 @@ public class SwiftMT940Parser {
                             ClosingAvailableBalance.FIELD_TAG_64,
                             ForwardAvailableBalance.FIELD_TAG_65,
                             InformationToAccountOwner.FIELD_TAG_86,
-                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                            SwiftFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case ClosingAvailableBalance.FIELD_TAG_64: {
@@ -108,7 +107,7 @@ public class SwiftMT940Parser {
                     nextValidFieldSet = ImmutableSet.of(
                             ForwardAvailableBalance.FIELD_TAG_65,
                             InformationToAccountOwner.FIELD_TAG_86,
-                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                            SwiftFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case ForwardAvailableBalance.FIELD_TAG_65: {
@@ -116,7 +115,7 @@ public class SwiftMT940Parser {
                     forwardAvailableBalanceList.add(forwardAvailableBalance);
                     nextValidFieldSet = ImmutableSet.of(
                             InformationToAccountOwner.FIELD_TAG_86,
-                            SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                            SwiftFieldParser.SEPARATOR_FIELD_TAG);
                     break;
                 }
                 case InformationToAccountOwner.FIELD_TAG_86: {
@@ -135,31 +134,31 @@ public class SwiftMT940Parser {
                                 ClosingBalance.FIELD_TAG_62M);
                     } else {
                         informationToAccountOwner = InformationToAccountOwner.of(currentField);
-                        nextValidFieldSet = ImmutableSet.of(SwiftMTFieldParser.SEPARATOR_FIELD_TAG);
+                        nextValidFieldSet = ImmutableSet.of(SwiftFieldParser.SEPARATOR_FIELD_TAG);
                     }
                     break;
                 }
-                case SwiftMTFieldParser.SEPARATOR_FIELD_TAG: {
+                case SwiftFieldParser.SEPARATOR_FIELD_TAG: {
                     // see below at finish message
                     nextValidFieldSet = ImmutableSet.of(
                             TransactionReferenceNumber.FIELD_TAG_20);
                     break;
                 }
                 default:
-                    throw new SwiftMTParserException("Parse error: unexpected field", currentFieldNumber, currentField.getTag());
+                    throw new SubMessageParserException("Parse error: unexpected field", currentFieldNumber, currentField.getTag());
             }
 
             if (!currentValidFieldSet.contains(currentField.getTag())) {
                 if (previousField == null) {
-                    throw new SwiftMTParserException("Field " + currentField.getTag() + " is not allowed as first field", currentFieldNumber, currentField.getTag());
+                    throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed as first field", currentFieldNumber, currentField.getTag());
                 } else {
-                    throw new SwiftMTParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), currentFieldNumber, currentField.getTag());
+                    throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), currentFieldNumber, currentField.getTag());
                 }
             }
 
             // handle finishing message
             if (fieldList.size() == currentFieldNumber // last field
-                    || currentField.getTag().equals(SwiftMTFieldParser.SEPARATOR_FIELD_TAG)) {
+                    || currentField.getTag().equals(SwiftFieldParser.SEPARATOR_FIELD_TAG)) {
 
                 result.add(new SwiftMT940(
                         transactionReferenceNumber,
@@ -191,7 +190,7 @@ public class SwiftMT940Parser {
             currentValidFieldSet = nextValidFieldSet;
 
             } catch (ParseException parseException) {
-                throw new SwiftMTParserException("Subfield parse error", currentFieldNumber, currentField.getTag(), parseException);
+                throw new SubMessageParserException("Subfield parse error", currentFieldNumber, currentField.getTag(), parseException);
             }
         }
 

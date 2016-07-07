@@ -18,7 +18,7 @@ import java.util.List;
  * 1: 35x - Value
  * </pre>
  */
-public class AccountIdentification implements SwiftMTField {
+public class AccountIdentification implements SwiftField {
 
     public static final String FIELD_TAG_25 = "25";
 

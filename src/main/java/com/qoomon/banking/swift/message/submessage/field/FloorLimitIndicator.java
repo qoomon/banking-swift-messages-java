@@ -23,7 +23,7 @@ import java.util.Optional;
  * 3: 15d   - Amount
  * </pre>
  */
-public class FloorLimitIndicator implements SwiftMTField {
+public class FloorLimitIndicator implements SwiftField {
 
     public static final String FIELD_TAG_34F = "34F";
 

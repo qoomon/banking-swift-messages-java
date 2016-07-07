@@ -1,8 +1,8 @@
 package com.qoomon.banking.swift.message.submessage;
 
 import com.qoomon.banking.swift.message.submessage.field.GeneralField;
-import com.qoomon.banking.swift.message.submessage.field.exception.SwiftMTFieldParseException;
-import com.qoomon.banking.swift.message.submessage.field.SwiftMTFieldParser;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
+import com.qoomon.banking.swift.message.submessage.field.SwiftFieldParser;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
@@ -14,11 +14,11 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * Created by qoomon on 27/06/16.
  */
-public class SwiftMTFieldParserTest {
+public class SwiftFieldParserTest {
 
     private SoftAssertions softly = new SoftAssertions();
 
-    private SwiftMTFieldParser classUnderTest = new SwiftMTFieldParser();
+    private SwiftFieldParser classUnderTest = new SwiftFieldParser();
 
     @Test
     public void parse_WHEN_valid_message_text_THEN_return_fields() throws Exception {
@@ -68,9 +68,9 @@ public class SwiftMTFieldParserTest {
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessage)));
 
         // Then
-        assertThat(exception).as("Exception").isInstanceOf(SwiftMTFieldParseException.class);
+        assertThat(exception).as("Exception").isInstanceOf(FieldParseException.class);
 
-        SwiftMTFieldParseException parseException = (SwiftMTFieldParseException) exception;
+        FieldParseException parseException = (FieldParseException) exception;
         assertThat(parseException.getLineNumber()).isEqualTo(1);
 
     }

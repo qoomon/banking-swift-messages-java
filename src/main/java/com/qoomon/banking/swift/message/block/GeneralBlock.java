@@ -11,7 +11,9 @@ public class GeneralBlock {
     private final String content;
 
     public GeneralBlock(String id, String content) {
-        this.id = Preconditions.checkNotNull(id);;
+        Preconditions.checkNotNull(id);
+        Preconditions.checkArgument(!id.isEmpty());
+        this.id = id;
         this.content = Preconditions.checkNotNull(content);
     }
 

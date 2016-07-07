@@ -26,7 +26,7 @@ import java.util.List;
  * 4: 15d - Amount
  * </pre>
  */
-public class ClosingBalance implements SwiftMTField {
+public class ClosingBalance implements SwiftField {
 
     public static final String FIELD_TAG_62F = "62F";
     public static final String FIELD_TAG_62M = "62M";

@@ -19,7 +19,7 @@ import java.util.List;
  * 1: 20x    - Value
  * </pre>
  */
-public class TransactionReferenceNumber implements SwiftMTField {
+public class TransactionReferenceNumber implements SwiftField {
 
     public static final String FIELD_TAG_20 = "20";
 

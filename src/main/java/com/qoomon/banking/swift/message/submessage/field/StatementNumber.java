@@ -20,7 +20,7 @@ import java.util.Optional;
  * 2: [/5n] - Sequence Number
  * </pre>
  */
-public class StatementNumber implements SwiftMTField {
+public class StatementNumber implements SwiftField {
 
     public static final String FIELD_TAG_28C = "28C";
 

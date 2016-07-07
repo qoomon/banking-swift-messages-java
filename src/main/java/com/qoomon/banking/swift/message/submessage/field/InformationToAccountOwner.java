@@ -18,7 +18,7 @@ import java.util.List;
  * 1: 6*65x - Value
  * </pre>
  */
-public class InformationToAccountOwner implements SwiftMTField {
+public class InformationToAccountOwner implements SwiftField {
 
     public static final String FIELD_TAG_86 = "86";
 

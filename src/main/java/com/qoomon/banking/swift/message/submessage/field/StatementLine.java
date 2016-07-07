@@ -33,7 +33,7 @@ import java.util.Optional;
  * 9: [34x]   - Transaction Description
  * </pre>
  */
-public class StatementLine implements SwiftMTField {
+public class StatementLine implements SwiftField {
 
     public static final String FIELD_TAG_61 = "61";
 
