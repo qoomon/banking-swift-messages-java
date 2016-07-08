@@ -9,7 +9,7 @@ public class TextBlock {
 
     public static final String BLOCK_ID_4 = "4";
 
-    public static final Pattern FIELD_PATTERN = Pattern.compile("\\n(.*\\n)?-", Pattern.DOTALL);
+    public static final Pattern FIELD_PATTERN = Pattern.compile("\\n(.*\\n)*-", Pattern.DOTALL);
 
     private final String content;
 
@@ -17,19 +17,18 @@ public class TextBlock {
 
         this.content = content;
     }
-    
+
     public static TextBlock of(GeneralBlock block) throws BlockParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_4), "unexpected block id '" + block.getId() + "'");
 
         String blockContent = block.getContent();
 
-        if (!FIELD_PATTERN.matcher(block.getContent()).matches()) {
+        if (!FIELD_PATTERN.matcher(blockContent).matches()) {
             throw new BlockParseException("Block " + BLOCK_ID_4 + " did not match pattern " + FIELD_PATTERN);
         }
         // remove first empty line
         blockContent = blockContent.replaceFirst("^\\n", "");
-        // remove trailing '-'
-        blockContent = blockContent.replaceFirst("-$", "");
+
         return new TextBlock(blockContent);
     }
 

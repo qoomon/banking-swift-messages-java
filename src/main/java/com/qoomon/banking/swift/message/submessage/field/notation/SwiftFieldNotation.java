@@ -29,7 +29,7 @@ import static java.util.regex.Pattern.*;
  * nn = maximum length ( minimum is 1 )
  * nn-nn = minimum and maximum length
  * nn! = fixed length
- * nn*nn = maximum number of lines time maximum line length
+ * nn*nn = maximum number of lines time maximum line length - Will always be the last field
  *
  * separators
  * LSep = left separator ("/", "//", "BR" for CrLf, "ISIN ", etc.), field starts with the character specified
@@ -68,9 +68,9 @@ public class SwiftFieldNotation {
     public SwiftFieldNotation(String notation) {
 
         this.swiftSubFields = parseSwiftNotation(notation);
-
         this.notation = notation;
     }
+
 
     public List<String> parse(String fieldText) throws ParseException {
 
@@ -88,16 +88,23 @@ public class SwiftFieldNotation {
 
             String subFieldRegex = "";
             if (swiftSubField.getLengthSign().isEmpty()) {
-                subFieldRegex += charSetRegex + "{1," + swiftSubField.getLength0() + "}";
+                int maxCharacters = swiftSubField.getLength0();
+                subFieldRegex += charSetRegex + "{1," + maxCharacters + "}";
             } else if (swiftSubField.getLengthSign().equals("!")) {
-                subFieldRegex += charSetRegex + "{" + swiftSubField.getLength0() + "}";
+                int fixedCharacters = swiftSubField.getLength0();
+                subFieldRegex += charSetRegex + "{" + fixedCharacters + "}";
             } else if (swiftSubField.getLengthSign().equals("-")) {
-                subFieldRegex += charSetRegex + "{" + swiftSubField.getLength0() + "," + swiftSubField.getLength1() + "}";
+                int minCharacters = swiftSubField.getLength0();
+                int maxCharacters = swiftSubField.getLength1();
+                subFieldRegex += charSetRegex + "{" + minCharacters + "," + maxCharacters + "}";
             } else if (swiftSubField.getLengthSign().equals("*")) {
-                subFieldRegex += charSetRegex + "{1," + swiftSubField.getLength1() + "}";
-                for (int i = 1; i < swiftSubField.getLength0(); i++) {
-                    subFieldRegex += "(?:" + "\n" + charSetRegex + "{1," + swiftSubField.getLength1() + "}" + ")?";
-                }
+                int maxLines = swiftSubField.getLength0();
+                int maxLineCharacters = swiftSubField.getLength1();
+                String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
+                String lineRegex = "[^\n]" + lineCharactersRegexRange;
+                subFieldRegex = "(?=" + lineRegex + "(\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
+                        + "(?:" + charSetRegex + "|\n)"  // add new line character to charset
+                        + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
             } else {
                 throw new ParseException("Unexpected length sign '" + swiftSubField.getLengthSign() + "'", parseIndex);
             }
@@ -109,29 +116,26 @@ public class SwiftFieldNotation {
             if (swiftSubField.isOptional()) {
                 subFieldRegex = "(?:" + subFieldRegex + ")?";
             }
-
-            //name group for selection
-            String subFieldGroupName = "subfield";
-            subFieldRegex = groupRegex(subFieldGroupName, subFieldRegex);
-
-            Matcher subFieldMatcher = Pattern.compile(subFieldRegex + ".*", DOTALL)
+            Matcher subFieldMatcher = Pattern.compile("^" + subFieldRegex)
                     .matcher(fieldText)
-                    .region(Math.min(parseIndex, fieldText.length() ), fieldText.length());
-            if (!subFieldMatcher.matches()) {
+                    .region(Math.min(parseIndex, fieldText.length()), fieldText.length());
+            if (!subFieldMatcher.find()) {
                 throw new ParseException(swiftSubField + " did not found matching characters."
                         + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
             }
-            parseIndex = subFieldMatcher.end(subFieldGroupName);
+            parseIndex = subFieldMatcher.end();
+
+            String fieldValue = subFieldMatcher.group();
 
             // special handling for d charset due to only on comma constraint
             if (charSet.equals("d")) {
-                Matcher dCharsetMatcher = Pattern.compile("[^,]+,[^,]*").matcher(fieldText);
-                if (!dCharsetMatcher.matches()) {
+                Matcher decimalCharsetMatcher = Pattern.compile("[^,]+,[^,]*").matcher(fieldValue);
+                if (!decimalCharsetMatcher.matches()) {
                     throw new ParseException(swiftSubField + " did not found matching characters."
                             + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
                 }
             }
-            String fieldValue = subFieldMatcher.group(subFieldGroupName);
+
 
             //remove prefix
             if (!swiftSubField.getPrefix().isEmpty()) {
@@ -142,8 +146,8 @@ public class SwiftFieldNotation {
         }
 
         if (parseIndex != fieldText.length()) {
-            throw new RuntimeException("Unparsed characters remain."
-                    + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'");
+            throw new ParseException("Unparsed characters remain."
+                    + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
         }
 
         return result;
@@ -218,7 +222,7 @@ public class SwiftFieldNotation {
             // add field
             result.add(swiftSubField);
         }
-        if(parseIndex != swiftNotation.length()){
+        if (parseIndex != swiftNotation.length()) {
             throw new RuntimeException("Parse error: near index " + parseIndex + " '" + swiftNotation.substring(parseIndex, Math.min(parseIndex + 8, swiftNotation.length())));
         }
         return result;

@@ -5,9 +5,14 @@ import com.google.common.io.Resources;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
+import java.io.FileReader;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -34,5 +39,27 @@ public class SwiftMT940ParserTest {
         // Then
         assertThat(mt940MessageList).hasSize(1);
         assertThat(mt940MessageList.get(0).getTransactionGroupList()).hasSize(3);
+    }
+
+    @Test
+    public void parse_SHOULD_parse_valid_files() throws Exception {
+
+        // Given
+        URL mt940_valid_folder = Resources.getResource("mt940_valid");
+        Stream<Path> files = Files.walk(Paths.get(mt940_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
+
+        // When
+        files.forEach(filePath -> {
+            try {
+                System.out.println(filePath);
+                classUnderTest.parse(new FileReader(filePath.toFile()));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // Then
+        // No Exception
+
     }
 }

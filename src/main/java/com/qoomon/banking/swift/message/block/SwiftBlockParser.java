@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.regex.Pattern.*;
+
 /**
  * Created by qoomon on 07/07/16.
  */
@@ -17,7 +19,7 @@ public class SwiftBlockParser {
 
     private final char END_OF_STREAM = (char) -1;
 
-    private static final Pattern BLOCK_PATTERN = Pattern.compile("^\\{(?<id>[0-9]+):(?<content>.*)}", Pattern.DOTALL);
+    private static final Pattern BLOCK_PATTERN = Pattern.compile("^\\{(?<id>[0-9]+):(?<content>.*)}", DOTALL);
 
     public List<GeneralBlock> parse(Reader swiftMessageTextReader) throws BlockParseException {
 

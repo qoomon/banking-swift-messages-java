@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class SwiftFieldParser {
 
-    public static final String SEPARATOR_FIELD_TAG = "--";
+    public static final String SEPARATOR_FIELD_TAG = "-";
 
     private static final Pattern FIELD_STRUCTURE_PATTERN = Pattern.compile(":(?<tag>[^:]+):(?<content>.*)");
 
@@ -33,12 +33,17 @@ public class SwiftFieldParser {
             String currentMessageLine = lineReader.readLine();
             int currentMessageLineNumber = lineReader.getLineNumber();
 
+            // Skip first empty line
+            if(currentMessageLine != null && currentMessageLine.isEmpty()){
+                currentMessageLine = lineReader.readLine();
+            }
+
             while (currentMessageLine != null) {
+                MessageLineType currentMessageLineType = determineMessageLineType(currentMessageLine);
+
                 String nextMessageLine;
                 int nextMessageLineNumber;
                 Set<MessageLineType> nextValidFieldSet;
-
-                MessageLineType currentMessageLineType = determineMessageLineType(currentMessageLine);
                 switch (currentMessageLineType) {
                     case FIELD: {
                         Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentMessageLine);
@@ -54,9 +59,10 @@ public class SwiftFieldParser {
                         nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
                         break;
                     }
+                    case EMPTY:
                     case FIELD_CONTINUATION: {
                         if (currentFieldBuilder == null) {
-                            throw new FieldParseException("Bug: invalid order check for line type" + currentMessageLineType.name(), currentMessageLineNumber);
+                            throw new FieldParseException("Bug: invalid order check for line type " + currentMessageLineType.name(), currentMessageLineNumber);
                         }
                         currentFieldBuilder.appendContent("\n")
                                 .appendContent(currentMessageLine);
@@ -84,7 +90,7 @@ public class SwiftFieldParser {
                 // handle finishing field
                 if (nextMessageLine != null) {
                     MessageLineType nextMessageLineType = determineMessageLineType(nextMessageLine);
-                    if (nextMessageLineType != MessageLineType.FIELD_CONTINUATION) {
+                    if (currentFieldBuilder != null && nextMessageLineType != MessageLineType.FIELD_CONTINUATION) {
                         fieldList.add(currentFieldBuilder.build());
                         currentFieldBuilder = null;
                     }
@@ -128,8 +134,6 @@ public class SwiftFieldParser {
         SEPARATOR,
         EMPTY
     }
-
-
 
 
 }

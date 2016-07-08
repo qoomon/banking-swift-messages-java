@@ -6,7 +6,9 @@ package com.qoomon.banking.swift.message.submessage.field.subfield;
 public enum DebitCreditMark {
 
     DEBIT,
-    CREDIT;
+    DEBIT_REVERSAL,
+    CREDIT,
+    CREDIT_REVERSAL;
 
     public static DebitCreditMark of(String value) {
         switch (value) {
@@ -16,6 +18,12 @@ public enum DebitCreditMark {
             case "CREDIT":
             case "C":
                 return CREDIT;
+            case "DEBIT_REVERSAL":
+            case "DR":
+                return DEBIT_REVERSAL;
+            case "CREDIT_REVERSAL":
+            case "CR":
+                return CREDIT_REVERSAL;
             default:
                 throw new IllegalArgumentException("No mapping found for value '" + value + "'");
         }
