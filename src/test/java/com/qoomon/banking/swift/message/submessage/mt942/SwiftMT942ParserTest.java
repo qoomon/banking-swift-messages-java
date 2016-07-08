@@ -30,7 +30,7 @@ public class SwiftMT942ParserTest {
     public void parse() throws Exception {
 
         // Given
-        URL mt940MessageUrl = Resources.getResource("valid-mt942-content.txt");
+        URL mt940MessageUrl = Resources.getResource("mt942_valid/valid-mt942-content.txt");
         String mt920MessageText = Resources.toString(mt940MessageUrl, Charsets.UTF_8);
 
         // When

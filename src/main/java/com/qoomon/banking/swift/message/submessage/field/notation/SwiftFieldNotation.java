@@ -1,5 +1,8 @@
 package com.qoomon.banking.swift.message.submessage.field.notation;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.MapMaker;
+
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -61,6 +64,7 @@ public class SwiftFieldNotation {
         put("B", "[0-9A-Za-z]");
     }};
 
+
     private final String notation;
     private final List<SubField> swiftSubFields;
 
@@ -78,49 +82,15 @@ public class SwiftFieldNotation {
 
         List<String> result = new LinkedList<>();
 
-        for (SubField swiftSubField : swiftSubFields) {
+        for (SubField subfield : swiftSubFields) {
 
-            String charSet = swiftSubField.getCharSet();
-            String charSetRegex = CHARSET_REGEX_MAP.get(charSet);
-            if (charSetRegex == null) {
-                throw new ParseException("Parse error: " + " Unknown charset " + swiftSubField.getCharSet() + "." + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())), parseIndex);
-            }
+            String charSet = subfield.getCharSet();
 
-            String subFieldRegex = "";
-            if (swiftSubField.getLengthSign().isEmpty()) {
-                int maxCharacters = swiftSubField.getLength0();
-                subFieldRegex += charSetRegex + "{1," + maxCharacters + "}";
-            } else if (swiftSubField.getLengthSign().equals("!")) {
-                int fixedCharacters = swiftSubField.getLength0();
-                subFieldRegex += charSetRegex + "{" + fixedCharacters + "}";
-            } else if (swiftSubField.getLengthSign().equals("-")) {
-                int minCharacters = swiftSubField.getLength0();
-                int maxCharacters = swiftSubField.getLength1();
-                subFieldRegex += charSetRegex + "{" + minCharacters + "," + maxCharacters + "}";
-            } else if (swiftSubField.getLengthSign().equals("*")) {
-                int maxLines = swiftSubField.getLength0();
-                int maxLineCharacters = swiftSubField.getLength1();
-                String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
-                String lineRegex = "[^\n]" + lineCharactersRegexRange;
-                subFieldRegex = "(?=" + lineRegex + "(\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
-                        + "(?:" + charSetRegex + "|\n)"  // add new line character to charset
-                        + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
-            } else {
-                throw new ParseException("Unexpected length sign '" + swiftSubField.getLengthSign() + "'", parseIndex);
-            }
-
-            if (!swiftSubField.getPrefix().isEmpty()) {
-                subFieldRegex = quote(swiftSubField.getPrefix()) + subFieldRegex;
-            }
-
-            if (swiftSubField.isOptional()) {
-                subFieldRegex = "(?:" + subFieldRegex + ")?";
-            }
-            Matcher subFieldMatcher = Pattern.compile("^" + subFieldRegex)
-                    .matcher(fieldText)
-                    .region(Math.min(parseIndex, fieldText.length()), fieldText.length());
+            String subfieldRegex = buildSubfieldRegex(subfield);
+            Matcher subFieldMatcher = Pattern.compile("^" + subfieldRegex)
+                    .matcher(fieldText).region(Math.min(parseIndex, fieldText.length()), fieldText.length());
             if (!subFieldMatcher.find()) {
-                throw new ParseException(swiftSubField + " did not found matching characters."
+                throw new ParseException(subfield + " did not found matching characters."
                         + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
             }
             parseIndex = subFieldMatcher.end();
@@ -131,15 +101,15 @@ public class SwiftFieldNotation {
             if (charSet.equals("d")) {
                 Matcher decimalCharsetMatcher = Pattern.compile("[^,]+,[^,]*").matcher(fieldValue);
                 if (!decimalCharsetMatcher.matches()) {
-                    throw new ParseException(swiftSubField + " did not found matching characters."
+                    throw new ParseException(subfield + " did not found matching characters."
                             + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
                 }
             }
 
 
             //remove prefix
-            if (!swiftSubField.getPrefix().isEmpty()) {
-                fieldValue = fieldValue.replaceFirst(quote(swiftSubField.prefix), "");
+            if (!subfield.getPrefix().isEmpty()) {
+                fieldValue = fieldValue.replaceFirst(quote(subfield.prefix), "");
             }
 
             result.add(fieldValue.isEmpty() ? null : fieldValue);
@@ -151,6 +121,46 @@ public class SwiftFieldNotation {
         }
 
         return result;
+    }
+
+    private static  String buildSubfieldRegex(SubField subfield) {
+        String charSetRegex = CHARSET_REGEX_MAP.get(subfield.getCharSet());
+        if (charSetRegex == null) {
+            throw new IllegalArgumentException("Unknown charset: " + charSetRegex);
+        }
+
+        String subFieldRegex = "";
+        if (subfield.getLengthSign().isEmpty()) {
+            int maxCharacters = subfield.getLength0();
+            subFieldRegex += charSetRegex + "{1," + maxCharacters + "}";
+        } else if (subfield.getLengthSign().equals("!")) {
+            int fixedCharacters = subfield.getLength0();
+            subFieldRegex += charSetRegex + "{" + fixedCharacters + "}";
+        } else if (subfield.getLengthSign().equals("-")) {
+            int minCharacters = subfield.getLength0();
+            int maxCharacters = subfield.getLength1();
+            subFieldRegex += charSetRegex + "{" + minCharacters + "," + maxCharacters + "}";
+        } else if (subfield.getLengthSign().equals("*")) {
+            int maxLines = subfield.getLength0();
+            int maxLineCharacters = subfield.getLength1();
+            String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
+            String lineRegex = "[^\n]" + lineCharactersRegexRange;
+            subFieldRegex = "(?=" + lineRegex + "(\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
+                    + "(?:" + charSetRegex + "|\n)"  // add new line character to charset
+                    + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
+        } else {
+            throw new IllegalArgumentException("Unknown length sign '" + subfield.getLengthSign() + "'");
+        }
+
+        if (!subfield.getPrefix().isEmpty()) {
+            subFieldRegex = quote(subfield.getPrefix()) + subFieldRegex;
+        }
+
+        if (subfield.isOptional()) {
+            subFieldRegex = "(?:" + subFieldRegex + ")?";
+        }
+
+        return subFieldRegex;
     }
 
     public String groupRegex(String groupName, String regex) {
@@ -238,7 +248,7 @@ public class SwiftFieldNotation {
         private Integer length0 = null;
         private Integer length1 = null;
         private String charSet = null;
-        public String lengthSign = "";
+        private String lengthSign = "";
 
         public boolean isOptional() {
             return optional;
