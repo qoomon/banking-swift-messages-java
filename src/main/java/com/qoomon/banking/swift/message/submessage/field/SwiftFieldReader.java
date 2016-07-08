@@ -7,8 +7,6 @@ import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseExc
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,34 +14,41 @@ import java.util.regex.Pattern;
 /**
  * Created by qoomon on 27/06/16.
  */
-public class SwiftFieldParser {
+public class SwiftFieldReader {
 
     public static final String SEPARATOR_FIELD_TAG = "-";
 
     private static final Pattern FIELD_STRUCTURE_PATTERN = Pattern.compile(":(?<tag>[^:]+):(?<content>.*)");
 
-    public List<GeneralField> parse(Reader textReader) throws FieldParseException {
+    private final Reader textReader;
+    private final LineNumberReader lineReader;
 
-        List<GeneralField> fieldList = new LinkedList<>();
+    private Set<MessageLineType> nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
 
-        try (LineNumberReader lineReader = new LineNumberReader(textReader)) {
-            GeneralField.Builder currentFieldBuilder = null;
+    public SwiftFieldReader(Reader textReader) {
+        this.textReader = textReader;
+        this.lineReader = new LineNumberReader(textReader);
+    }
 
-            Set<MessageLineType> currentValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
-            String currentMessageLine = lineReader.readLine();
+    public int getLineNumber() {
+        return lineReader.getLineNumber();
+    }
+
+    public GeneralField readField() throws FieldParseException {
+        GeneralField field = null;
+        try {
+            Set<MessageLineType> currentValidFieldSet = nextValidFieldSet;
+            String currentMessageLine;
             int currentMessageLineNumber = lineReader.getLineNumber();
 
-            // Skip first empty line
-            if(currentMessageLine != null && currentMessageLine.isEmpty()){
-                currentMessageLine = lineReader.readLine();
-            }
+            GeneralField.Builder currentFieldBuilder = null;
 
-            while (currentMessageLine != null) {
+            while (field == null && (currentMessageLine = lineReader.readLine()) != null) {
+                if (lineReader.getLineNumber() == 1 && currentMessageLine.isEmpty()) {
+                    continue;  // Skip first empty line
+                }
+
                 MessageLineType currentMessageLineType = determineMessageLineType(currentMessageLine);
-
-                String nextMessageLine;
-                int nextMessageLineNumber;
-                Set<MessageLineType> nextValidFieldSet;
                 switch (currentMessageLineType) {
                     case FIELD: {
                         Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentMessageLine);
@@ -83,35 +88,24 @@ public class SwiftFieldParser {
                     throw new FieldParseException("Parse error: unexpected line order of" + currentMessageLineType.name(), currentMessageLineNumber);
                 }
 
-                // prepare next line
-                nextMessageLine = lineReader.readLine();
-                nextMessageLineNumber = lineReader.getLineNumber();
+                // lookahead
+                lineReader.mark(256);
+                String nextMessageLine = lineReader.readLine();
+                lineReader.reset();
 
                 // handle finishing field
-                if (nextMessageLine != null) {
-                    MessageLineType nextMessageLineType = determineMessageLineType(nextMessageLine);
-                    if (currentFieldBuilder != null && nextMessageLineType != MessageLineType.FIELD_CONTINUATION) {
-                        fieldList.add(currentFieldBuilder.build());
-                        currentFieldBuilder = null;
-                    }
-                } else { // end of reader
-                    if (currentFieldBuilder != null) {
-                        fieldList.add(currentFieldBuilder.build());
-                        currentFieldBuilder = null;
-                    }
+                MessageLineType nextMessageLineType = nextMessageLine == null ? null : determineMessageLineType(nextMessageLine);
+                if (nextMessageLineType != MessageLineType.FIELD_CONTINUATION && currentFieldBuilder != null) {
+                    field = currentFieldBuilder.build();
                 }
 
-                // prepare for next iteration
-                currentValidFieldSet = nextValidFieldSet;
-                currentMessageLine = nextMessageLine;
-                currentMessageLineNumber = nextMessageLineNumber;
             }
-
-            return fieldList;
         } catch (IOException e) {
             throw new FieldParseException(e);
         }
+        return field;
     }
+
 
     private MessageLineType determineMessageLineType(String messageLine) {
         Preconditions.checkNotNull(messageLine);
