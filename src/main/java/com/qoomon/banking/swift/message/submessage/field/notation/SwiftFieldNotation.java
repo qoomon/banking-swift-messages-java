@@ -1,13 +1,9 @@
 package com.qoomon.banking.swift.message.submessage.field.notation;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.MapMaker;
+import com.google.common.base.Preconditions;
 
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,6 +72,13 @@ public class SwiftFieldNotation {
     }
 
 
+    /**
+     * Parse sub fields
+     *
+     * @param fieldText Text to parse
+     * @return List of subfield values. Missing optional fields are represented as NULL
+     * @throws ParseException
+     */
     public List<String> parse(String fieldText) throws ParseException {
 
         int parseIndex = 0;
@@ -83,77 +86,89 @@ public class SwiftFieldNotation {
         List<String> result = new LinkedList<>();
 
         for (SubField subfield : swiftSubFields) {
-
-            String charSet = subfield.getCharSet();
-
             String subfieldRegex = buildSubfieldRegex(subfield);
-            Matcher subFieldMatcher = Pattern.compile("^" + subfieldRegex)
-                    .matcher(fieldText).region(Math.min(parseIndex, fieldText.length()), fieldText.length());
-            if (!subFieldMatcher.find()) {
+            Pattern subfieldPattern = Pattern.compile("^" + subfieldRegex);
+            Matcher subfieldMatcher = subfieldPattern.matcher(fieldText).region(parseIndex, fieldText.length());
+            if (!subfieldMatcher.find()) {
                 throw new ParseException(subfield + " did not found matching characters."
-                        + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
+                        + " near index " + parseIndex + " '" + fieldText.substring(parseIndex) + "'", parseIndex);
             }
-            parseIndex = subFieldMatcher.end();
+            parseIndex = subfieldMatcher.end();
 
-            String fieldValue = subFieldMatcher.group();
+            String fieldValue = subfieldMatcher.group();
 
             // special handling for d charset due to only on comma constraint
-            if (charSet.equals("d")) {
+            if (subfield.getCharSet().equals("d")) {
                 Matcher decimalCharsetMatcher = Pattern.compile("[^,]+,[^,]*").matcher(fieldValue);
                 if (!decimalCharsetMatcher.matches()) {
                     throw new ParseException(subfield + " did not found matching characters."
-                            + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
+                            + " near index " + parseIndex + " '" + fieldText.substring(parseIndex) + "'", parseIndex);
                 }
             }
 
-
             //remove prefix
-            if (!subfield.getPrefix().isEmpty()) {
-                fieldValue = fieldValue.replaceFirst(quote(subfield.prefix), "");
+            if (subfield.getPrefix().isPresent()) {
+                fieldValue = fieldValue.replaceFirst(quote(subfield.getPrefix().get()), "");
             }
 
-            result.add(fieldValue.isEmpty() ? null : fieldValue);
+            // add field value
+            if (!fieldValue.isEmpty()) {
+                result.add(fieldValue);
+            } else {
+                result.add(null);
+            }
         }
 
         if (parseIndex != fieldText.length()) {
             throw new ParseException("Unparsed characters remain."
-                    + " near index " + parseIndex + " '" + fieldText.substring(parseIndex, Math.min(parseIndex + 8, fieldText.length())) + "'", parseIndex);
+                    + " near index " + parseIndex + " '" + fieldText.substring(parseIndex) + "'", parseIndex);
         }
 
         return result;
     }
 
-    private static  String buildSubfieldRegex(SubField subfield) {
+    private static String buildSubfieldRegex(SubField subfield) {
         String charSetRegex = CHARSET_REGEX_MAP.get(subfield.getCharSet());
         if (charSetRegex == null) {
             throw new IllegalArgumentException("Unknown charset: " + charSetRegex);
         }
 
         String subFieldRegex = "";
-        if (subfield.getLengthSign().isEmpty()) {
+        if (!subfield.getLengthSign().isPresent()) {
             int maxCharacters = subfield.getLength0();
             subFieldRegex += charSetRegex + "{1," + maxCharacters + "}";
-        } else if (subfield.getLengthSign().equals("!")) {
-            int fixedCharacters = subfield.getLength0();
-            subFieldRegex += charSetRegex + "{" + fixedCharacters + "}";
-        } else if (subfield.getLengthSign().equals("-")) {
-            int minCharacters = subfield.getLength0();
-            int maxCharacters = subfield.getLength1();
-            subFieldRegex += charSetRegex + "{" + minCharacters + "," + maxCharacters + "}";
-        } else if (subfield.getLengthSign().equals("*")) {
-            int maxLines = subfield.getLength0();
-            int maxLineCharacters = subfield.getLength1();
-            String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
-            String lineRegex = "[^\n]" + lineCharactersRegexRange;
-            subFieldRegex = "(?=" + lineRegex + "(\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
-                    + "(?:" + charSetRegex + "|\n)"  // add new line character to charset
-                    + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
         } else {
-            throw new IllegalArgumentException("Unknown length sign '" + subfield.getLengthSign() + "'");
+            String lengthSign = subfield.getLengthSign().get();
+            switch (lengthSign) {
+                case "!": {
+                    int fixedCharacters = subfield.getLength0();
+                    subFieldRegex += charSetRegex + "{" + fixedCharacters + "}";
+                    break;
+                }
+                case "-": {
+                    int minCharacters = subfield.getLength0();
+                    int maxCharacters = subfield.getLength1().get();
+                    subFieldRegex += charSetRegex + "{" + minCharacters + "," + maxCharacters + "}";
+                    break;
+                }
+                case "*": {
+                    int maxLines = subfield.getLength0();
+                    int maxLineCharacters = subfield.getLength1().get();
+                    String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
+                    String lineRegex = "[^\n]" + lineCharactersRegexRange;
+                    subFieldRegex = "(?=" + lineRegex + "(\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
+                            + "(?:" + charSetRegex + "|\n)"  // add new line character to charset
+                            + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
+                    break;
+                }
+                default:
+                    throw new RuntimeException("Unsupported length sign '" + lengthSign + "'");
+            }
         }
 
-        if (!subfield.getPrefix().isEmpty()) {
-            subFieldRegex = quote(subfield.getPrefix()) + subFieldRegex;
+
+        if (subfield.getPrefix().isPresent()) {
+            subFieldRegex = quote(subfield.getPrefix().get()) + subFieldRegex;
         }
 
         if (subfield.isOptional()) {
@@ -174,66 +189,49 @@ public class SwiftFieldNotation {
     public List<SubField> parseSwiftNotation(String swiftNotation) {
         List<SubField> result = new LinkedList<>();
 
-        String optionalFieldGroupName = "optional";
-        String mandatoryFieldGroupName = "mandatory";
-
-        Pattern fieldValueNotationPattern = Pattern.compile("(" + SEPARATOR_SET + ")?([0-9]{1,2})(!|(?:[-*][0-9]{1,2}))?([acdehnsxyzAB])");
-
-        Pattern fieldNotationPattern = Pattern.compile(quote("[") + groupRegex(optionalFieldGroupName, fieldValueNotationPattern) + quote("]") + "|" + groupRegex(mandatoryFieldGroupName, fieldValueNotationPattern));
+        // Group 1: Field Prefix
+        // Group 2: Field length0
+        // Group 3: Field length sign ! - *
+        // Group 4: Field length1
+        // Group 5: Field charset
+        Pattern fieldValueNotationPattern = Pattern.compile("(" + SEPARATOR_SET + ")?([0-9]{1,2})([!-*])?([0-9]{1,2})?([acdehnsxyzAB])");
+        Pattern fieldNotationPattern = Pattern.compile(quote("[") + fieldValueNotationPattern + quote("]") + "|" + fieldValueNotationPattern);
         Matcher fieldNotationMatcher = fieldNotationPattern.matcher(swiftNotation);
-
         int parseIndex = 0;
         while (fieldNotationMatcher.find(parseIndex)) {
             if (fieldNotationMatcher.start() != parseIndex) {
-                throw new RuntimeException("Parse error: near index " + parseIndex + " '" + swiftNotation.substring(parseIndex, Math.min(parseIndex + 8, swiftNotation.length()))
-                        + " unexpected sign(s) '" + swiftNotation.substring(parseIndex, fieldNotationMatcher.start()) + "'");
+                throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
             }
             parseIndex = fieldNotationMatcher.end();
 
-            SubField swiftSubField = new SubField();
-
-            String field = fieldNotationMatcher.group(mandatoryFieldGroupName);
-            if (field == null) {
-                field = fieldNotationMatcher.group(optionalFieldGroupName);
-                swiftSubField.optional = true;
-            }
-
-            Matcher fieldPropertiesMatcher = fieldValueNotationPattern.matcher(field);
+            String subfieldNotation = fieldNotationMatcher.group();
+            // trim optional indicator
+            String trimmedSubfieldNotation = subfieldNotation.replaceFirst("^" + quote("[") + "(.*)" + quote("]") + "$", "$1");
+            Matcher fieldPropertiesMatcher = fieldValueNotationPattern.matcher(trimmedSubfieldNotation);
             if (!fieldPropertiesMatcher.matches()) {
-                throw new RuntimeException("Parse error: near index " + parseIndex + " '" + swiftNotation.substring(parseIndex, Math.min(parseIndex + 8, swiftNotation.length()))
-                        + " unexpected sign(s) '" + swiftNotation.substring(parseIndex, fieldNotationMatcher.start()) + "'");
+                throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
             }
 
-            String prefix = fieldPropertiesMatcher.group(1);
-            if (prefix != null) {
-                swiftSubField.prefix = prefix;
-            }
+            boolean fieldOptional = subfieldNotation.startsWith("[");
+            String fieldPrefix = fieldPropertiesMatcher.group(1);
+            Integer fieldLength0 = Integer.parseInt(fieldPropertiesMatcher.group(2));
+            Integer fieldLength1 = fieldPropertiesMatcher.group(4) == null ? null : Integer.parseInt(fieldPropertiesMatcher.group(4));
+            String fieldLengthSign = fieldPropertiesMatcher.group(3);
+            String fieldCharset = fieldPropertiesMatcher.group(5);
 
-            int length0 = Integer.parseInt(fieldPropertiesMatcher.group(2));
-            String lengthExtra = fieldPropertiesMatcher.group(3);
-
-            swiftSubField.length0 = length0;
-            if (lengthExtra != null) {
-                String lengthSign = lengthExtra.substring(0, 1);
-                swiftSubField.lengthSign = lengthSign;
-                switch (lengthSign) {
-                    case "!":
-                        break;
-                    case "-":
-                    case "*": {
-                        swiftSubField.length1 = Integer.parseInt(lengthExtra.substring(1));
-                        break;
-                    }
-                }
-            }
-
-            swiftSubField.charSet = fieldPropertiesMatcher.group(4);
+            SubField subField = new SubField(
+                    fieldOptional,
+                    fieldPrefix,
+                    fieldCharset,
+                    fieldLength0,
+                    fieldLength1,
+                    fieldLengthSign);
 
             // add field
-            result.add(swiftSubField);
+            result.add(subField);
         }
         if (parseIndex != swiftNotation.length()) {
-            throw new RuntimeException("Parse error: near index " + parseIndex + " '" + swiftNotation.substring(parseIndex, Math.min(parseIndex + 8, swiftNotation.length())));
+            throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
         }
         return result;
     }
@@ -243,26 +241,51 @@ public class SwiftFieldNotation {
     }
 
     public class SubField {
-        private boolean optional = false;
-        private String prefix = "";
-        private Integer length0 = null;
-        private Integer length1 = null;
-        private String charSet = null;
-        private String lengthSign = "";
+        private final Boolean optional;
+        private final Optional<String> prefix;
+        private final String charSet;
+        private final Integer length0;
+        private final Optional<Integer> length1;
+        private final Optional<String> lengthSign;
 
-        public boolean isOptional() {
+        public SubField(Boolean optional, String prefix, String charSet, Integer length0, Integer length1, String lengthSign) {
+            this.optional = Preconditions.checkNotNull(optional);
+            this.prefix = Optional.ofNullable(prefix);
+            this.charSet = Preconditions.checkNotNull(charSet);
+            this.length0 = Preconditions.checkNotNull(length0);
+            this.length1 = Optional.ofNullable(length1);
+            this.lengthSign = Optional.ofNullable(lengthSign);
+
+            if (!this.lengthSign.isPresent()) {
+                Preconditions.checkArgument(!this.length1.isPresent(), "Missing field length sign between field lengths : '" + this.toString() + "'");
+            } else switch (this.lengthSign.get()) {
+                case "!":
+                    Preconditions.checkArgument(!this.length1.isPresent(), "Unexpected field length after fixed length sign '!' : '" + this.toString() + "'");
+                    break;
+                case "-":
+                    Preconditions.checkArgument(this.length1.isPresent(), "Missing field length after range length sign '-' : '" + this.toString() + "'");
+                    break;
+                case "*":
+                    Preconditions.checkArgument(this.length1.isPresent(), "Missing field length after multiline length sign '*' : '" + this.toString() + "'");
+                    break;
+                default:
+                    Preconditions.checkArgument(false, "Unknown length sign : '" + this.toString() + "'");
+            }
+        }
+
+        public Boolean isOptional() {
             return optional;
         }
 
-        public int getLength0() {
+        public Integer getLength0() {
             return length0;
         }
 
-        public int getLength1() {
+        public Optional<Integer> getLength1() {
             return length1;
         }
 
-        public String getLengthSign() {
+        public Optional<String> getLengthSign() {
             return lengthSign;
         }
 
@@ -270,7 +293,7 @@ public class SwiftFieldNotation {
             return charSet;
         }
 
-        public String getPrefix() {
+        public Optional<String> getPrefix() {
             return prefix;
         }
 
@@ -279,7 +302,7 @@ public class SwiftFieldNotation {
             String fieldNotation = "";
 
             fieldNotation += length0;
-            if (!lengthSign.isEmpty()) {
+            if (lengthSign.isPresent()) {
                 fieldNotation += lengthSign;
                 if (lengthSign.equals("-") || lengthSign.equals("*")) {
                     fieldNotation += length1;
