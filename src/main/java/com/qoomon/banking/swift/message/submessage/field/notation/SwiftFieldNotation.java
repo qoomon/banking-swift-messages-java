@@ -46,6 +46,7 @@ public class SwiftFieldNotation {
     private static final String SEPARATOR_SET = "(?:/|//|BR|ISIN)";
 
     private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<String, String>() {{
+        // see class description for charset details
         put("a", "[A-Z]");
         put("n", "[0-9]");
         put("c", "[0-9A-Z]");
