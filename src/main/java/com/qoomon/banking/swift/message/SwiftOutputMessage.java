@@ -3,6 +3,8 @@ package com.qoomon.banking.swift.message;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.*;
 
+import java.util.Optional;
+
 /**
  * Created by qoomon on 24/06/16.
  * <pre>
@@ -116,21 +118,28 @@ public class SwiftOutputMessage {
     private final TextBlock textBlock;
 
     /**
-     * {5:} Trailer Block
+     * {5:} User Trailer Block
      */
-    private final TrailerBlock trailerBlock;
+    private final Optional<UserTrailerBlock> userTrailerBlock;
+
+    /**
+     * {S:} System Trailer Block
+     */
+    private final Optional<SystemTrailerBlock> systemTrailerBlock;
 
 
     public SwiftOutputMessage(BasicHeaderBlock basicHeaderBlock,
                               OutputApplicationHeaderBlock applicationHeaderBlock,
                               UserHeaderBlock userHeaderBlock,
                               TextBlock textBlock,
-                              TrailerBlock trailerBlock) {
+                              UserTrailerBlock userTrailerBlock,
+                              SystemTrailerBlock systemTrailerBlock) {
         this.basicHeaderBlock = Preconditions.checkNotNull(basicHeaderBlock);
         this.applicationHeaderBlock = Preconditions.checkNotNull(applicationHeaderBlock);
         this.userHeaderBlock = Preconditions.checkNotNull(userHeaderBlock);
         this.textBlock = Preconditions.checkNotNull(textBlock);
-        this.trailerBlock = Preconditions.checkNotNull(trailerBlock);
+        this.userTrailerBlock = Optional.ofNullable(userTrailerBlock);
+        this.systemTrailerBlock = Optional.ofNullable(systemTrailerBlock);
     }
 
     public BasicHeaderBlock getBasicHeaderBlock() {
@@ -149,7 +158,11 @@ public class SwiftOutputMessage {
         return textBlock;
     }
 
-    public TrailerBlock getTrailerBlock() {
-        return trailerBlock;
+    public Optional<UserTrailerBlock> getUserTrailerBlock() {
+        return userTrailerBlock;
+    }
+
+    public Optional<SystemTrailerBlock> getSystemTrailerBlock() {
+        return systemTrailerBlock;
     }
 }

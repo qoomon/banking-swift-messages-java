@@ -1,7 +1,6 @@
 package com.qoomon.banking.swift.message.submessage;
 
 import com.qoomon.banking.swift.message.submessage.field.GeneralField;
-import com.qoomon.banking.swift.message.submessage.field.SwiftFieldParser;
 import com.qoomon.banking.swift.message.submessage.field.SwiftFieldReader;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 import org.assertj.core.api.SoftAssertions;
@@ -10,32 +9,28 @@ import org.junit.Test;
 import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by qoomon on 27/06/16.
  */
-public class SwiftFieldParserTest {
+public class SwiftFieldReaderTest {
 
     private SoftAssertions softly = new SoftAssertions();
-
-    private SwiftFieldParser classUnderTest = new SwiftFieldParser();
 
     @Test
     public void readField_WHEN_valid_message_text_THEN_return_fields() throws Exception {
 
         // Given
         String swiftMessage = ":1:fizz\n:2:buzz";
-
         SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        List<GeneralField> fieldList = new LinkedList<>();
-        GeneralField field;
-        while ((field = classUnderTest.readField()) != null) {
-            fieldList.add(field);
-        }
+        List<GeneralField> fieldList = collectAll(classUnderTest::readField);
 
         // Then
         assertThat(fieldList).hasSize(2);
@@ -49,35 +44,16 @@ public class SwiftFieldParserTest {
 
     }
 
-    @Test
-    public void parse_WHEN_valid_message_text_THEN_return_fields() throws Exception {
-
-        // Given
-        String swiftMessage = ":1:fizz\n:2:buzz";
-
-        // When
-        List<GeneralField> fieldList = classUnderTest.parse(new StringReader(swiftMessage));
-
-        // Then
-        assertThat(fieldList).hasSize(2);
-        softly.assertThat(fieldList.get(0).getTag()).isEqualTo("1");
-        softly.assertThat(fieldList.get(0).getContent()).isEqualTo("fizz");
-        ;
-        softly.assertThat(fieldList.get(1).getTag()).isEqualTo("2");
-        ;
-        softly.assertThat(fieldList.get(1).getContent()).isEqualTo("buzz");
-        softly.assertAll();
-
-    }
 
     @Test
-    public void parse_WHEN_detecting_multiline_fields_THEN_return_fields_with_joined_content() throws Exception {
+    public void readField_WHEN_detecting_multiline_fields_THEN_return_fields_with_joined_content() throws Exception {
 
         // Given
         String swiftMessage = ":1:fizz\n:2:multi\r\nline";
+        SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        List<GeneralField> fieldList = classUnderTest.parse(new StringReader(swiftMessage));
+        List<GeneralField> fieldList = collectAll(classUnderTest::readField);
 
         // Then
         assertThat(fieldList).hasSize(2);
@@ -90,13 +66,14 @@ public class SwiftFieldParserTest {
     }
 
     @Test
-    public void parse_WHEN_detecting_content_without_field_tag_THEN_throw_exception() throws Exception {
+    public void readField_WHEN_detecting_content_without_field_tag_THEN_throw_exception() throws Exception {
 
         // Given
         String swiftMessage = "fizz\n:2:buzz";
+        SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessage)));
+        Throwable exception = catchThrowable(() -> collectAll(classUnderTest::readField));
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(FieldParseException.class);
@@ -104,6 +81,16 @@ public class SwiftFieldParserTest {
         FieldParseException parseException = (FieldParseException) exception;
         assertThat(parseException.getLineNumber()).isEqualTo(1);
 
+    }
+
+
+    private List<GeneralField> collectAll(Callable<GeneralField> readFieldFunction) throws Exception {
+        List<GeneralField> fields = new LinkedList<>();
+        GeneralField field;
+        while ((field = readFieldFunction.call()) != null) {
+            fields.add(field);
+        }
+        return fields;
     }
 
 }

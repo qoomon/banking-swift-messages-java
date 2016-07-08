@@ -27,14 +27,14 @@ public class GeneralMessage {
     /**
      * {5:} Trailer Block
      */
-    private final TrailerBlock trailerBlock;
+    private final UserTrailerBlock userTrailerBlock;
 
-    public GeneralMessage(BasicHeaderBlock basicHeaderBlock, GeneralBlock applicationHeaderBlock, UserHeaderBlock userHeaderBlock, TextBlock textBlock, TrailerBlock trailerBlock) {
+    public GeneralMessage(BasicHeaderBlock basicHeaderBlock, GeneralBlock applicationHeaderBlock, UserHeaderBlock userHeaderBlock, TextBlock textBlock, UserTrailerBlock userTrailerBlock) {
         this.basicHeaderBlock = basicHeaderBlock;
         this.applicationHeaderBlock = applicationHeaderBlock;
         this.userHeaderBlock = userHeaderBlock;
         this.textBlock = textBlock;
-        this.trailerBlock = trailerBlock;
+        this.userTrailerBlock = userTrailerBlock;
     }
 
     public BasicHeaderBlock getBasicHeaderBlock() {
@@ -53,7 +53,7 @@ public class GeneralMessage {
         return textBlock;
     }
 
-    public TrailerBlock getTrailerBlock() {
-        return trailerBlock;
+    public UserTrailerBlock getUserTrailerBlock() {
+        return userTrailerBlock;
     }
 }

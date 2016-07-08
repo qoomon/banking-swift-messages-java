@@ -30,7 +30,7 @@ public class SwiftMT942ParserTest {
     public void parse() throws Exception {
 
         // Given
-        URL mt940MessageUrl = Resources.getResource("mt942_valid/valid-mt942-content.txt");
+        URL mt940MessageUrl = Resources.getResource("submessage/mt942_valid/valid-mt942-content.txt");
         String mt920MessageText = Resources.toString(mt940MessageUrl, Charsets.UTF_8);
 
         // When
@@ -48,7 +48,7 @@ public class SwiftMT942ParserTest {
     public void parse_SHOULD_parse_valid_files() throws Exception {
 
         // Given
-        URL mt920_valid_folder = Resources.getResource("mt942_valid");
+        URL mt920_valid_folder = Resources.getResource("submessage/mt942_valid");
         Stream<Path> files = Files.walk(Paths.get(mt920_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
 
         // When

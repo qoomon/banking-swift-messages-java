@@ -1,11 +1,13 @@
 package com.qoomon.banking.swift.message;
 
+import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.block.*;
 import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by qoomon on 24/06/16.
@@ -20,9 +22,10 @@ public class SwiftOutputMessageParser {
         OutputApplicationHeaderBlock applicationHeaderBlock = null;
         UserHeaderBlock userHeaderBlock = null;
         TextBlock textBlock = null;
-        TrailerBlock trailerBlock = null;
+        UserTrailerBlock userTrailerBlock = null;
+        SystemTrailerBlock systemTrailerBlock = null;
 
-        String currentValidBlockId = BasicHeaderBlock.BLOCK_ID_1;
+        Set<String> currentValidBlockIdSet = ImmutableSet.of(BasicHeaderBlock.BLOCK_ID_1);
 
 
         List<GeneralBlock> blockList = blockParser.parse(swiftMessageTextReader);
@@ -33,33 +36,39 @@ public class SwiftOutputMessageParser {
 
             switch (currentBlock.getId()) {
                 case BasicHeaderBlock.BLOCK_ID_1: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockId, currentBlockNumber);
+                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
                     basicHeaderBlock = BasicHeaderBlock.of(currentBlock);
-                    currentValidBlockId = OutputApplicationHeaderBlock.BLOCK_ID_2;
+                    currentValidBlockIdSet = ImmutableSet.of(OutputApplicationHeaderBlock.BLOCK_ID_2);
                     break;
                 }
                 case OutputApplicationHeaderBlock.BLOCK_ID_2: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockId, currentBlockNumber);
+                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
                     applicationHeaderBlock = OutputApplicationHeaderBlock.of(currentBlock);
-                    currentValidBlockId = UserHeaderBlock.BLOCK_ID_3;
+                    currentValidBlockIdSet = ImmutableSet.of(UserHeaderBlock.BLOCK_ID_3);
                     break;
                 }
                 case UserHeaderBlock.BLOCK_ID_3: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockId, currentBlockNumber);
+                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
                     userHeaderBlock = UserHeaderBlock.of(currentBlock);
-                    currentValidBlockId = TextBlock.BLOCK_ID_4;
+                    currentValidBlockIdSet = ImmutableSet.of(TextBlock.BLOCK_ID_4);
                     break;
                 }
                 case TextBlock.BLOCK_ID_4: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockId, currentBlockNumber);
+                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
                     textBlock = TextBlock.of(currentBlock);
-                    currentValidBlockId = TrailerBlock.BLOCK_ID_5;
+                    currentValidBlockIdSet = ImmutableSet.of(UserTrailerBlock.BLOCK_ID_5, SystemTrailerBlock.BLOCK_ID_S);
                     break;
                 }
-                case TrailerBlock.BLOCK_ID_5: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockId, currentBlockNumber);
-                    trailerBlock = TrailerBlock.of(currentBlock);
-                    currentValidBlockId = "";
+                case UserTrailerBlock.BLOCK_ID_5: {
+                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
+                    userTrailerBlock = UserTrailerBlock.of(currentBlock);
+                    currentValidBlockIdSet = ImmutableSet.of(SystemTrailerBlock.BLOCK_ID_S);
+                    break;
+                }
+                case SystemTrailerBlock.BLOCK_ID_S: {
+                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
+                    systemTrailerBlock = SystemTrailerBlock.of(currentBlock);
+                    currentValidBlockIdSet = ImmutableSet.of();
                     break;
                 }
                 default:
@@ -72,12 +81,14 @@ public class SwiftOutputMessageParser {
                 applicationHeaderBlock,
                 userHeaderBlock,
                 textBlock,
-                trailerBlock);
+                userTrailerBlock,
+                systemTrailerBlock);
     }
 
-    private void ensureValidBlockId(String actualBlockId, String expectedBlockId, int currentBlockNumber) throws SwiftMessageParseException {
-        if (!expectedBlockId.equals(actualBlockId)) {
-            throw new SwiftMessageParseException("Expected Block '" + expectedBlockId + "', but was '" + actualBlockId + "'", currentBlockNumber);
+    private void ensureValidBlockId(String actualBlockId, Set<String> expectedBlockIdSet, int currentBlockNumber) throws SwiftMessageParseException {
+        if (!expectedBlockIdSet.contains(actualBlockId)) {
+            throw new SwiftMessageParseException("Expected Block '" + expectedBlockIdSet + "', but was '" + actualBlockId + "'", currentBlockNumber);
         }
     }
+
 }

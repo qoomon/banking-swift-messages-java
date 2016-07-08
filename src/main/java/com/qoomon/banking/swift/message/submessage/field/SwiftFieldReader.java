@@ -16,17 +16,13 @@ import java.util.regex.Pattern;
  */
 public class SwiftFieldReader {
 
-    public static final String SEPARATOR_FIELD_TAG = "-";
-
     private static final Pattern FIELD_STRUCTURE_PATTERN = Pattern.compile(":(?<tag>[^:]+):(?<content>.*)");
 
-    private final Reader textReader;
     private final LineNumberReader lineReader;
 
     private Set<MessageLineType> nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
 
     public SwiftFieldReader(Reader textReader) {
-        this.textReader = textReader;
         this.lineReader = new LineNumberReader(textReader);
     }
 
@@ -39,13 +35,14 @@ public class SwiftFieldReader {
         try {
             Set<MessageLineType> currentValidFieldSet = nextValidFieldSet;
             String currentMessageLine;
-            int currentMessageLineNumber = lineReader.getLineNumber();
+            int currentMessageLineNumber;
 
             GeneralField.Builder currentFieldBuilder = null;
 
             while (field == null && (currentMessageLine = lineReader.readLine()) != null) {
-                if (lineReader.getLineNumber() == 1 && currentMessageLine.isEmpty()) {
-                    continue;  // Skip first empty line
+                currentMessageLineNumber = lineReader.getLineNumber();
+                if (currentMessageLineNumber == 1 && currentMessageLine.isEmpty()) {
+                    continue;  // Skip first empty line if any
                 }
 
                 MessageLineType currentMessageLineType = determineMessageLineType(currentMessageLine);
@@ -67,7 +64,7 @@ public class SwiftFieldReader {
                     case EMPTY:
                     case FIELD_CONTINUATION: {
                         if (currentFieldBuilder == null) {
-                            throw new FieldParseException("Bug: invalid order check for line type " + currentMessageLineType.name(), currentMessageLineNumber);
+                            throw new FieldParseException("Field content without any tag", currentMessageLineNumber);
                         }
                         currentFieldBuilder.appendContent("\n")
                                 .appendContent(currentMessageLine);
@@ -75,7 +72,7 @@ public class SwiftFieldReader {
                         break;
                     }
                     case SEPARATOR: {
-                        currentFieldBuilder = GeneralField.newBuilder().setTag(SEPARATOR_FIELD_TAG);
+                        currentFieldBuilder = GeneralField.newBuilder().setTag(Seperator.TAG);
                         nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
                         break;
                     }
@@ -112,7 +109,7 @@ public class SwiftFieldReader {
         if (messageLine.isEmpty()) {
             return MessageLineType.EMPTY;
         }
-        if (messageLine.equals(SEPARATOR_FIELD_TAG)) {
+        if (messageLine.equals(Seperator.TAG)) {
             return MessageLineType.SEPARATOR;
         }
         if (FIELD_STRUCTURE_PATTERN.matcher(messageLine).matches()) {

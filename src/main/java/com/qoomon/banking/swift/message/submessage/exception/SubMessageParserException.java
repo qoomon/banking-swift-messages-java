@@ -6,24 +6,27 @@ package com.qoomon.banking.swift.message.submessage.exception;
 public class SubMessageParserException extends RuntimeException {
 
     private final String fieldTag;
-    private final int fieldNumber;
+    private final int lineNumber;
 
-    public SubMessageParserException(String message, int fieldNumber, String fieldTag) {
-        super(message + " at field number " + fieldNumber + ", field tag " + fieldTag);
+    public SubMessageParserException(String message, int lineNumber, String fieldTag) {
+        super(message + " at line number " + lineNumber + ", field tag " + fieldTag);
         this.fieldTag = fieldTag;
-        this.fieldNumber = fieldNumber;
+        this.lineNumber = lineNumber;
     }
 
-    public SubMessageParserException(String message, int fieldNumber, String fieldTag, Throwable cause) {
-        super(message + " at field number " + fieldNumber + ", field tag " + fieldTag, cause);
+    public SubMessageParserException(String message, int lineNumber, String fieldTag, Throwable cause) {
+        super(message + " at line number " + lineNumber + ", field tag " + fieldTag, cause);
         this.fieldTag = fieldTag;
-        this.fieldNumber = fieldNumber;
+        this.lineNumber = lineNumber;
     }
 
     public SubMessageParserException(Throwable cause) {
         super(cause);
         this.fieldTag = "";
-        this.fieldNumber = 0;
+        this.lineNumber = 0;
     }
 
+    public int getLineNumber() {
+        return lineNumber;
+    }
 }

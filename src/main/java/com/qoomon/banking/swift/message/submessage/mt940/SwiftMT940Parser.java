@@ -16,14 +16,12 @@ import java.util.Set;
  */
 public class SwiftMT940Parser {
 
-    private final SwiftFieldParser fieldParser = new SwiftFieldParser();
 
-    public List<SwiftMT940> parse(Reader mt940TextReader) throws FieldParseException {
+    public List<SwiftMT940> parse(Reader textReader) throws FieldParseException {
 
         List<SwiftMT940> result = new LinkedList<>();
 
-        List<GeneralField> fieldList = fieldParser.parse(mt940TextReader);
-
+        boolean buildMessageInProgress = false;
         TransactionReferenceNumber transactionReferenceNumber = null;
         RelatedReference relatedReference = null;
         AccountIdentification accountIdentification = null;
@@ -35,16 +33,15 @@ public class SwiftMT940Parser {
         List<ForwardAvailableBalance> forwardAvailableBalanceList = new LinkedList<>();
         InformationToAccountOwner informationToAccountOwner = null;
 
-        int currentFieldNumber = 0;
-
         Set<String> currentValidFieldSet = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
 
+        SwiftFieldReader swiftFieldReader = new SwiftFieldReader(textReader);
         GeneralField previousField = null;
-        for (GeneralField currentField : fieldList) {
+        GeneralField currentField;
+        while ((currentField = swiftFieldReader.readField()) != null) {
+            buildMessageInProgress = true;
             try {
                 Set<String> nextValidFieldSet;
-
-                currentFieldNumber++;
 
                 switch (currentField.getTag()) {
                     case TransactionReferenceNumber.FIELD_TAG_20: {
@@ -98,7 +95,7 @@ public class SwiftMT940Parser {
                                 ClosingAvailableBalance.FIELD_TAG_64,
                                 ForwardAvailableBalance.FIELD_TAG_65,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                SwiftFieldParser.SEPARATOR_FIELD_TAG);
+                                Seperator.TAG);
                         break;
                     }
                     case ClosingAvailableBalance.FIELD_TAG_64: {
@@ -106,7 +103,7 @@ public class SwiftMT940Parser {
                         nextValidFieldSet = ImmutableSet.of(
                                 ForwardAvailableBalance.FIELD_TAG_65,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                SwiftFieldParser.SEPARATOR_FIELD_TAG);
+                                Seperator.TAG);
                         break;
                     }
                     case ForwardAvailableBalance.FIELD_TAG_65: {
@@ -114,7 +111,7 @@ public class SwiftMT940Parser {
                         forwardAvailableBalanceList.add(forwardAvailableBalance);
                         nextValidFieldSet = ImmutableSet.of(
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                SwiftFieldParser.SEPARATOR_FIELD_TAG);
+                                Seperator.TAG);
                         break;
                     }
                     case InformationToAccountOwner.FIELD_TAG_86: {
@@ -133,32 +130,31 @@ public class SwiftMT940Parser {
                                     ClosingBalance.FIELD_TAG_62M);
                         } else {
                             informationToAccountOwner = InformationToAccountOwner.of(currentField);
-                            nextValidFieldSet = ImmutableSet.of(SwiftFieldParser.SEPARATOR_FIELD_TAG);
+                            nextValidFieldSet = ImmutableSet.of(Seperator.TAG);
                         }
                         break;
                     }
-                    case SwiftFieldParser.SEPARATOR_FIELD_TAG: {
+                    case Seperator.TAG: {
                         // see below at finish message
                         nextValidFieldSet = ImmutableSet.of(
                                 TransactionReferenceNumber.FIELD_TAG_20);
                         break;
                     }
                     default:
-                        throw new SubMessageParserException("Parse error: unexpected field", currentFieldNumber, currentField.getTag());
+                        throw new SubMessageParserException("Parse error: unexpected field", swiftFieldReader.getLineNumber(), currentField.getTag());
                 }
 
                 if (!currentValidFieldSet.contains(currentField.getTag())) {
                     if (previousField == null) {
-                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed as first field", currentFieldNumber, currentField.getTag());
+                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed as first field", swiftFieldReader.getLineNumber(), currentField.getTag());
                     } else {
-                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), currentFieldNumber, currentField.getTag());
+                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), swiftFieldReader.getLineNumber(), currentField.getTag());
                     }
                 }
 
                 // handle finishing message
-                if (fieldList.size() == currentFieldNumber // last field
-                        || currentField.getTag().equals(SwiftFieldParser.SEPARATOR_FIELD_TAG)) {
-
+                if (currentField.getTag().equals(Seperator.TAG)) {
+                    buildMessageInProgress = false;
                     result.add(new SwiftMT940(
                             transactionReferenceNumber,
                             relatedReference,
@@ -189,8 +185,12 @@ public class SwiftMT940Parser {
                 currentValidFieldSet = nextValidFieldSet;
 
             } catch (ParseException parseException) {
-                throw new SubMessageParserException("Subfield parse error", currentFieldNumber, currentField.getTag(), parseException);
+                throw new SubMessageParserException("Subfield parse error", swiftFieldReader.getLineNumber(), currentField.getTag(), parseException);
             }
+        }
+
+        if (buildMessageInProgress) {
+            throw new SubMessageParserException("Unfinished Message", swiftFieldReader.getLineNumber(), "n/a");
         }
 
         return result;

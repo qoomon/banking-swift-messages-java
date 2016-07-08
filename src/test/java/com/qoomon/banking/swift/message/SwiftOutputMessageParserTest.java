@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.message;
 
+import com.google.common.io.Resources;
 import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import org.assertj.core.api.Fail;
@@ -9,6 +10,7 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -150,38 +152,24 @@ public class SwiftOutputMessageParserTest {
     }
 
     @Test
-    public void parse_SHOULD_parse_valid_file() throws Exception {
+    public void parse_SHOULD_parse_valid_files() throws Exception {
 
         // Given
-        String swiftMessageText = "{1:F01DEUTDEFFXNAI2260805235}{2:O9421247160519DEUTNL20PXXX22608052351605191247N}{3:{113:BL03}{108:484047}}{4:\n" +
-                ":20:S000000008944056\n" +
-                ":25:NL35DEUT0319841642CHF\n" +
-                ":28C:466/2\n" +
-                ":34F:CHF0,\n" +
-                ":13D:1605191047+0100\n" +
-                ":61:1605190519C304,59NTRFCT61408023551016//1614000208533186 \n" +
-                "/OCMT/EUR278,24//EXCH/1,0947/\n" +
-                ":86:SEPA Receipt (CR) \n" +
-                "/EREF/NOTPROVIDED//ORDP/PHILIP V BVBA DEN HEUVE L 20 2970 SCHILDE BELGIUM \n" +
-                "//REMI/ FN 6031818//ACCW/BE954164127511 58,KREDBEBB/ \n" +
-                ":61:1605190519C803,08NTRFCT61408023551017//1614000208533184 \n" +
-                "/OCMT/EUR733,61//EXCH/1,0947/\n" +
-                ":86:SEPA Receipt (CR) /EREF/NOTPROVIDED//ORDP/DVMC \n" +
-                "BVBA LOPPEMSESTRAA T 44 8210 ZEDELGEM BELGIUM //REMI/ FACTUUR \n" +
-                "6023881//ACCW/BE527380 36131209,KREDBEBB/ \n" +
-                ":61:1605190519C13047,70NTRFCT61408023551018//1614000208533185 \n" +
-                "/OCMT/EUR11918,97//EXCH/1,0947/\n" +
-                ":86:SEPA Receipt (CR) \n" +
-                "/EREF/NOTPROVIDED//ORDP/ROOSEN LASER NV HOGE MA UW 442 2370 ARENDONK BELGIUM \n" +
-                "//REMI/ 030397//ACCW/BE9073305162363 2,KREDBEBB/\n" +
-                ":90D:0CHF0,\n" +
-                ":90C:9CHF14698,42\n" +
-                "-}{5:{CHK:000000000000}}";
+        URL mt940_valid_folder = Resources.getResource("swiftmessage");
+        Stream<Path> files = Files.walk(Paths.get(mt940_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
 
         // When
-        classUnderTest.parse(new StringReader(swiftMessageText));
+        files.forEach(filePath -> {
+            try {
+                System.out.println(filePath);
+                classUnderTest.parse(new FileReader(filePath.toFile()));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         // Then
+        // No Exception
 
     }
 

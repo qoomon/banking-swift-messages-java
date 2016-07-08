@@ -9,7 +9,7 @@ public class TextBlock {
 
     public static final String BLOCK_ID_4 = "4";
 
-    public static final Pattern FIELD_PATTERN = Pattern.compile("\\n(.*\\n)*-", Pattern.DOTALL);
+    public static final Pattern FIELD_PATTERN = Pattern.compile("\n(.*\n)*-", Pattern.DOTALL);
 
     private final String content;
 
