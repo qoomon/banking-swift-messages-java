@@ -7,29 +7,29 @@ import com.qoomon.banking.swift.message.block.exception.BlockParseException;
  */
 public class SwiftMessageParseException extends Exception {
 
-    private final int blockNumber;
+    private final int lineNumber;
 
-    public SwiftMessageParseException(String message, int blockNumber) {
-        super(message + " at block number " + blockNumber);
-        this.blockNumber = blockNumber;
+    public SwiftMessageParseException(String message, int lineNumber) {
+        super(message + " at line number " + lineNumber);
+        this.lineNumber = lineNumber;
     }
 
-    public SwiftMessageParseException(String message, int blockNumber, Throwable cause) {
-        super(message + " at block number " + blockNumber, cause);
-        this.blockNumber = blockNumber;
+    public SwiftMessageParseException(String message, int lineNumber, Throwable cause) {
+        super(message + " at line number " + lineNumber, cause);
+        this.lineNumber = lineNumber;
     }
 
-    public SwiftMessageParseException(int blockNumber, Throwable cause) {
-        super("at block number " + blockNumber, cause);
-        this.blockNumber = blockNumber;
+    public SwiftMessageParseException(int lineNumber, Throwable cause) {
+        super("at line number " + lineNumber, cause);
+        this.lineNumber = lineNumber;
     }
 
     public SwiftMessageParseException(BlockParseException e) {
         super(e);
-        blockNumber = 0;
+        lineNumber = 0;
     }
 
-    public int getBlockNumber() {
-        return blockNumber;
+    public int getLineNumber() {
+        return lineNumber;
     }
 }

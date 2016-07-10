@@ -1,9 +1,8 @@
 package com.qoomon.banking.swift.message.submessage.mt942;
 
 import com.google.common.collect.ImmutableSet;
-import com.qoomon.banking.swift.message.submessage.field.*;
-import com.qoomon.banking.swift.message.submessage.field.TransactionGroup;
 import com.qoomon.banking.swift.message.submessage.exception.SubMessageParserException;
+import com.qoomon.banking.swift.message.submessage.field.*;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 
 import java.io.Reader;

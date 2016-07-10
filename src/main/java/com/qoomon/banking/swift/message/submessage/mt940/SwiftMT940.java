@@ -2,7 +2,6 @@ package com.qoomon.banking.swift.message.submessage.mt940;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.submessage.field.*;
-import com.qoomon.banking.swift.message.submessage.field.TransactionGroup;
 
 import java.util.List;
 import java.util.Optional;

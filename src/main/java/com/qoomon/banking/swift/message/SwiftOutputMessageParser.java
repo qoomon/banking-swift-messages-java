@@ -2,11 +2,11 @@ package com.qoomon.banking.swift.message;
 
 import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.block.*;
+import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 
 import java.io.Reader;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -14,9 +14,8 @@ import java.util.Set;
  */
 public class SwiftOutputMessageParser {
 
-    private final SwiftBlockParser blockParser = new SwiftBlockParser();
 
-    public SwiftOutputMessage parse(Reader swiftMessageTextReader) throws SwiftMessageParseException, BlockParseException {
+    public SwiftOutputMessage parse(Reader swiftMessageTextReader) throws SwiftMessageParseException {
 
         BasicHeaderBlock basicHeaderBlock = null;
         OutputApplicationHeaderBlock applicationHeaderBlock = null;
@@ -27,53 +26,55 @@ public class SwiftOutputMessageParser {
 
         Set<String> currentValidBlockIdSet = ImmutableSet.of(BasicHeaderBlock.BLOCK_ID_1);
 
+        SwiftBlockReader swiftBlockReader = new SwiftBlockReader(swiftMessageTextReader);
 
-        List<GeneralBlock> blockList = blockParser.parse(swiftMessageTextReader);
+        try {
+            GeneralBlock currentBlock;
+            while ((currentBlock = swiftBlockReader.readBlock()) != null) {
 
-        int currentBlockNumber = 0;
-        for (GeneralBlock currentBlock : blockList) {
-            currentBlockNumber++;
-
-            switch (currentBlock.getId()) {
-                case BasicHeaderBlock.BLOCK_ID_1: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
-                    basicHeaderBlock = BasicHeaderBlock.of(currentBlock);
-                    currentValidBlockIdSet = ImmutableSet.of(OutputApplicationHeaderBlock.BLOCK_ID_2);
-                    break;
+                switch (currentBlock.getId()) {
+                    case BasicHeaderBlock.BLOCK_ID_1: {
+                        ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
+                        basicHeaderBlock = BasicHeaderBlock.of(currentBlock);
+                        currentValidBlockIdSet = ImmutableSet.of(OutputApplicationHeaderBlock.BLOCK_ID_2);
+                        break;
+                    }
+                    case OutputApplicationHeaderBlock.BLOCK_ID_2: {
+                        ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
+                        applicationHeaderBlock = OutputApplicationHeaderBlock.of(currentBlock);
+                        currentValidBlockIdSet = ImmutableSet.of(UserHeaderBlock.BLOCK_ID_3);
+                        break;
+                    }
+                    case UserHeaderBlock.BLOCK_ID_3: {
+                        ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
+                        userHeaderBlock = UserHeaderBlock.of(currentBlock);
+                        currentValidBlockIdSet = ImmutableSet.of(TextBlock.BLOCK_ID_4);
+                        break;
+                    }
+                    case TextBlock.BLOCK_ID_4: {
+                        ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
+                        textBlock = TextBlock.of(currentBlock);
+                        currentValidBlockIdSet = ImmutableSet.of(UserTrailerBlock.BLOCK_ID_5, SystemTrailerBlock.BLOCK_ID_S);
+                        break;
+                    }
+                    case UserTrailerBlock.BLOCK_ID_5: {
+                        ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
+                        userTrailerBlock = UserTrailerBlock.of(currentBlock);
+                        currentValidBlockIdSet = ImmutableSet.of(SystemTrailerBlock.BLOCK_ID_S);
+                        break;
+                    }
+                    case SystemTrailerBlock.BLOCK_ID_S: {
+                        ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
+                        systemTrailerBlock = SystemTrailerBlock.of(currentBlock);
+                        currentValidBlockIdSet = ImmutableSet.of();
+                        break;
+                    }
+                    default:
+                        throw new SwiftMessageParseException("unexpected block id '" + currentBlock.getId() + "'", swiftBlockReader.getLineNumber());
                 }
-                case OutputApplicationHeaderBlock.BLOCK_ID_2: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
-                    applicationHeaderBlock = OutputApplicationHeaderBlock.of(currentBlock);
-                    currentValidBlockIdSet = ImmutableSet.of(UserHeaderBlock.BLOCK_ID_3);
-                    break;
-                }
-                case UserHeaderBlock.BLOCK_ID_3: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
-                    userHeaderBlock = UserHeaderBlock.of(currentBlock);
-                    currentValidBlockIdSet = ImmutableSet.of(TextBlock.BLOCK_ID_4);
-                    break;
-                }
-                case TextBlock.BLOCK_ID_4: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
-                    textBlock = TextBlock.of(currentBlock);
-                    currentValidBlockIdSet = ImmutableSet.of(UserTrailerBlock.BLOCK_ID_5, SystemTrailerBlock.BLOCK_ID_S);
-                    break;
-                }
-                case UserTrailerBlock.BLOCK_ID_5: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
-                    userTrailerBlock = UserTrailerBlock.of(currentBlock);
-                    currentValidBlockIdSet = ImmutableSet.of(SystemTrailerBlock.BLOCK_ID_S);
-                    break;
-                }
-                case SystemTrailerBlock.BLOCK_ID_S: {
-                    ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, currentBlockNumber);
-                    systemTrailerBlock = SystemTrailerBlock.of(currentBlock);
-                    currentValidBlockIdSet = ImmutableSet.of();
-                    break;
-                }
-                default:
-                    throw new SwiftMessageParseException("unexpected block id '" + currentBlock.getId() + "'", currentBlockNumber);
             }
+        } catch (BlockParseException | BlockFieldParseException e) {
+            throw new SwiftMessageParseException("Blockerror", swiftBlockReader.getLineNumber(), e);
         }
 
         return new SwiftOutputMessage(
@@ -85,9 +86,9 @@ public class SwiftOutputMessageParser {
                 systemTrailerBlock);
     }
 
-    private void ensureValidBlockId(String actualBlockId, Set<String> expectedBlockIdSet, int currentBlockNumber) throws SwiftMessageParseException {
+    private void ensureValidBlockId(String actualBlockId, Set<String> expectedBlockIdSet, SwiftBlockReader swiftBlockReader) throws SwiftMessageParseException {
         if (!expectedBlockIdSet.contains(actualBlockId)) {
-            throw new SwiftMessageParseException("Expected Block '" + expectedBlockIdSet + "', but was '" + actualBlockId + "'", currentBlockNumber);
+            throw new SwiftMessageParseException("Expected Block '" + expectedBlockIdSet + "', but was '" + actualBlockId + "'", swiftBlockReader.getLineNumber());
         }
     }
 

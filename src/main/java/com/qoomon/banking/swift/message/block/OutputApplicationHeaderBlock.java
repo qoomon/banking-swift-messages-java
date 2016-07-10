@@ -1,7 +1,7 @@
 package com.qoomon.banking.swift.message.block;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.block.exception.BlockParseException;
+import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,12 +49,12 @@ public class OutputApplicationHeaderBlock {
         this.messagePriority = Preconditions.checkNotNull(messagePriority);
     }
 
-    public static OutputApplicationHeaderBlock of(GeneralBlock block) throws BlockParseException {
+    public static OutputApplicationHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '" + block.getId() + "'");
 
         Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
         if (!blockContentMatcher.matches()) {
-            throw new BlockParseException("Block '" + block.getId() + "' content did not match format " + BLOCK_CONTENT_PATTERN);
+            throw new BlockFieldParseException("Block '" + block.getId() + "' content did not match format " + BLOCK_CONTENT_PATTERN);
         }
 
         String mode = blockContentMatcher.group(1);

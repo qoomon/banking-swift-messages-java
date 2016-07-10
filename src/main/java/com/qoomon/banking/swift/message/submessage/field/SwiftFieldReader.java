@@ -112,7 +112,7 @@ public class SwiftFieldReader {
         if (messageLine.equals(Seperator.TAG)) {
             return MessageLineType.SEPARATOR;
         }
-        if (FIELD_STRUCTURE_PATTERN.matcher(messageLine).matches()) {
+        if (messageLine.startsWith(":")) {
             return MessageLineType.FIELD;
         }
         return MessageLineType.FIELD_CONTINUATION;

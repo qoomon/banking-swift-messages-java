@@ -1,7 +1,7 @@
 package com.qoomon.banking.swift.message.block;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.block.exception.BlockParseException;
+import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 
 import java.util.regex.Pattern;
 
@@ -18,13 +18,13 @@ public class TextBlock {
         this.content = content;
     }
 
-    public static TextBlock of(GeneralBlock block) throws BlockParseException {
+    public static TextBlock of(GeneralBlock block) throws BlockFieldParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_4), "unexpected block id '" + block.getId() + "'");
 
         String blockContent = block.getContent();
 
         if (!FIELD_PATTERN.matcher(blockContent).matches()) {
-            throw new BlockParseException("Block " + BLOCK_ID_4 + " did not match pattern " + FIELD_PATTERN);
+            throw new BlockFieldParseException("Block " + BLOCK_ID_4 + " did not match pattern " + FIELD_PATTERN);
         }
         // remove first empty line
         blockContent = blockContent.replaceFirst("^\\n", "");

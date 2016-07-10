@@ -1,22 +1,21 @@
 package com.qoomon.banking.swift.message;
 
 import com.google.common.io.Resources;
-import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
-import org.assertj.core.api.Fail;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 /**
  * Created by qoomon on 24/06/16.
@@ -37,15 +36,17 @@ public class SwiftOutputMessageParserTest {
     public void parse_WHEN_detecting_whitespaces_between_blocks_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + "{3:}" + " " + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY;
+        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + "{3:}" + " "
+                + BLOCK_4_DUMMY_EMPTY
+                + BLOCK_5_DUMMY_EMPTY;
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
 
         // Then
-        assertThat(exception).as("Exception").isInstanceOf(BlockParseException.class);
+        assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
-        BlockParseException parseException = (BlockParseException) exception;
+        SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
         assertThat(parseException.getLineNumber()).isEqualTo(1);
     }
 
@@ -53,16 +54,18 @@ public class SwiftOutputMessageParserTest {
     public void parse_WHEN_block4_has_wrong_termination_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + "{4:\n}" + BLOCK_5_DUMMY_EMPTY;
+        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + "{4:\n"
+                + "}"
+                + BLOCK_5_DUMMY_EMPTY;
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
 
         // Then
-        assertThat(exception).as("Exception").isInstanceOf(BlockParseException.class);
+        assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
-        BlockParseException parseException = (BlockParseException) exception;
-        assertThat(parseException.getLineNumber()).isEqualTo(0);
+        SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
+        assertThat(parseException.getLineNumber()).isEqualTo(2);
     }
 
 
@@ -70,15 +73,16 @@ public class SwiftOutputMessageParserTest {
     public void parse_WHEN_first_bracket_is_missing_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = "1:}" + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY;
+        String swiftMessageText = "1:}" + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
+                + BLOCK_5_DUMMY_EMPTY;
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
 
         // Then
-        assertThat(exception).as("Exception").isInstanceOf(BlockParseException.class);
+        assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
-        BlockParseException parseException = (BlockParseException) exception;
+        SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
         assertThat(parseException.getLineNumber()).isEqualTo(1);
 
     }
@@ -87,15 +91,16 @@ public class SwiftOutputMessageParserTest {
     public void parse_WHEN_block_structure_is_wrong_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = "{:1:}" + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY;
+        String swiftMessageText = "{:1:}" + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
+                + BLOCK_5_DUMMY_EMPTY;
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
 
         // Then
-        assertThat(exception).as("Exception").isInstanceOf(BlockParseException.class);
+        assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
-        BlockParseException parseException = (BlockParseException) exception;
+        SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
         assertThat(parseException.getLineNumber()).isEqualTo(1);
 
     }
@@ -104,16 +109,18 @@ public class SwiftOutputMessageParserTest {
     public void parse_WHEN_block_appears_multiple_times_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY + "{1:}";
+        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
+                + BLOCK_5_DUMMY_EMPTY + "{1:}";
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Optional.ofNullable(exception).ifPresent(Throwable::printStackTrace);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
         SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
-        assertThat(parseException.getBlockNumber()).isEqualTo(6);
+        assertThat(parseException.getLineNumber()).isEqualTo(2);
 
     }
 
@@ -121,7 +128,8 @@ public class SwiftOutputMessageParserTest {
     public void parse_WHEN_unknown_block_appears_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY + "{6:}";
+        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
+                + BLOCK_5_DUMMY_EMPTY + "{6:}";
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
@@ -130,7 +138,7 @@ public class SwiftOutputMessageParserTest {
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
         SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
-        assertThat(parseException.getBlockNumber()).isEqualTo(6);
+        assertThat(parseException.getLineNumber()).isEqualTo(2);
 
     }
 
@@ -138,15 +146,16 @@ public class SwiftOutputMessageParserTest {
     public void parse_WHEN_brackets_are_unbalanced_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY + "{5:";
+        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
+                + "{5:";
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
 
         // Then
-        assertThat(exception).as("Exception").isInstanceOf(BlockParseException.class);
+        assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
-        BlockParseException parseException = (BlockParseException) exception;
+        SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
         assertThat(parseException.getLineNumber()).isEqualTo(2);
 
     }
