@@ -105,7 +105,7 @@ public class SwiftOutputMessage {
     /**
      * {2:} Application Header Block
      */
-    private final OutputApplicationHeaderBlock applicationHeaderBlock;
+    private final ApplicationHeaderOutputBlock applicationHeaderBlock;
 
     /**
      * {3:} User Header Block
@@ -129,7 +129,7 @@ public class SwiftOutputMessage {
 
 
     public SwiftOutputMessage(BasicHeaderBlock basicHeaderBlock,
-                              OutputApplicationHeaderBlock applicationHeaderBlock,
+                              ApplicationHeaderOutputBlock applicationHeaderBlock,
                               UserHeaderBlock userHeaderBlock,
                               TextBlock textBlock,
                               UserTrailerBlock userTrailerBlock,
@@ -146,7 +146,7 @@ public class SwiftOutputMessage {
         return basicHeaderBlock;
     }
 
-    public OutputApplicationHeaderBlock getApplicationHeaderBlock() {
+    public ApplicationHeaderOutputBlock getApplicationHeaderBlock() {
         return applicationHeaderBlock;
     }
 

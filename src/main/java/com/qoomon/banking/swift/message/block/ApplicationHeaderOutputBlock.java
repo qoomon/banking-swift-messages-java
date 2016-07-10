@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  *
  * @see <a href="https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm">https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm</a>
  */
-public class OutputApplicationHeaderBlock {
+public class ApplicationHeaderOutputBlock {
 
     public static final String BLOCK_ID_2 = "2";
 
@@ -39,7 +39,7 @@ public class OutputApplicationHeaderBlock {
     private final String outputTime;
     private final String messagePriority;
 
-    public OutputApplicationHeaderBlock(String mode, String messageType, String inputTime, String inputReference, String outputDate, String outputTime, String messagePriority) {
+    public ApplicationHeaderOutputBlock(String mode, String messageType, String inputTime, String inputReference, String outputDate, String outputTime, String messagePriority) {
         this.mode = Preconditions.checkNotNull(mode);
         this.messageType = Preconditions.checkNotNull(messageType);
         this.inputTime = Preconditions.checkNotNull(inputTime);
@@ -49,7 +49,7 @@ public class OutputApplicationHeaderBlock {
         this.messagePriority = Preconditions.checkNotNull(messagePriority);
     }
 
-    public static OutputApplicationHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {
+    public static ApplicationHeaderOutputBlock of(GeneralBlock block) throws BlockFieldParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '" + block.getId() + "'");
 
         Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
@@ -65,7 +65,7 @@ public class OutputApplicationHeaderBlock {
         String outputTime = blockContentMatcher.group(6);
         String messagePriority = blockContentMatcher.group(7);
 
-        return new OutputApplicationHeaderBlock(mode, messageType, inputTime, inputReference, outputDate, outputTime, messagePriority);
+        return new ApplicationHeaderOutputBlock(mode, messageType, inputTime, inputReference, outputDate, outputTime, messagePriority);
     }
 
 

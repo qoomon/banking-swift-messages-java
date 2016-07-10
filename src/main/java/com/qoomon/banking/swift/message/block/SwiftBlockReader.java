@@ -36,7 +36,7 @@ public class SwiftBlockReader {
 
         try {
             char messageCharacter;
-            while ((messageCharacter = (char) textReader.read()) != END_OF_STREAM) {
+            while (block == null && (messageCharacter = (char) textReader.read()) != END_OF_STREAM) {
 
                 // increment line index
                 if (messageCharacter == '\n') {

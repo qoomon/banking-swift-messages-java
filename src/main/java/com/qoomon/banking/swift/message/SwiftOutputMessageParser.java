@@ -18,7 +18,7 @@ public class SwiftOutputMessageParser {
     public SwiftOutputMessage parse(Reader swiftMessageTextReader) throws SwiftMessageParseException {
 
         BasicHeaderBlock basicHeaderBlock = null;
-        OutputApplicationHeaderBlock applicationHeaderBlock = null;
+        ApplicationHeaderOutputBlock applicationHeaderBlock = null;
         UserHeaderBlock userHeaderBlock = null;
         TextBlock textBlock = null;
         UserTrailerBlock userTrailerBlock = null;
@@ -36,12 +36,12 @@ public class SwiftOutputMessageParser {
                     case BasicHeaderBlock.BLOCK_ID_1: {
                         ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
                         basicHeaderBlock = BasicHeaderBlock.of(currentBlock);
-                        currentValidBlockIdSet = ImmutableSet.of(OutputApplicationHeaderBlock.BLOCK_ID_2);
+                        currentValidBlockIdSet = ImmutableSet.of(ApplicationHeaderOutputBlock.BLOCK_ID_2);
                         break;
                     }
-                    case OutputApplicationHeaderBlock.BLOCK_ID_2: {
+                    case ApplicationHeaderOutputBlock.BLOCK_ID_2: {
                         ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
-                        applicationHeaderBlock = OutputApplicationHeaderBlock.of(currentBlock);
+                        applicationHeaderBlock = ApplicationHeaderOutputBlock.of(currentBlock);
                         currentValidBlockIdSet = ImmutableSet.of(UserHeaderBlock.BLOCK_ID_3);
                         break;
                     }
