@@ -32,7 +32,7 @@ public class ApplicationHeaderInputBlock {
 
     public static final String MODE_CODE = "I";
 
-    public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(I)(.{3})(.{12})(.{1})?(.{3})?");
+    public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(I)(.{3})(.{12})(.{1})(.{1})?(.{3})?");
 
     private final String messageType;
     private final String receiverAddress;

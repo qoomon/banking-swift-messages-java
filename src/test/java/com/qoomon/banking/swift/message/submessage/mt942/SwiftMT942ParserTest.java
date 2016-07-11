@@ -48,8 +48,8 @@ public class SwiftMT942ParserTest {
     public void parse_SHOULD_parse_valid_files() throws Exception {
 
         // Given
-        URL mt920_valid_folder = Resources.getResource("submessage/mt942_valid");
-        Stream<Path> files = Files.walk(Paths.get(mt920_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
+        URL mt942_valid_folder = Resources.getResource("submessage/mt942_valid");
+        Stream<Path> files = Files.walk(Paths.get(mt942_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
 
         // When
         files.forEach(filePath -> {
