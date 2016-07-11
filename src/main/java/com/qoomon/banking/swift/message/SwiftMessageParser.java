@@ -12,13 +12,13 @@ import java.util.Set;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class SwiftOutputMessageParser {
+public class SwiftMessageParser {
 
 
-    public SwiftOutputMessage parse(Reader swiftMessageTextReader) throws SwiftMessageParseException {
+    public SwiftMessage parse(Reader swiftMessageTextReader) throws SwiftMessageParseException {
 
         BasicHeaderBlock basicHeaderBlock = null;
-        ApplicationHeaderOutputBlock applicationHeaderBlock = null;
+        ApplicationHeaderBlock applicationHeaderBlock = null;
         UserHeaderBlock userHeaderBlock = null;
         TextBlock textBlock = null;
         UserTrailerBlock userTrailerBlock = null;
@@ -41,7 +41,7 @@ public class SwiftOutputMessageParser {
                     }
                     case ApplicationHeaderOutputBlock.BLOCK_ID_2: {
                         ensureValidBlockId(currentBlock.getId(), currentValidBlockIdSet, swiftBlockReader);
-                        applicationHeaderBlock = ApplicationHeaderOutputBlock.of(currentBlock);
+                        applicationHeaderBlock = ApplicationHeaderBlock.of(currentBlock);
                         currentValidBlockIdSet = ImmutableSet.of(UserHeaderBlock.BLOCK_ID_3);
                         break;
                     }
@@ -77,7 +77,7 @@ public class SwiftOutputMessageParser {
             throw new SwiftMessageParseException("Blockerror", swiftBlockReader.getLineNumber(), e);
         }
 
-        return new SwiftOutputMessage(
+        return new SwiftMessage(
                 basicHeaderBlock,
                 applicationHeaderBlock,
                 userHeaderBlock,

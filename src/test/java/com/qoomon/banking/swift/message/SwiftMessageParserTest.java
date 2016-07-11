@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class SwiftOutputMessageParserTest {
+public class SwiftMessageParserTest {
 
     private static final String BLOCK_1_DUMMY_VALID = "{1:F01YOURCODEZABC1234567890}";
     private static final String BLOCK_2_DUMMY_VALID = "{2:O1001200970103BANKBEBBAXXX22221234569701031201N}";
@@ -30,18 +30,19 @@ public class SwiftOutputMessageParserTest {
 
     private SoftAssertions softly = new SoftAssertions();
 
-    private SwiftOutputMessageParser classUnderTest = new SwiftOutputMessageParser();
+    private SwiftMessageParser classUnderTest = new SwiftMessageParser();
 
     @Test
     public void parse_WHEN_detecting_whitespaces_between_blocks_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + "{3:}" + " "
+        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + " "
                 + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY;
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Optional.ofNullable(exception).ifPresent(Throwable::printStackTrace);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);

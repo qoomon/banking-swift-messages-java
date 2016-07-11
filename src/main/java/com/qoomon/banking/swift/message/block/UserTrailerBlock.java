@@ -1,8 +1,13 @@
 package com.qoomon.banking.swift.message.block;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
+import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,32 +42,62 @@ public class UserTrailerBlock {
     public final Optional<String> training;
     public final Optional<String> possibleDuplicateEmission;
     public final Optional<String> deliveryDelay;
+    private final ImmutableMap<String, GeneralBlock> additionalSubblocks;
 
-    public UserTrailerBlock(String messageAuthenticationCode, String proprietaryAuthenticationCode, String checksum, String training, String possibleDuplicateEmission, String deliveryDelay) {
+    public UserTrailerBlock(String messageAuthenticationCode, String proprietaryAuthenticationCode, String checksum, String training, String possibleDuplicateEmission, String deliveryDelay, Map<String, GeneralBlock> additionalSubblocks) {
         this.messageAuthenticationCode = Optional.ofNullable(messageAuthenticationCode);
         this.proprietaryAuthenticationCode = Optional.ofNullable(proprietaryAuthenticationCode);
         this.checksum = Optional.ofNullable(checksum);
         this.training = Optional.ofNullable(training);
         this.possibleDuplicateEmission = Optional.ofNullable(possibleDuplicateEmission);
         this.deliveryDelay = Optional.ofNullable(deliveryDelay);
+        this.additionalSubblocks = ImmutableMap.copyOf(Preconditions.checkNotNull(additionalSubblocks));
     }
 
     public static UserTrailerBlock of(GeneralBlock block) throws BlockFieldParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_5), "unexpected block id '" + block.getId() + "'");
 
-        Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
-        if (!blockContentMatcher.matches()) {
-            throw new BlockFieldParseException("Block '" + block.getId() + "' content did not match format " + BLOCK_CONTENT_PATTERN);
+        SwiftBlockReader blockReader = new SwiftBlockReader(new StringReader(block.getContent()));
+
+        String messageAuthenticationCode = null;
+        String proprietaryAuthenticationCode = null;
+        String checksum = null;
+        String training = null;
+        String possibleDuplicateEmission = null;
+        String deliveryDelay = null;
+        Map<String, GeneralBlock> additionalSubblocks = new HashMap<>();
+
+        try {
+            GeneralBlock subblock;
+            while ((subblock = blockReader.readBlock()) != null) {
+                switch (subblock.getId()) {
+                    case "MAC":
+                        messageAuthenticationCode = subblock.getContent(); // TODO regex check
+                        break;
+                    case "PAC":
+                        proprietaryAuthenticationCode = subblock.getContent(); // TODO regex check
+                        break;
+                    case "CHK":
+                        checksum = subblock.getContent(); // TODO regex check
+                        break;
+                    case "TNG":
+                        training = subblock.getContent(); // TODO regex check
+                        break;
+                    case "PDE":
+                        possibleDuplicateEmission = subblock.getContent(); // TODO regex check
+                        break;
+                    case "DLM":
+                        deliveryDelay = subblock.getContent(); // TODO regex check
+                        break;
+                    default:
+                        additionalSubblocks.put(subblock.getId(), subblock);
+                }
+            }
+        } catch (BlockParseException e) {
+            throw new BlockFieldParseException("Block '" + block.getId() + "' content error", e);
         }
 
-        String messageAuthenticationCode = blockContentMatcher.group(1);
-        String proprietaryAuthenticationCode = blockContentMatcher.group(2);
-        String checksum = blockContentMatcher.group(3);
-        String training = blockContentMatcher.group(4);
-        String possibleDuplicateEmission = blockContentMatcher.group(5);
-        String deliveryDelay = blockContentMatcher.group(6);
-
-        return new UserTrailerBlock(messageAuthenticationCode, proprietaryAuthenticationCode,checksum, training, possibleDuplicateEmission, deliveryDelay);
+        return new UserTrailerBlock(messageAuthenticationCode, proprietaryAuthenticationCode,checksum, training, possibleDuplicateEmission, deliveryDelay, additionalSubblocks);
     }
 
     public Optional<String> getMessageAuthenticationCode() {
@@ -79,5 +114,9 @@ public class UserTrailerBlock {
 
     public Optional<String> getDeliveryDelay() {
         return deliveryDelay;
+    }
+
+    public Map<String, GeneralBlock> getAdditionalSubblock(String id) {
+        return additionalSubblocks;
     }
 }

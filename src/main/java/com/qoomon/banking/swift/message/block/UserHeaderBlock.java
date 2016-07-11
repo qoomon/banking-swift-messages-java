@@ -1,11 +1,14 @@
 package com.qoomon.banking.swift.message.block;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
+import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * <b>User Header Block</b>
@@ -25,28 +28,44 @@ public class UserHeaderBlock {
 
     public static final String BLOCK_ID_3 = "3";
 
-    public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(\\{113:[^}]{4}\\})?(\\{108:[^}]{1,16}\\})");
-
     public final Optional<String> bankingPriorityCode;
     public final String messageUserReference;
+    public final ImmutableMap<String, GeneralBlock> additionalSubblocks;
 
-    public UserHeaderBlock(String bankingPriorityCode, String messageUserReference) {
+    public UserHeaderBlock(String bankingPriorityCode, String messageUserReference, Map<String, GeneralBlock> additionalSubblocks) {
         this.bankingPriorityCode = Optional.ofNullable(bankingPriorityCode);
         this.messageUserReference = Preconditions.checkNotNull(messageUserReference);
+        this.additionalSubblocks = ImmutableMap.copyOf(Preconditions.checkNotNull(additionalSubblocks));
     }
 
     public static UserHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_3), "unexpected block id '" + block.getId() + "'");
 
-        Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
-        if (!blockContentMatcher.matches()) {
-            throw new BlockFieldParseException("Block '" + block.getId() + "' content did not match format " + BLOCK_CONTENT_PATTERN);
+        SwiftBlockReader blockReader = new SwiftBlockReader(new StringReader(block.getContent()));
+
+        String bankingPriorityCode = null;
+        String messageUserReference = null;
+        Map<String, GeneralBlock> additionalSubblocks = new HashMap<>();
+
+        try {
+            GeneralBlock subblock;
+            while ((subblock = blockReader.readBlock()) != null) {
+                switch (subblock.getId()) {
+                    case "113":
+                        bankingPriorityCode = subblock.getContent(); // TODO regex check
+                        break;
+                    case "108":
+                        messageUserReference = subblock.getContent(); // TODO regex check
+                        break;
+                    default:
+                        additionalSubblocks.put(subblock.getId(), subblock);
+                }
+            }
+        } catch (BlockParseException e) {
+            throw new BlockFieldParseException("Block '" + block.getId() + "' content error", e);
         }
 
-        String bankingPriorityCode = blockContentMatcher.group(1);
-        String messageUserReference = blockContentMatcher.group(2);
-
-        return new UserHeaderBlock(bankingPriorityCode, messageUserReference);
+        return new UserHeaderBlock(bankingPriorityCode, messageUserReference, additionalSubblocks);
     }
 
     public Optional<String> getBankingPriorityCode() {

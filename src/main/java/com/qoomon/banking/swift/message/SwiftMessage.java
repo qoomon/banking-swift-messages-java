@@ -95,7 +95,7 @@ import java.util.Optional;
  *
  * @see <a href="http://www.sepaforcorporates.com/swift-for-corporates/read-swift-message-structure/">http://www.sepaforcorporates.com/swift-for-corporates/read-swift-message-structure/</a>
  */
-public class SwiftOutputMessage {
+public class SwiftMessage {
 
     /**
      * {1:} Basic Header Block
@@ -105,7 +105,7 @@ public class SwiftOutputMessage {
     /**
      * {2:} Application Header Block
      */
-    private final ApplicationHeaderOutputBlock applicationHeaderBlock;
+    private final ApplicationHeaderBlock applicationHeaderBlock;
 
     /**
      * {3:} User Header Block
@@ -128,12 +128,12 @@ public class SwiftOutputMessage {
     private final Optional<SystemTrailerBlock> systemTrailerBlock;
 
 
-    public SwiftOutputMessage(BasicHeaderBlock basicHeaderBlock,
-                              ApplicationHeaderOutputBlock applicationHeaderBlock,
-                              UserHeaderBlock userHeaderBlock,
-                              TextBlock textBlock,
-                              UserTrailerBlock userTrailerBlock,
-                              SystemTrailerBlock systemTrailerBlock) {
+    public SwiftMessage(BasicHeaderBlock basicHeaderBlock,
+                        ApplicationHeaderBlock applicationHeaderBlock,
+                        UserHeaderBlock userHeaderBlock,
+                        TextBlock textBlock,
+                        UserTrailerBlock userTrailerBlock,
+                        SystemTrailerBlock systemTrailerBlock) {
         this.basicHeaderBlock = Preconditions.checkNotNull(basicHeaderBlock);
         this.applicationHeaderBlock = Preconditions.checkNotNull(applicationHeaderBlock);
         this.userHeaderBlock = Preconditions.checkNotNull(userHeaderBlock);
@@ -146,7 +146,7 @@ public class SwiftOutputMessage {
         return basicHeaderBlock;
     }
 
-    public ApplicationHeaderOutputBlock getApplicationHeaderBlock() {
+    public ApplicationHeaderBlock getApplicationHeaderBlock() {
         return applicationHeaderBlock;
     }
 
