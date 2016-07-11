@@ -3,7 +3,7 @@ package com.qoomon.banking.swift.message.submessage.field;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
-import org.joda.money.Money;
+import org.joda.money.BigMoney;
 
 import java.text.ParseException;
 import java.util.List;
@@ -30,9 +30,9 @@ public class FloorLimitIndicator implements SwiftField {
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("3!a[1!a]15d");
 
     private final Optional<DebitCreditMark> debitCreditMark;
-    private final Money amount;
+    private final BigMoney amount;
 
-    public FloorLimitIndicator(DebitCreditMark debitCreditMark, Money amount) {
+    public FloorLimitIndicator(DebitCreditMark debitCreditMark, BigMoney amount) {
 
         Preconditions.checkArgument(amount != null, "amount can't be null");
 
@@ -48,7 +48,7 @@ public class FloorLimitIndicator implements SwiftField {
         String amountCurrency = subFields.get(0);
         DebitCreditMark debitCreditMark = subFields.get(1) != null ? DebitCreditMark.of(subFields.get(1)) : null;
         String amountValue = subFields.get(2);
-        Money amount = Money.parse(amountCurrency + amountValue.replaceFirst(",", "."));
+        BigMoney amount = BigMoney.parse(amountCurrency + amountValue.replaceFirst(",", "."));
 
         return new FloorLimitIndicator(debitCreditMark, amount);
     }
@@ -58,7 +58,7 @@ public class FloorLimitIndicator implements SwiftField {
         return debitCreditMark;
     }
 
-    public Money getAmount() {
+    public BigMoney getAmount() {
         return amount;
     }
 

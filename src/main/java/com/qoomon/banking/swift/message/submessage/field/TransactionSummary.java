@@ -2,7 +2,7 @@ package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
-import org.joda.money.Money;
+import org.joda.money.BigMoney;
 
 import java.text.ParseException;
 import java.util.List;
@@ -36,9 +36,9 @@ public class TransactionSummary implements SwiftField {
 
     private final Type type;
     private final int transactionCount;
-    private final Money amount;
+    private final BigMoney amount;
 
-    public TransactionSummary(Type type, int transactionCount, Money amount) {
+    public TransactionSummary(Type type, int transactionCount, BigMoney amount) {
 
         Preconditions.checkArgument(type != null, "type can't be null");
         Preconditions.checkArgument(transactionCount >= 0, "transaction count can't be negative. was: %s", transactionCount);
@@ -58,7 +58,7 @@ public class TransactionSummary implements SwiftField {
         int transactionCount = Integer.parseInt(subFields.get(0));
         String amountCurrency = subFields.get(1);
         String amountValue = subFields.get(2);
-        Money amount = Money.parse(amountCurrency + amountValue.replace(",", "."));
+        BigMoney amount = BigMoney.parse(amountCurrency + amountValue.replace(",", "."));
 
         return new TransactionSummary(type, transactionCount, amount);
     }
@@ -71,7 +71,7 @@ public class TransactionSummary implements SwiftField {
         return transactionCount;
     }
 
-    public Money getAmount() {
+    public BigMoney getAmount() {
         return amount;
     }
 

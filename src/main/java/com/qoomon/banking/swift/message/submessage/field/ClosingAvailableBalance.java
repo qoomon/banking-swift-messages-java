@@ -3,7 +3,7 @@ package com.qoomon.banking.swift.message.submessage.field;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
-import org.joda.money.Money;
+import org.joda.money.BigMoney;
 
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -35,9 +35,9 @@ public class ClosingAvailableBalance implements SwiftField {
 
     private final DebitCreditMark debitCreditMark;
     private final LocalDate entryDate;
-    private final Money amount;
+    private final BigMoney amount;
 
-    public ClosingAvailableBalance(DebitCreditMark debitCreditMark, LocalDate entryDate, Money amount) {
+    public ClosingAvailableBalance(DebitCreditMark debitCreditMark, LocalDate entryDate, BigMoney amount) {
 
         Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
         Preconditions.checkArgument(entryDate != null, "entryDate can't be null");
@@ -57,7 +57,7 @@ public class ClosingAvailableBalance implements SwiftField {
         LocalDate entryDate = LocalDate.parse(subFields.get(1), ENTRY_DATE_FORMATTER);
         String amountCurrency = subFields.get(2);
         String amountValue = subFields.get(3);
-        Money amount = Money.parse(amountCurrency + amountValue.replaceFirst(",", "."));
+        BigMoney amount = BigMoney.parse(amountCurrency + amountValue.replaceFirst(",", "."));
 
         return new ClosingAvailableBalance(debitCreditMark, entryDate, amount);
     }
@@ -70,7 +70,7 @@ public class ClosingAvailableBalance implements SwiftField {
         return entryDate;
     }
 
-    public Money getAmount() {
+    public BigMoney getAmount() {
         return amount;
     }
 
