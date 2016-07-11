@@ -10,7 +10,10 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 
 [![Codacy coverage](https://img.shields.io/codacy/coverage/c44df2d9c89a4809896914fd1a40bedd.svg?maxAge=2592000)](https://www.codacy.com/app/bengt-brodersen/banking-swift-messages-java)
 
+### Releases
+
 [![Release](https://jitpack.io/v/qoomon/banking-swift-messages-java.svg)](https://jitpack.io/#qoomon/banking-swift-messages-java)
+
 
 
 ###### Tags
