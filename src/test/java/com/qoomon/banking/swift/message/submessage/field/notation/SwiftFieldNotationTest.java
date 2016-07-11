@@ -27,9 +27,12 @@ public class SwiftFieldNotationTest {
 
         assertThat(fieldValueList).hasSize(4);
         assertThat(fieldValueList.get(0)).isEqualTo("A");
-        assertThat(fieldValueList.get(1)).isEqualTo("123456");;
-        assertThat(fieldValueList.get(2)).isEqualTo("ABC");;
-        assertThat(fieldValueList.get(3)).isEqualTo("1234,");;
+        assertThat(fieldValueList.get(1)).isEqualTo("123456");
+        ;
+        assertThat(fieldValueList.get(2)).isEqualTo("ABC");
+        ;
+        assertThat(fieldValueList.get(3)).isEqualTo("1234,");
+        ;
     }
 
     @Test

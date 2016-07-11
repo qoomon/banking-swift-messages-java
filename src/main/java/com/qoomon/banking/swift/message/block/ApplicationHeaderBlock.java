@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 
 import java.util.Optional;
-import java.util.regex.Matcher;
 
 /**
  * <b>Input Application Header Block</b>

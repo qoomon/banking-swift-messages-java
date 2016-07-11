@@ -6,7 +6,6 @@ import com.qoomon.banking.swift.message.submessage.field.*;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 
 import java.io.Reader;
-import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -191,7 +190,7 @@ public class SwiftMT942Parser {
             }
         }
 
-        if(buildMessageInProgress){
+        if (buildMessageInProgress) {
             throw new SubMessageParserException("Unfinished Message", swiftFieldReader.getLineNumber(), "n/a");
         }
 

@@ -3,9 +3,6 @@ package com.qoomon.banking.swift.message;
 import com.google.common.io.Resources;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.ThrowableAssert;
-import org.assertj.core.api.ThrowableAssertAlternative;
-import org.assertj.core.api.ThrowableTypeAssert;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -14,8 +11,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;

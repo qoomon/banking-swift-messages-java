@@ -9,7 +9,6 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
  * <b>User Header Block</b>

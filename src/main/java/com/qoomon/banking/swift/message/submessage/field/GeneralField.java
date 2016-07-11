@@ -28,7 +28,7 @@ public class GeneralField implements SwiftField {
         return content;
     }
 
-    public static Builder newBuilder(){
+    public static Builder newBuilder() {
         return new Builder();
     }
 

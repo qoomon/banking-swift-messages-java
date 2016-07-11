@@ -27,12 +27,12 @@ public class AccountIdentification implements SwiftField {
     private final String value;
 
     public AccountIdentification(String value) {
-        Preconditions.checkArgument(value != null , "value can't be null");
+        Preconditions.checkArgument(value != null, "value can't be null");
         this.value = value;
     }
 
     public static AccountIdentification of(GeneralField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_25), "unexpected field tag '%s'",field.getTag());
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_25), "unexpected field tag '%s'", field.getTag());
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 

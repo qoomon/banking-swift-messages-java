@@ -34,7 +34,7 @@ public class RelatedReference implements SwiftField {
     }
 
     public static RelatedReference of(GeneralField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_21), "unexpected field tag '%s'",field.getTag());
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_21), "unexpected field tag '%s'", field.getTag());
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 

@@ -19,7 +19,7 @@ public class SystemTrailerBlock {
 
     public SystemTrailerBlock(String content) {
 
-        Preconditions.checkArgument(content!= null, "content can't be null");
+        Preconditions.checkArgument(content != null, "content can't be null");
 
         this.content = content;
     }

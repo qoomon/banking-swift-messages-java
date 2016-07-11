@@ -6,7 +6,6 @@ import com.qoomon.banking.swift.message.submessage.field.*;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 
 import java.io.Reader;
-import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
