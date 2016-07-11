@@ -83,6 +83,7 @@ public class SwiftMT940Parser {
                         transactionList.add(new TransactionGroup(statementLine, null));
                         nextValidFieldSet = ImmutableSet.of(
                                 InformationToAccountOwner.FIELD_TAG_86,
+                                StatementLine.FIELD_TAG_61,
                                 ClosingBalance.FIELD_TAG_62F,
                                 ClosingBalance.FIELD_TAG_62M);
                         break;
