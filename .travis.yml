@@ -2,7 +2,20 @@ language: java
 
 jdk:
   - oraclejdk8
+  
+before_install:
+  # install jpm4j
+  - curl -sL https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar >jpm.jar && java -jar jpm.jar -u init && export PATH=$PATH:~/jpm/bin
+  # install codacy-coverage-reporter
+  - jpm install com.codacy:codacy-coverage-reporter:assembly
 
-addons:
-    code_climate:
-        repo_token: 493e482568245c74563eac8f803f8174f50fdb16b46bb80088ea3725f8b70e1a
+install:
+  - mvn verify -B -V
+  
+after_success:
+  - codacy-coverage-reporter -l Java -r ./target/site/jacoco/jacoco.xml --prefix ./src/main/java/
+  - mvn coveralls:report -Dcoveralls.repoToken=$COVERALLS_REPO_TOKEN
+ 
+
+
+
