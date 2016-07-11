@@ -184,7 +184,7 @@ public class SwiftMT940Parser {
                 previousField = currentField;
                 currentValidFieldSet = nextValidFieldSet;
 
-            } catch (ParseException parseException) {
+            } catch (Exception parseException) {
                 throw new SubMessageParserException("Subfield parse error", swiftFieldReader.getLineNumber(), currentField.getTag(), parseException);
             }
         }
