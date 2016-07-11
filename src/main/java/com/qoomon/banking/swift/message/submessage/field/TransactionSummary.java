@@ -41,7 +41,7 @@ public class TransactionSummary implements SwiftField {
     public TransactionSummary(Type type, int transactionCount, Money amount) {
 
         Preconditions.checkArgument(type != null, "type can't be null");
-        Preconditions.checkArgument(transactionCount >= 0, "transaction count can't be negative. was: " + transactionCount);
+        Preconditions.checkArgument(transactionCount >= 0, "transaction count can't be negative. was: %s", transactionCount);
         Preconditions.checkArgument(amount != null, "amount can't be null");
 
         this.type = type;
@@ -50,7 +50,7 @@ public class TransactionSummary implements SwiftField {
     }
 
     public static TransactionSummary of(GeneralField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_90D) || field.getTag().equals(FIED_TAG_90C), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_90D) || field.getTag().equals(FIED_TAG_90C), "unexpected field tag '%s'", field.getTag());
         Type type = field.getTag().equals(FIELD_TAG_90D) ? Type.DEBIT : Type.CREDIT;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

@@ -52,7 +52,7 @@ public class BasicHeaderBlock {
     }
 
     public static BasicHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_1), "unexpected block id '" + block.getId() + "'");
+        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_1), "unexpected block id '%s'", block.getId());
 
         Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
         if (!blockContentMatcher.matches()) {

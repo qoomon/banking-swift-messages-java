@@ -3,6 +3,7 @@ package com.qoomon.banking.swift.message.block;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
+import com.qoomon.banking.swift.message.submessage.field.subfield.MessagePriority;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,23 +30,22 @@ public class ApplicationHeaderInputBlock {
 
     public static final String BLOCK_ID_2 = "2";
 
+    public static final String MODE_CODE = "I";
+
     public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(I)(.{3})(.{12})(.{1})?(.{3})?");
 
-    private final String mode;
     private final String messageType;
     private final String receiverAddress;
-    private final String messagePriority;
+    private final MessagePriority messagePriority;
     private final Optional<String> deliveryMonitoring;
     private final Optional<String> obsolescencePeriod;
 
-    public ApplicationHeaderInputBlock(String mode, String messageType, String receiverAddress, String messagePriority, String deliveryMonitoring, String obsolescencePeriod) {
+    public ApplicationHeaderInputBlock(String messageType, String receiverAddress, MessagePriority messagePriority, String deliveryMonitoring, String obsolescencePeriod) {
 
-        Preconditions.checkArgument(mode != null, "mode can't be null");
         Preconditions.checkArgument(messageType != null, "messageType can't be null");
         Preconditions.checkArgument(receiverAddress != null, "receiverAddress can't be null");
         Preconditions.checkArgument(messagePriority != null, "messagePriority can't be null");
 
-        this.mode = mode;
         this.messageType = messageType;
         this.receiverAddress = receiverAddress;
         this.messagePriority = messagePriority;
@@ -54,7 +54,7 @@ public class ApplicationHeaderInputBlock {
     }
 
     public static ApplicationHeaderInputBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '" + block.getId() + "'");
+        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '%s'", block.getId());
 
         Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
         if (!blockContentMatcher.matches()) {
@@ -62,17 +62,17 @@ public class ApplicationHeaderInputBlock {
         }
 
         String mode = blockContentMatcher.group(1);
+        if (!mode.equals(MODE_CODE)) {
+            throw new BlockFieldParseException("Block '" + block.getId() + "' expect mod '" + MODE_CODE + "', but was " + mode);
+        }
+
         String messageType = blockContentMatcher.group(2);
         String receiverAddress = blockContentMatcher.group(3);
-        String messagePriority = blockContentMatcher.group(4);
+        MessagePriority messagePriority = MessagePriority.of(blockContentMatcher.group(4));
         String deliveryMonitoring = blockContentMatcher.group(5);
         String obsolescencePeriod = blockContentMatcher.group(6);
 
-        return new ApplicationHeaderInputBlock(mode, messageType, receiverAddress, messagePriority, deliveryMonitoring, obsolescencePeriod);
-    }
-
-    public String getMode() {
-        return mode;
+        return new ApplicationHeaderInputBlock(messageType, receiverAddress, messagePriority, deliveryMonitoring, obsolescencePeriod);
     }
 
     public String getMessageType() {
@@ -83,7 +83,7 @@ public class ApplicationHeaderInputBlock {
         return receiverAddress;
     }
 
-    public String getMessagePriority() {
+    public MessagePriority getMessagePriority() {
         return messagePriority;
     }
 

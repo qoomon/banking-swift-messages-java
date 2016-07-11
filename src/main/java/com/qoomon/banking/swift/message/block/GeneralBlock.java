@@ -11,8 +11,10 @@ public class GeneralBlock {
     private final String content;
 
     public GeneralBlock(String id, String content) {
+
         Preconditions.checkArgument(id != null && !id.isEmpty(), "id can't be null or empty");
         Preconditions.checkArgument(content != null, "content can't be null");
+
         this.id = id;
         this.content = content;
     }

@@ -31,7 +31,7 @@ public class ApplicationHeaderBlock {
     }
 
     public static ApplicationHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '" + block.getId() + "'");
+        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '%s'", block.getId());
 
         if (block.getContent().startsWith("I")) {
             ApplicationHeaderInputBlock input = ApplicationHeaderInputBlock.of(block);

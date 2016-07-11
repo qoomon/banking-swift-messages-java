@@ -33,8 +33,6 @@ public class UserTrailerBlock {
 
     public static final String BLOCK_ID_5 = "5";
 
-    public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(\\{MAC:[^}]*\\})?(\\{PAC:[^}]*\\})?(\\{CHK:[^}]*\\})?(\\{TNG:[^}]*\\})?(\\{PDE:[^}]*\\})?(\\{DLM:[^}]*\\})?");
-
     public final Optional<String> messageAuthenticationCode;
     public final Optional<String> proprietaryAuthenticationCode;
     public final Optional<String> checksum;
@@ -57,7 +55,7 @@ public class UserTrailerBlock {
     }
 
     public static UserTrailerBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_5), "unexpected block id '" + block.getId() + "'");
+        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_5), "unexpected block id 'v '", block.getId());
 
         SwiftBlockReader blockReader = new SwiftBlockReader(new StringReader(block.getContent()));
 

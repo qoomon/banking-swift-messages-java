@@ -32,7 +32,7 @@ public class AccountIdentification implements SwiftField {
     }
 
     public static AccountIdentification of(GeneralField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_25), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_25), "unexpected field tag '%s'",field.getTag());
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 

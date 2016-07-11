@@ -87,8 +87,7 @@ public class SwiftFieldNotation {
         List<String> result = new LinkedList<>();
 
         for (SubField subfield : swiftSubFields) {
-            String subfieldRegex = buildSubfieldRegex(subfield);
-            Pattern subfieldPattern = Pattern.compile("^" + subfieldRegex);
+            Pattern subfieldPattern = Pattern.compile("^" + subfield.getRegex());
             Matcher subfieldMatcher = subfieldPattern.matcher(fieldText).region(parseIndex, fieldText.length());
             if (!subfieldMatcher.find()) {
                 throw new ParseException(subfield + " did not found matching characters."
@@ -128,7 +127,7 @@ public class SwiftFieldNotation {
         return result;
     }
 
-    private static String buildSubfieldRegex(SubField subfield) {
+    private static Pattern buildSubfieldRegex(SubField subfield) {
         String charSetRegex = CHARSET_REGEX_MAP.get(subfield.getCharSet());
         if (charSetRegex == null) {
             throw new IllegalArgumentException("Unknown charset: " + charSetRegex);
@@ -176,15 +175,7 @@ public class SwiftFieldNotation {
             subFieldRegex = "(?:" + subFieldRegex + ")?";
         }
 
-        return subFieldRegex;
-    }
-
-    public String groupRegex(String groupName, String regex) {
-        return "(?<" + groupName + ">" + regex + ")";
-    }
-
-    public String groupRegex(String groupName, Pattern pattern) {
-        return groupRegex(groupName, pattern.toString());
+        return Pattern.compile(subFieldRegex);
     }
 
     public List<SubField> parseSwiftNotation(String swiftNotation) {
@@ -248,6 +239,7 @@ public class SwiftFieldNotation {
         private final Integer length0;
         private final Optional<Integer> length1;
         private final Optional<String> lengthSign;
+        private Pattern regex;
 
         public SubField(Boolean optional, String prefix, String charSet, Integer length0, Integer length1, String lengthSign) {
 
@@ -261,18 +253,19 @@ public class SwiftFieldNotation {
             this.length0 = length0;
             this.length1 = Optional.ofNullable(length1);
             this.lengthSign = Optional.ofNullable(lengthSign);
+            this.regex = buildSubfieldRegex(this);
 
             if (!this.lengthSign.isPresent()) {
-                Preconditions.checkArgument(!this.length1.isPresent(), "Missing field length sign between field lengths : '" + this.toString() + "'");
+                Preconditions.checkArgument(!this.length1.isPresent(), "Missing field length sign between field lengths : '%s'", this);
             } else switch (this.lengthSign.get()) {
                 case "!":
-                    Preconditions.checkArgument(!this.length1.isPresent(), "Unexpected field length after fixed length sign '!' : '" + this.toString() + "'");
+                    Preconditions.checkArgument(!this.length1.isPresent(), "Unexpected field length after fixed length sign '!' : '%s'", this);
                     break;
                 case "-":
-                    Preconditions.checkArgument(this.length1.isPresent(), "Missing field length after range length sign '-' : '" + this.toString() + "'");
+                    Preconditions.checkArgument(this.length1.isPresent(), "Missing field length after range length sign '-' : '%s'", this);
                     break;
                 case "*":
-                    Preconditions.checkArgument(this.length1.isPresent(), "Missing field length after multiline length sign '*' : '" + this.toString() + "'");
+                    Preconditions.checkArgument(this.length1.isPresent(), "Missing field length after multiline length sign '*' : '%s'", this);
                     break;
                 default:
                     Preconditions.checkArgument(false, "Unknown length sign : '" + this.toString() + "'");
@@ -307,18 +300,26 @@ public class SwiftFieldNotation {
         public String toString() {
             String fieldNotation = "";
 
+            if (prefix.isPresent()) {
+                fieldNotation += prefix.get();
+            }
+
             fieldNotation += length0;
             if (lengthSign.isPresent()) {
-                fieldNotation += lengthSign;
-                if (lengthSign.equals("-") || lengthSign.equals("*")) {
-                    fieldNotation += length1;
+                fieldNotation += lengthSign.get();
+                if (lengthSign.get().equals("-") || lengthSign.get().equals("*")) {
+                    fieldNotation += length1.get();
                 }
             }
             fieldNotation += charSet;
             if (optional) {
-                fieldNotation = "[" + prefix + fieldNotation + "]";
+                fieldNotation = "[" + fieldNotation + "]";
             }
             return fieldNotation;
+        }
+
+        public Pattern getRegex() {
+            return regex;
         }
     }
 

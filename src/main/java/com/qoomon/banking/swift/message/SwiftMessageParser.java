@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.message;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.block.*;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
@@ -15,7 +16,9 @@ import java.util.Set;
 public class SwiftMessageParser {
 
 
-    public SwiftMessage parse(Reader swiftMessageTextReader) throws SwiftMessageParseException {
+    public SwiftMessage parse(Reader textReader) throws SwiftMessageParseException {
+
+        Preconditions.checkArgument(textReader != null, "textReader can't be null");
 
         BasicHeaderBlock basicHeaderBlock = null;
         ApplicationHeaderBlock applicationHeaderBlock = null;
@@ -26,7 +29,7 @@ public class SwiftMessageParser {
 
         Set<String> currentValidBlockIdSet = ImmutableSet.of(BasicHeaderBlock.BLOCK_ID_1);
 
-        SwiftBlockReader swiftBlockReader = new SwiftBlockReader(swiftMessageTextReader);
+        SwiftBlockReader swiftBlockReader = new SwiftBlockReader(textReader);
 
         try {
             GeneralBlock currentBlock;

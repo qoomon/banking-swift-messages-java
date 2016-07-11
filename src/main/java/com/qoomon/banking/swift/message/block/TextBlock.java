@@ -15,11 +15,13 @@ public class TextBlock {
 
     public TextBlock(String content) {
 
+        Preconditions.checkArgument(content != null, "content can't be null");
+
         this.content = content;
     }
 
     public static TextBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_4), "unexpected block id '" + block.getId() + "'");
+        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_4), "unexpected block id '{}'", block.getId());
 
         String blockContent = block.getContent();
 

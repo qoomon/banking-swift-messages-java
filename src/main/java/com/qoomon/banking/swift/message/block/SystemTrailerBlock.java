@@ -18,12 +18,14 @@ public class SystemTrailerBlock {
     private final String content;
 
     public SystemTrailerBlock(String content) {
+
         Preconditions.checkArgument(content!= null, "content can't be null");
+
         this.content = content;
     }
 
     public static SystemTrailerBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_S), "unexpected block id '" + block.getId() + "'");
+        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_S), "unexpected block id '%s'", block.getId());
 
         Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
         if (!blockContentMatcher.matches()) {

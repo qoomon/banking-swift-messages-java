@@ -29,4 +29,8 @@ public class SubMessageParserException extends RuntimeException {
     public int getLineNumber() {
         return lineNumber;
     }
+
+    public String getFieldTag() {
+        return fieldTag;
+    }
 }

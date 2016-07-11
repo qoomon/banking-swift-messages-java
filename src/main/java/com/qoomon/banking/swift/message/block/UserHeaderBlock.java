@@ -43,7 +43,7 @@ public class UserHeaderBlock {
     }
 
     public static UserHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_3), "unexpected block id '" + block.getId() + "'");
+        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_3), "unexpected block id '%s'", block.getId());
 
         SwiftBlockReader blockReader = new SwiftBlockReader(new StringReader(block.getContent()));
 

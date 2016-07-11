@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.message.block;
 
+import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 
 import java.io.IOException;
@@ -21,6 +22,9 @@ public class SwiftBlockReader {
     private final Reader textReader;
 
     public SwiftBlockReader(Reader textReader) {
+
+        Preconditions.checkArgument(textReader != null, "textReader can't be null");
+
         this.textReader = textReader;
     }
 

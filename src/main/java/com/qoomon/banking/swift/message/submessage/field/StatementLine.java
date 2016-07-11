@@ -22,15 +22,16 @@ import java.util.Optional;
  * <p>
  * <b>SubFields</b>
  * <pre>
- * 1: 6!n     - Value Date - Format 'YYMMDD'
- * 2: [4!n]   - Entry Date - Format 'MMDD'
- * 3: 2a      - Capital Code - 'D' = Debit, 'RD' = Reversal of Debit, 'C' = Credit, 'RC' = Reversal of Credit,
- * 4: [1!a]   - Debit/Credit Mark - 'D' = Debit, 'C' Credit
- * 5: 15d     - Amount
- * 6: 1!a3!c  - Transaction Type Identification Code {@link TransactionTypeIdentificationCode}
- * 7: 16x     - Reference for the Account Owner
- * 8: [//16x] - Reference for the Bank
- * 9: [34x]   - Transaction Description
+ *  1: 6!n     - Value Date - Format 'YYMMDD'
+ *  2: [4!n]   - Entry Date - Format 'MMDD'
+ *  3: 2a      - Capital Code - 'D' = Debit, 'RD' = Reversal of Debit, 'C' = Credit, 'RC' = Reversal of Credit,
+ *  4: [1!a]   - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ *  5: 15d     - Amount
+ *  6: 1!a     - Transaction Type Identification Code {@link TransactionTypeIdentificationCode}
+ *  7: 3!c     - belongs to Transaction Type Identification Code
+ *  8: 16x     - Reference for the Account Owner
+ *  9: [//16x] - Reference for the Bank
+ * 10: [34x]   - Transaction Description
  * </pre>
  */
 public class StatementLine implements SwiftField {
@@ -80,7 +81,7 @@ public class StatementLine implements SwiftField {
     }
 
     public static StatementLine of(GeneralField field) throws ParseException {
-        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_61), "unexpected field tag '" + field.getTag() + "'");
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_61), "unexpected field tag '%s'",field.getTag());
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -89,7 +90,7 @@ public class StatementLine implements SwiftField {
         DebitCreditMark debitCreditMark = DebitCreditMark.of(subFields.get(2));
         String foundsCode = subFields.get(3);
         BigDecimal amount = new BigDecimal(subFields.get(4).replaceFirst(",", "."));
-        TransactionTypeIdentificationCode transactionTypeIdentificationCode = TransactionTypeIdentificationCode.parse(subFields.get(5) + subFields.get(6));
+        TransactionTypeIdentificationCode transactionTypeIdentificationCode = TransactionTypeIdentificationCode.of(subFields.get(5) + subFields.get(6));
         String referenceForAccountOwner = subFields.get(7);
         String referenceForBank = subFields.get(8);
         String supplementaryDetails = subFields.get(9);
