@@ -12,5 +12,14 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 
 [![Release](https://jitpack.io/v/qoomon/banking-swift-messages-java.svg)](https://jitpack.io/#qoomon/banking-swift-messages-java)
 
+#### Maven
+```
+<dependency>
+  <groupId>com.qoomon</groupId>
+  <artifactId>banking-swift-messages-java</artifactId>
+  <version>v0.1.0</version>
+</dependency>
+```
+
 ###### Tags
 Banking, Reader, Decoder
