@@ -134,10 +134,16 @@ public class SwiftMessage {
                         TextBlock textBlock,
                         UserTrailerBlock userTrailerBlock,
                         SystemTrailerBlock systemTrailerBlock) {
-        this.basicHeaderBlock = Preconditions.checkNotNull(basicHeaderBlock);
-        this.applicationHeaderBlock = Preconditions.checkNotNull(applicationHeaderBlock);
-        this.userHeaderBlock = Preconditions.checkNotNull(userHeaderBlock);
-        this.textBlock = Preconditions.checkNotNull(textBlock);
+
+        Preconditions.checkArgument(basicHeaderBlock != null, "basicHeaderBlock can't be null");
+        Preconditions.checkArgument(applicationHeaderBlock != null, "applicationHeaderBlock can't be null");
+        Preconditions.checkArgument(userHeaderBlock != null, "userHeaderBlock can't be null");
+        Preconditions.checkArgument(textBlock != null, "textBlock can't be null");
+
+        this.basicHeaderBlock = basicHeaderBlock;
+        this.applicationHeaderBlock = applicationHeaderBlock;
+        this.userHeaderBlock = userHeaderBlock;
+        this.textBlock = textBlock;
         this.userTrailerBlock = Optional.ofNullable(userTrailerBlock);
         this.systemTrailerBlock = Optional.ofNullable(systemTrailerBlock);
     }

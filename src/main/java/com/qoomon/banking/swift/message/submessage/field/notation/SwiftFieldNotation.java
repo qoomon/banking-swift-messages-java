@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.regex.Pattern.quote;
+import static java.util.regex.Pattern.*;
 
 /**
  * <pre>
@@ -250,10 +250,15 @@ public class SwiftFieldNotation {
         private final Optional<String> lengthSign;
 
         public SubField(Boolean optional, String prefix, String charSet, Integer length0, Integer length1, String lengthSign) {
-            this.optional = Preconditions.checkNotNull(optional);
+
+            Preconditions.checkArgument(optional != null, "optional can't be null");
+            Preconditions.checkArgument(charSet != null, "charSet can't be null");
+            Preconditions.checkArgument(length0 != null, "length0 can't be null");
+
+            this.optional = optional;
             this.prefix = Optional.ofNullable(prefix);
-            this.charSet = Preconditions.checkNotNull(charSet);
-            this.length0 = Preconditions.checkNotNull(length0);
+            this.charSet = charSet;
+            this.length0 = length0;
             this.length1 = Optional.ofNullable(length1);
             this.lengthSign = Optional.ofNullable(lengthSign);
 

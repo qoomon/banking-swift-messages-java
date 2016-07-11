@@ -30,7 +30,10 @@ public class StatementNumber implements SwiftField {
     private final Optional<String> sequenceNumber;
 
     public StatementNumber(String value, String sequenceNumber) {
-        this.value = Preconditions.checkNotNull(value);
+
+        Preconditions.checkArgument(value != null, "value can't be null");
+
+        this.value = value;
         this.sequenceNumber = Optional.ofNullable(sequenceNumber);
     }
 

@@ -3,6 +3,9 @@ package com.qoomon.banking.swift.message;
 import com.google.common.io.Resources;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.ThrowableAssert;
+import org.assertj.core.api.ThrowableAssertAlternative;
+import org.assertj.core.api.ThrowableTypeAssert;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -12,10 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by qoomon on 24/06/16.
@@ -42,8 +45,6 @@ public class SwiftMessageParserTest {
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
-        Optional.ofNullable(exception).ifPresent(Throwable::printStackTrace);
-
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
@@ -115,7 +116,6 @@ public class SwiftMessageParserTest {
 
         // When
         Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
-        Optional.ofNullable(exception).ifPresent(Throwable::printStackTrace);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -124,6 +124,7 @@ public class SwiftMessageParserTest {
         assertThat(parseException.getLineNumber()).isEqualTo(2);
 
     }
+
 
     @Test
     public void parse_WHEN_unknown_block_appears_THEN_throw_exception() throws Exception {

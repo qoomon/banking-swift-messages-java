@@ -18,7 +18,10 @@ public class TransactionGroup {
     private final Optional<InformationToAccountOwner> informationToAccountOwner;
 
     public TransactionGroup(StatementLine statementLine, InformationToAccountOwner informationToAccountOwner) {
-        this.statementLine = Preconditions.checkNotNull(statementLine);
+
+        Preconditions.checkArgument(statementLine != null, "statementLine can't be null");
+
+        this.statementLine = statementLine;
         this.informationToAccountOwner = Optional.ofNullable(informationToAccountOwner);
     }
 

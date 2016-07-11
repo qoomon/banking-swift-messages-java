@@ -38,9 +38,14 @@ public class ClosingAvailableBalance implements SwiftField {
     private final Money amount;
 
     public ClosingAvailableBalance(DebitCreditMark debitCreditMark, LocalDate entryDate, Money amount) {
-        this.debitCreditMark = Preconditions.checkNotNull(debitCreditMark);
-        this.entryDate = Preconditions.checkNotNull(entryDate);
-        this.amount = Preconditions.checkNotNull(amount);
+
+        Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
+        Preconditions.checkArgument(entryDate != null, "entryDate can't be null");
+        Preconditions.checkArgument(amount != null, "amount can't be null");
+
+        this.debitCreditMark = debitCreditMark;
+        this.entryDate = entryDate;
+        this.amount = amount;
     }
 
     public static ClosingAvailableBalance of(GeneralField field) throws ParseException {

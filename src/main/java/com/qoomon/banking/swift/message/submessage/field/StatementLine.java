@@ -61,13 +61,20 @@ public class StatementLine implements SwiftField {
                          String referenceForAccountOwner,
                          String referenceForBank,
                          String supplementaryDetails) {
-        this.valueDate = Preconditions.checkNotNull(valueDate);
+
+        Preconditions.checkArgument(valueDate != null, "valueDate can't be null");
+        Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
+        Preconditions.checkArgument(amount != null, "amount can't be null");
+        Preconditions.checkArgument(transactionTypeIdentificationCode != null, "transactionTypeIdentificationCode can't be null");
+        Preconditions.checkArgument(referenceForAccountOwner != null, "referenceForAccountOwner can't be null");
+
+        this.valueDate = valueDate;
         this.entryDate = entryDate != null ? entryDate : valueDate;
-        this.debitCreditMark = Preconditions.checkNotNull(debitCreditMark);
+        this.debitCreditMark = debitCreditMark;
         this.capitalCode = Optional.ofNullable(capitalCode);
-        this.amount = Preconditions.checkNotNull(amount);
-        this.transactionTypeIdentificationCode = Preconditions.checkNotNull(transactionTypeIdentificationCode);
-        this.referenceForAccountOwner = Preconditions.checkNotNull(referenceForAccountOwner);
+        this.amount = amount;
+        this.transactionTypeIdentificationCode = transactionTypeIdentificationCode;
+        this.referenceForAccountOwner = referenceForAccountOwner;
         this.referenceForBank = Optional.ofNullable(referenceForBank);
         this.supplementaryDetails = Optional.ofNullable(supplementaryDetails);
     }

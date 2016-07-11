@@ -39,10 +39,16 @@ public class ApplicationHeaderInputBlock {
     private final Optional<String> obsolescencePeriod;
 
     public ApplicationHeaderInputBlock(String mode, String messageType, String receiverAddress, String messagePriority, String deliveryMonitoring, String obsolescencePeriod) {
-        this.mode = Preconditions.checkNotNull(mode);
-        this.messageType = Preconditions.checkNotNull(messageType);
-        this.receiverAddress = Preconditions.checkNotNull(receiverAddress);
-        this.messagePriority = Preconditions.checkNotNull(messagePriority);
+
+        Preconditions.checkArgument(mode != null, "mode can't be null");
+        Preconditions.checkArgument(messageType != null, "messageType can't be null");
+        Preconditions.checkArgument(receiverAddress != null, "receiverAddress can't be null");
+        Preconditions.checkArgument(messagePriority != null, "messagePriority can't be null");
+
+        this.mode = mode;
+        this.messageType = messageType;
+        this.receiverAddress = receiverAddress;
+        this.messagePriority = messagePriority;
         this.deliveryMonitoring = Optional.fromNullable(deliveryMonitoring);
         this.obsolescencePeriod = Optional.fromNullable(obsolescencePeriod);
     }
@@ -62,7 +68,7 @@ public class ApplicationHeaderInputBlock {
         String deliveryMonitoring = blockContentMatcher.group(5);
         String obsolescencePeriod = blockContentMatcher.group(6);
 
-        return new ApplicationHeaderInputBlock(mode,messageType,receiverAddress,messagePriority,deliveryMonitoring, obsolescencePeriod);
+        return new ApplicationHeaderInputBlock(mode, messageType, receiverAddress, messagePriority, deliveryMonitoring, obsolescencePeriod);
     }
 
     public String getMode() {

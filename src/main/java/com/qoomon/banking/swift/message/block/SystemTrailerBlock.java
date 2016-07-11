@@ -18,7 +18,8 @@ public class SystemTrailerBlock {
     private final String content;
 
     public SystemTrailerBlock(String content) {
-        this.content = Preconditions.checkNotNull(content);
+        Preconditions.checkArgument(content!= null, "content can't be null");
+        this.content = content;
     }
 
     public static SystemTrailerBlock of(GeneralBlock block) throws BlockFieldParseException {

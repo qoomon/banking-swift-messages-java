@@ -33,9 +33,13 @@ public class UserHeaderBlock {
     public final ImmutableMap<String, GeneralBlock> additionalSubblocks;
 
     public UserHeaderBlock(String bankingPriorityCode, String messageUserReference, Map<String, GeneralBlock> additionalSubblocks) {
+
+        Preconditions.checkArgument(messageUserReference != null, "messageUserReference can't be null");
+        Preconditions.checkArgument(additionalSubblocks != null, "additionalSubblocks can't be null");
+
         this.bankingPriorityCode = Optional.ofNullable(bankingPriorityCode);
-        this.messageUserReference = Preconditions.checkNotNull(messageUserReference);
-        this.additionalSubblocks = ImmutableMap.copyOf(Preconditions.checkNotNull(additionalSubblocks));
+        this.messageUserReference = messageUserReference;
+        this.additionalSubblocks = ImmutableMap.copyOf(additionalSubblocks);
     }
 
     public static UserHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {

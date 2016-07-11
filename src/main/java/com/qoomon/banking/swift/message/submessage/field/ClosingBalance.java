@@ -41,10 +41,16 @@ public class ClosingBalance implements SwiftField {
     private final Money amount;
 
     public ClosingBalance(Type type, DebitCreditMark debitCreditMark, LocalDate date, Money amount) {
-        this.type = Preconditions.checkNotNull(type);
-        this.debitCreditMark = Preconditions.checkNotNull(debitCreditMark);
-        this.date = Preconditions.checkNotNull(date);
-        this.amount = Preconditions.checkNotNull(amount);
+
+        Preconditions.checkArgument(type != null, "type can't be null");
+        Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
+        Preconditions.checkArgument(date != null, "date can't be null");
+        Preconditions.checkArgument(amount != null, "amount can't be null");
+
+        this.type = type;
+        this.debitCreditMark = debitCreditMark;
+        this.date = date;
+        this.amount = amount;
     }
 
     public static ClosingBalance of(GeneralField field) throws ParseException {

@@ -80,17 +80,25 @@ public class SwiftMT942 {
             TransactionSummary transactionSummaryDebit,
             TransactionSummary transactionSummaryCredit,
             InformationToAccountOwner informationToAccountOwner) {
-        this.transactionReferenceNumber = Preconditions.checkNotNull(transactionReferenceNumber);
+
+        Preconditions.checkArgument(transactionReferenceNumber != null, "transactionReferenceNumber can't be null");
+        Preconditions.checkArgument(accountIdentification != null, "accountIdentification can't be null");
+        Preconditions.checkArgument(statementNumber != null, "statementNumber can't be null");
+        Preconditions.checkArgument(floorLimitIndicatorDebitCredit != null, "floorLimitIndicatorDebitCredit can't be null");
+        Preconditions.checkArgument(dateTimeIndicator != null, "dateTimeIndicator can't be null");
+        Preconditions.checkArgument(transactionList != null, "transactionList can't be null");
+
+        this.transactionReferenceNumber = transactionReferenceNumber;
         this.relatedReference = Optional.ofNullable(relatedReference);
-        this.accountIdentification = Preconditions.checkNotNull(accountIdentification);
-        this.statementNumber = Preconditions.checkNotNull(statementNumber);
-        this.floorLimitIndicatorDebitCredit = Preconditions.checkNotNull(floorLimitIndicatorDebitCredit);
-        this.floorLimitIndicatorCredit =  Optional.ofNullable(floorLimitIndicatorCredit);
-        this.dateTimeIndicator = Preconditions.checkNotNull(dateTimeIndicator);
-        this.transactionList =  Preconditions.checkNotNull(transactionList);
-        this.transactionSummaryDebit =  Optional.ofNullable(transactionSummaryDebit);
-        this.transactionSummaryCredit =  Optional.ofNullable(transactionSummaryCredit);
-        this.informationToAccountOwner =  Optional.ofNullable(informationToAccountOwner);
+        this.accountIdentification = accountIdentification;
+        this.statementNumber = statementNumber;
+        this.floorLimitIndicatorDebitCredit = floorLimitIndicatorDebitCredit;
+        this.floorLimitIndicatorCredit = Optional.ofNullable(floorLimitIndicatorCredit);
+        this.dateTimeIndicator = dateTimeIndicator;
+        this.transactionList = transactionList;
+        this.transactionSummaryDebit = Optional.ofNullable(transactionSummaryDebit);
+        this.transactionSummaryCredit = Optional.ofNullable(transactionSummaryCredit);
+        this.informationToAccountOwner = Optional.ofNullable(informationToAccountOwner);
     }
 
     public TransactionReferenceNumber getTransactionReferenceNumber() {

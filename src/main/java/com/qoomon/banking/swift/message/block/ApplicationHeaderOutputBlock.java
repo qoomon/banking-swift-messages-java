@@ -40,13 +40,22 @@ public class ApplicationHeaderOutputBlock {
     private final String messagePriority;
 
     public ApplicationHeaderOutputBlock(String mode, String messageType, String inputTime, String inputReference, String outputDate, String outputTime, String messagePriority) {
-        this.mode = Preconditions.checkNotNull(mode);
-        this.messageType = Preconditions.checkNotNull(messageType);
-        this.inputTime = Preconditions.checkNotNull(inputTime);
-        this.inputReference = Preconditions.checkNotNull(inputReference);
-        this.outputDate = Preconditions.checkNotNull(outputDate);
-        this.outputTime = Preconditions.checkNotNull(outputTime);
-        this.messagePriority = Preconditions.checkNotNull(messagePriority);
+
+        Preconditions.checkArgument(mode != null, "mode can't be null");
+        Preconditions.checkArgument(messageType != null, "messageType can't be null");
+        Preconditions.checkArgument(inputTime != null, "inputTime can't be null");
+        Preconditions.checkArgument(inputReference != null, "inputReference can't be null");
+        Preconditions.checkArgument(outputDate != null, "outputDate can't be null");
+        Preconditions.checkArgument(outputTime != null, "outputTime can't be null");
+        Preconditions.checkArgument(messagePriority != null, "messagePriority can't be null");
+
+        this.mode = mode;
+        this.messageType = messageType;
+        this.inputTime = inputTime;
+        this.inputReference = inputReference;
+        this.outputDate = outputDate;
+        this.outputTime = outputTime;
+        this.messagePriority = messagePriority;
     }
 
     public static ApplicationHeaderOutputBlock of(GeneralBlock block) throws BlockFieldParseException {

@@ -9,7 +9,6 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -45,13 +44,16 @@ public class UserTrailerBlock {
     private final ImmutableMap<String, GeneralBlock> additionalSubblocks;
 
     public UserTrailerBlock(String messageAuthenticationCode, String proprietaryAuthenticationCode, String checksum, String training, String possibleDuplicateEmission, String deliveryDelay, Map<String, GeneralBlock> additionalSubblocks) {
+
+        Preconditions.checkArgument(additionalSubblocks != null, "additionalSubblocks can't be null");
+
         this.messageAuthenticationCode = Optional.ofNullable(messageAuthenticationCode);
         this.proprietaryAuthenticationCode = Optional.ofNullable(proprietaryAuthenticationCode);
         this.checksum = Optional.ofNullable(checksum);
         this.training = Optional.ofNullable(training);
         this.possibleDuplicateEmission = Optional.ofNullable(possibleDuplicateEmission);
         this.deliveryDelay = Optional.ofNullable(deliveryDelay);
-        this.additionalSubblocks = ImmutableMap.copyOf(Preconditions.checkNotNull(additionalSubblocks));
+        this.additionalSubblocks = ImmutableMap.copyOf(additionalSubblocks);
     }
 
     public static UserTrailerBlock of(GeneralBlock block) throws BlockFieldParseException {
@@ -97,7 +99,7 @@ public class UserTrailerBlock {
             throw new BlockFieldParseException("Block '" + block.getId() + "' content error", e);
         }
 
-        return new UserTrailerBlock(messageAuthenticationCode, proprietaryAuthenticationCode,checksum, training, possibleDuplicateEmission, deliveryDelay, additionalSubblocks);
+        return new UserTrailerBlock(messageAuthenticationCode, proprietaryAuthenticationCode, checksum, training, possibleDuplicateEmission, deliveryDelay, additionalSubblocks);
     }
 
     public Optional<String> getMessageAuthenticationCode() {

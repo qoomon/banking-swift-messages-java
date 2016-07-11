@@ -166,9 +166,9 @@ public class SwiftMT940 {
     private final OpeningBalance openingBalance;
 
     /**
-    * @see StatementLine#FIELD_TAG_61
-    * @see InformationToAccountOwner#FIELD_TAG_86
-    */
+     * @see StatementLine#FIELD_TAG_61
+     * @see InformationToAccountOwner#FIELD_TAG_86
+     */
     private final List<TransactionGroup> transactionGroupList;
 
     /**
@@ -204,15 +204,22 @@ public class SwiftMT940 {
             List<ForwardAvailableBalance> forwardAvailableBalanceList,
             InformationToAccountOwner informationToAccountOwner) {
 
+        Preconditions.checkArgument(accountIdentification != null, "accountIdentification can't be null");
+        Preconditions.checkArgument(statementNumber != null, "statementNumber can't be null");
+        Preconditions.checkArgument(openingBalance != null, "openingBalance can't be null");
+        Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
+        Preconditions.checkArgument(closingBalance != null, "closingBalance can't be null");
+        Preconditions.checkArgument(forwardAvailableBalanceList != null, "forwardAvailableBalanceList can't be null");
+
         this.transactionReferenceNumber = transactionReferenceNumber;
         this.relatedReference = Optional.ofNullable(relatedReference);
-        this.accountIdentification = Preconditions.checkNotNull(accountIdentification);
-        this.statementNumber = Preconditions.checkNotNull(statementNumber);
-        this.openingBalance = Preconditions.checkNotNull(openingBalance);
-        this.transactionGroupList = Preconditions.checkNotNull(transactionGroupList);
-        this.closingBalance = Preconditions.checkNotNull(closingBalance);
+        this.accountIdentification = accountIdentification;
+        this.statementNumber = statementNumber;
+        this.openingBalance = openingBalance;
+        this.transactionGroupList = transactionGroupList;
+        this.closingBalance = closingBalance;
         this.closingAvailableBalance = Optional.ofNullable(closingAvailableBalance);
-        this.forwardAvailableBalanceList = Preconditions.checkNotNull(forwardAvailableBalanceList);
+        this.forwardAvailableBalanceList = forwardAvailableBalanceList;
         this.informationToAccountOwner = Optional.ofNullable(informationToAccountOwner);
     }
 

@@ -11,9 +11,10 @@ public class GeneralField implements SwiftField {
     private final String content;
 
     public GeneralField(String tag, String content) {
-        Preconditions.checkNotNull(tag);
-        Preconditions.checkArgument(!tag.isEmpty());
-        Preconditions.checkNotNull(content);
+
+        Preconditions.checkArgument(tag != null && !tag.isEmpty(), "tag can't be null or empty");
+        Preconditions.checkArgument(content != null, "content can't be null");
+
         this.tag = tag;
         this.content = content;
     }

@@ -40,7 +40,10 @@ public class DateTimeIndicator implements SwiftField {
     private final OffsetDateTime value;
 
     public DateTimeIndicator(OffsetDateTime value) {
-        this.value = Preconditions.checkNotNull(value);
+
+        Preconditions.checkArgument(value != null, "value can't be null");
+
+        this.value = value;
     }
 
     public static DateTimeIndicator of(GeneralField field) throws ParseException {

@@ -39,10 +39,14 @@ public class TransactionSummary implements SwiftField {
     private final Money amount;
 
     public TransactionSummary(Type type, int transactionCount, Money amount) {
-        this.type = Preconditions.checkNotNull(type);
+
+        Preconditions.checkArgument(type != null, "type can't be null");
         Preconditions.checkArgument(transactionCount >= 0, "transaction count can't be negative. was: " + transactionCount);
+        Preconditions.checkArgument(amount != null, "amount can't be null");
+
+        this.type = type;
         this.transactionCount = transactionCount;
-        this.amount = Preconditions.checkNotNull(amount);
+        this.amount = amount;
     }
 
     public static TransactionSummary of(GeneralField field) throws ParseException {

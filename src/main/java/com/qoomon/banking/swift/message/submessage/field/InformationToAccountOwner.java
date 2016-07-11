@@ -27,7 +27,10 @@ public class InformationToAccountOwner implements SwiftField {
     private final String value;
 
     public InformationToAccountOwner(String value) {
-        this.value = Preconditions.checkNotNull(value);
+
+        Preconditions.checkArgument(value != null, "value can't be null");
+
+        this.value = value;
     }
 
     public static InformationToAccountOwner of(GeneralField field) throws ParseException {

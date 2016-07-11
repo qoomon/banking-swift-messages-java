@@ -105,7 +105,8 @@ public class SwiftFieldReader {
 
 
     private MessageLineType determineMessageLineType(String messageLine) {
-        Preconditions.checkNotNull(messageLine);
+        Preconditions.checkArgument(messageLine != null, "messageLine can't be null");
+
         if (messageLine.isEmpty()) {
             return MessageLineType.EMPTY;
         }

@@ -33,8 +33,11 @@ public class FloorLimitIndicator implements SwiftField {
     private final Money amount;
 
     public FloorLimitIndicator(DebitCreditMark debitCreditMark, Money amount) {
+
+        Preconditions.checkArgument(amount != null, "amount can't be null");
+
         this.debitCreditMark = Optional.ofNullable(debitCreditMark);
-        this.amount = Preconditions.checkNotNull(amount);
+        this.amount = amount;
     }
 
     public static FloorLimitIndicator of(GeneralField field) throws ParseException {

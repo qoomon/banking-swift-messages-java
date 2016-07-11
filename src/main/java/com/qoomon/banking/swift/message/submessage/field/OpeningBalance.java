@@ -42,10 +42,16 @@ public class OpeningBalance implements SwiftField {
     private final Money amount;
 
     public OpeningBalance(Type type, DebitCreditMark debitCreditMark, LocalDate date, Money amount) {
-        this.type = Preconditions.checkNotNull(type);
-        this.debitCreditMark = Preconditions.checkNotNull(debitCreditMark);
-        this.date = Preconditions.checkNotNull(date);
-        this.amount = Preconditions.checkNotNull(amount);
+
+        Preconditions.checkArgument(type != null, "type can't be null");
+        Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
+        Preconditions.checkArgument(date != null, "date can't be null");
+        Preconditions.checkArgument(amount != null, "amount can't be null");
+
+        this.type = type;
+        this.debitCreditMark = debitCreditMark;
+        this.date = date;
+        this.amount = amount;
     }
 
     public static OpeningBalance of(GeneralField field) throws ParseException {
@@ -58,7 +64,7 @@ public class OpeningBalance implements SwiftField {
         LocalDate date = LocalDate.parse(subFields.get(1), DATE_FORMATTER);
         String amountCurrency = subFields.get(2);
         String amountValue = subFields.get(3);
-        Money amount = Money.parse(amountCurrency + amountValue.replaceFirst(",","."));
+        Money amount = Money.parse(amountCurrency + amountValue.replaceFirst(",", "."));
 
         return new OpeningBalance(type, debitCreditMark, date, amount);
     }
