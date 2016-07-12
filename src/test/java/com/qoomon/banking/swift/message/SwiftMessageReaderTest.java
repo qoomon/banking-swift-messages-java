@@ -1,10 +1,8 @@
 package com.qoomon.banking.swift.message;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -13,7 +11,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -21,7 +18,7 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * Created by qoomon on 24/06/16.
  */
-public class SwiftMessageParserTest {
+public class SwiftMessageReaderTest {
 
     private static final String BLOCK_1_DUMMY_VALID = "{1:F01YOURCODEZABC1234567890}";
     private static final String BLOCK_2_DUMMY_VALID = "{2:O1001200970103BANKBEBBAXXX22221234569701031201N}";
@@ -29,9 +26,6 @@ public class SwiftMessageParserTest {
     private static final String BLOCK_4_DUMMY_EMPTY = "{4:\n-}";
     private static final String BLOCK_5_DUMMY_EMPTY = "{5:}";
 
-    private SoftAssertions softly = new SoftAssertions();
-
-    private SwiftMessageParser classUnderTest = new SwiftMessageParser();
 
     @Test
     public void parse_WHEN_detecting_whitespaces_between_blocks_THEN_throw_exception() throws Exception {
@@ -41,8 +35,10 @@ public class SwiftMessageParserTest {
                 + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY;
 
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Throwable exception = catchThrowable(() -> classUnderTest.readMessage());
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
@@ -58,8 +54,10 @@ public class SwiftMessageParserTest {
                 + "}"
                 + BLOCK_5_DUMMY_EMPTY;
 
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Throwable exception = catchThrowable(classUnderTest::readMessage);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -76,8 +74,10 @@ public class SwiftMessageParserTest {
         String swiftMessageText = "1:}" + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY;
 
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Throwable exception = catchThrowable(classUnderTest::readMessage);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -94,8 +94,10 @@ public class SwiftMessageParserTest {
         String swiftMessageText = "{:1:}" + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY;
 
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Throwable exception = catchThrowable(classUnderTest::readMessage);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -112,8 +114,10 @@ public class SwiftMessageParserTest {
         String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY + "{1:}";
 
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Throwable exception = catchThrowable(classUnderTest::readMessage);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -131,8 +135,10 @@ public class SwiftMessageParserTest {
         String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY + "{6:}";
 
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Throwable exception = catchThrowable(classUnderTest::readMessage);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -149,8 +155,10 @@ public class SwiftMessageParserTest {
         String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + "{5:";
 
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.parse(new StringReader(swiftMessageText)));
+        Throwable exception = catchThrowable(classUnderTest::readMessage);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -172,7 +180,8 @@ public class SwiftMessageParserTest {
         files.forEach(filePath -> {
             try {
                 System.out.println(filePath);
-                classUnderTest.parse(new FileReader(filePath.toFile()));
+                SwiftMessageReader classUnderTest = new SwiftMessageReader(new FileReader(filePath.toFile()));
+                classUnderTest.readMessage();
             } catch (Exception e) {
                 System.out.println(Throwables.getStackTraceAsString(e));
                 errors[0]++;
