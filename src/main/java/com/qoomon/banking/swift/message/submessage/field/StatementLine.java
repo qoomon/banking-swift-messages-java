@@ -25,10 +25,10 @@ import java.util.Optional;
  *  1: 6!n     - Value Date - Format 'YYMMDD'
  *  2: [4!n]   - Entry Date - Format 'MMDD'
  *  3: 2a      - Capital Code - 'D' = Debit, 'RD' = Reversal of Debit, 'C' = Credit, 'RC' = Reversal of Credit,
- *  4: [1!a]   - Debit/Credit Mark - 'D' = Debit, 'C' Credit
+ *  4: [1!a]   - Funds Code (3rd character of the currency code)
  *  5: 15d     - Amount
  *  6: 1!a     - Transaction Type Identification Code {@link TransactionTypeIdentificationCode}
- *  7: 3!c     - belongs to Transaction Type Identification Code
+ *  7: 3!c         belongs to Transaction Type Identification Code
  *  8: 16x     - Reference for the Account Owner
  *  9: [//16x] - Reference for the Bank
  * 10: [34x]   - Transaction Description
@@ -46,7 +46,7 @@ public class StatementLine implements SwiftField {
     private final LocalDate valueDate;
     private final LocalDate entryDate;
     private final DebitCreditMark debitCreditMark;
-    private final Optional<String> capitalCode;
+    private final Optional<String> fundsCode;
     private final BigDecimal amount;
     private final TransactionTypeIdentificationCode transactionTypeIdentificationCode;
     private final String referenceForAccountOwner;
@@ -56,7 +56,7 @@ public class StatementLine implements SwiftField {
     public StatementLine(LocalDate valueDate,
                          LocalDate entryDate,
                          DebitCreditMark debitCreditMark,
-                         String capitalCode,
+                         String fundsCode,
                          BigDecimal amount,
                          TransactionTypeIdentificationCode transactionTypeIdentificationCode,
                          String referenceForAccountOwner,
@@ -72,7 +72,7 @@ public class StatementLine implements SwiftField {
         this.valueDate = valueDate;
         this.entryDate = entryDate != null ? entryDate : valueDate;
         this.debitCreditMark = debitCreditMark;
-        this.capitalCode = Optional.ofNullable(capitalCode);
+        this.fundsCode = Optional.ofNullable(fundsCode);
         this.amount = amount;
         this.transactionTypeIdentificationCode = transactionTypeIdentificationCode;
         this.referenceForAccountOwner = referenceForAccountOwner;
@@ -81,30 +81,63 @@ public class StatementLine implements SwiftField {
     }
 
     public static StatementLine of(GeneralField field) throws ParseException {
+
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_61), "unexpected field tag '%s'", field.getTag());
 
-        List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
+            List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        LocalDate valueDate = LocalDate.parse(subFields.get(0), VALUE_DATE_FORMATTER);
-        LocalDate entryDate = subFields.get(1) == null ? null : MonthDay.parse(subFields.get(1), ENTRY_DATE_FORMATTER).atYear(valueDate.getYear());
-        DebitCreditMark debitCreditMark = DebitCreditMark.of(subFields.get(2));
-        String foundsCode = subFields.get(3);
-        BigDecimal amount = new BigDecimal(subFields.get(4).replaceFirst(",", "."));
-        TransactionTypeIdentificationCode transactionTypeIdentificationCode = TransactionTypeIdentificationCode.of(subFields.get(5) + subFields.get(6));
-        String referenceForAccountOwner = subFields.get(7);
-        String referenceForBank = subFields.get(8);
-        String supplementaryDetails = subFields.get(9);
+            LocalDate valueDate = LocalDate.parse(subFields.get(0), VALUE_DATE_FORMATTER);
+            LocalDate entryDate = null;
+            // calculate entry date
+            if (subFields.get(1) != null) {
+                MonthDay entryMonthDay = MonthDay.parse(subFields.get(1), ENTRY_DATE_FORMATTER);
+                // calculate entry year
+                int entryYear = entryMonthDay.getMonthValue() >= valueDate.getMonthValue()
+                        ? valueDate.getYear()
+                        : valueDate.getYear() + 1;
+                entryDate = entryMonthDay.atYear(entryYear);
+            }
+            DebitCreditMark debitCreditMark;
+            String foundsCode;
+            //// due to ambiguous format notation fo field 3 & 4 (2a[1!a]) it need some extra logic
+            // if field 3 starts with 'R' it is a two letter mark 'RC' or 'RD' and everything is fine
+            if (subFields.get(2).startsWith("R")) {
+                debitCreditMark = DebitCreditMark.of(subFields.get(2));
+                foundsCode = subFields.get(3);
+            }
+            // if field 3 does not start with 'R' it is a one letter mark 'C' or 'D'
+            // in this case optional field 4 can be part of field 3
+            else {
 
-        return new StatementLine(
-                valueDate,
-                entryDate,
-                debitCreditMark,
-                foundsCode,
-                amount,
-                transactionTypeIdentificationCode,
-                referenceForAccountOwner,
-                referenceForBank,
-                supplementaryDetails);
+                String firstLetterOfField3 = subFields.get(2).substring(0, 1);
+                String secondLetterOfField3 = subFields.get(2).length() > 1 ? subFields.get(2).substring(1, 2) : null;
+
+                debitCreditMark = DebitCreditMark.of(firstLetterOfField3);
+                foundsCode = secondLetterOfField3;
+
+                // ensure field 4 is not set also
+                if (subFields.get(3) != null) {
+                    throw new ParseException("Field " + FIELD_TAG_61 + ": Founds Code already set", 0);
+                }
+
+            }
+
+            BigDecimal amount = new BigDecimal(subFields.get(4).replaceFirst(",", "."));
+            TransactionTypeIdentificationCode transactionTypeIdentificationCode = TransactionTypeIdentificationCode.of(subFields.get(5) + subFields.get(6));
+            String referenceForAccountOwner = subFields.get(7);
+            String referenceForBank = subFields.get(8);
+            String supplementaryDetails = subFields.get(9);
+
+            return new StatementLine(
+                    valueDate,
+                    entryDate,
+                    debitCreditMark,
+                    foundsCode,
+                    amount,
+                    transactionTypeIdentificationCode,
+                    referenceForAccountOwner,
+                    referenceForBank,
+                    supplementaryDetails);
     }
 
     public LocalDate getValueDate() {
@@ -119,8 +152,8 @@ public class StatementLine implements SwiftField {
         return debitCreditMark;
     }
 
-    public Optional<String> getCapitalCode() {
-        return capitalCode;
+    public Optional<String> getFundsCode() {
+        return fundsCode;
     }
 
     public BigDecimal getAmount() {
