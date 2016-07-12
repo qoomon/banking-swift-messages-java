@@ -110,6 +110,7 @@ public class SwiftMT940Parser {
                         ForwardAvailableBalance forwardAvailableBalance = ForwardAvailableBalance.of(currentField);
                         forwardAvailableBalanceList.add(forwardAvailableBalance);
                         nextValidFieldSet = ImmutableSet.of(
+                                ForwardAvailableBalance.FIELD_TAG_65,
                                 InformationToAccountOwner.FIELD_TAG_86,
                                 PageSeperator.TAG);
                         break;
@@ -141,14 +142,14 @@ public class SwiftMT940Parser {
                         break;
                     }
                     default:
-                        throw new SubMessageParserException("Parse error: unexpected field", swiftFieldReader.getLineNumber(), currentField.getTag());
+                        throw new SubMessageParserException("Parse error: unexpected field", swiftFieldReader.getFieldLineNumber(), currentField.getTag());
                 }
 
                 if (!currentValidFieldSet.contains(currentField.getTag())) {
                     if (previousField == null) {
-                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed as first field", swiftFieldReader.getLineNumber(), currentField.getTag());
+                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed as first field", swiftFieldReader.getFieldLineNumber(), currentField.getTag());
                     } else {
-                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), swiftFieldReader.getLineNumber(), currentField.getTag());
+                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), swiftFieldReader.getFieldLineNumber(), currentField.getTag());
                     }
                 }
 
@@ -185,12 +186,12 @@ public class SwiftMT940Parser {
                 currentValidFieldSet = nextValidFieldSet;
 
             } catch (Exception parseException) {
-                throw new SubMessageParserException("Subfield parse error", swiftFieldReader.getLineNumber(), currentField.getTag(), parseException);
+                throw new SubMessageParserException("Subfield parse error", swiftFieldReader.getFieldLineNumber(), currentField.getTag(), parseException);
             }
         }
 
         if (buildMessageInProgress) {
-            throw new SubMessageParserException("Unfinished Message", swiftFieldReader.getLineNumber(), "n/a");
+            throw new SubMessageParserException("Unfinished Message", swiftFieldReader.getFieldLineNumber(), "n/a");
         }
 
         return result;

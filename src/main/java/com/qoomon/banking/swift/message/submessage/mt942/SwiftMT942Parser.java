@@ -140,15 +140,15 @@ public class SwiftMT942Parser {
                         break;
                     }
                     default:
-                        throw new SubMessageParserException("Unexpected field", swiftFieldReader.getLineNumber(), currentFieldTag);
+                        throw new SubMessageParserException("Unexpected field", swiftFieldReader.getFieldLineNumber(), currentFieldTag);
 
                 }
 
                 if (!currentValidFieldSet.contains(currentField.getTag())) {
                     if (previousField == null) {
-                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed as first field", swiftFieldReader.getLineNumber(), currentField.getTag());
+                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed as first field", swiftFieldReader.getFieldLineNumber(), currentField.getTag());
                     } else {
-                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), swiftFieldReader.getLineNumber(), currentField.getTag());
+                        throw new SubMessageParserException("Field " + currentField.getTag() + " is not allowed after field " + previousField.getTag(), swiftFieldReader.getFieldLineNumber(), currentField.getTag());
                     }
                 }
 
@@ -186,12 +186,12 @@ public class SwiftMT942Parser {
                 previousField = currentField;
                 currentValidFieldSet = nextValidFieldSet;
             } catch (Exception parseException) {
-                throw new SubMessageParserException("Subfield parse error", swiftFieldReader.getLineNumber(), currentField.getTag(), parseException);
+                throw new SubMessageParserException("Subfield parse error", swiftFieldReader.getFieldLineNumber(), currentField.getTag(), parseException);
             }
         }
 
         if (buildMessageInProgress) {
-            throw new SubMessageParserException("Unfinished Message", swiftFieldReader.getLineNumber(), "n/a");
+            throw new SubMessageParserException("Unfinished Message", swiftFieldReader.getFieldLineNumber(), "n/a");
         }
 
         return result;

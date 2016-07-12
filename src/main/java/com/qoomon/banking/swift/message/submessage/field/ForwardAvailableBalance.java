@@ -22,7 +22,7 @@ import java.util.List;
  * 1: 1!a - Debit/Credit Mark - 'D' = Debit, 'C' Credit
  * 2: 6!n - Entry date - Format 'YYMMDD'
  * 3: 3!a - Currency - Three Digit Code
- * 3: 15d - Amount
+ * 4: 15d - Amount
  * </pre>
  */
 public class ForwardAvailableBalance implements SwiftField {
@@ -53,9 +53,9 @@ public class ForwardAvailableBalance implements SwiftField {
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        String amountCurrency = subFields.get(0);
+        DebitCreditMark debitCreditMark = DebitCreditMark.of(subFields.get(0));
         LocalDate entryDate = LocalDate.parse(subFields.get(1), DATE_FORMATTER);
-        DebitCreditMark debitCreditMark = DebitCreditMark.of(subFields.get(2));
+        String amountCurrency = subFields.get(2);
         String amountValue = subFields.get(3);
 
         BigMoney amount = BigMoney.parse(amountCurrency + amountValue.replaceFirst(",", "."));

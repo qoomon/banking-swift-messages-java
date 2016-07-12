@@ -20,14 +20,16 @@ public class SwiftFieldReader {
 
     private final LineNumberReader lineReader;
 
+    private int fieldLineNumber = 0;
+
     private Set<MessageLineType> nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
 
     public SwiftFieldReader(Reader textReader) {
         this.lineReader = new LineNumberReader(textReader);
     }
 
-    public int getLineNumber() {
-        return lineReader.getLineNumber();
+    public int getFieldLineNumber() {
+        return fieldLineNumber;
     }
 
     public GeneralField readField() throws FieldParseException {
@@ -54,6 +56,7 @@ public class SwiftFieldReader {
                         }
 
                         // start of a new field
+                        fieldLineNumber = lineReader.getLineNumber();
                         currentFieldBuilder = GeneralField.newBuilder()
                                 .setTag(fieldMatcher.group("tag"))
                                 .appendContent(fieldMatcher.group("content"));
@@ -77,12 +80,12 @@ public class SwiftFieldReader {
                         break;
                     }
                     default:
-                        throw new FieldParseException("Bug: Missing handling for line type" + currentMessageLineType.name(), currentMessageLineNumber);
+                        throw new FieldParseException("Bug: Missing handling for line type " + currentMessageLineType.name(), currentMessageLineNumber);
 
                 }
 
                 if (!currentValidFieldSet.contains(currentMessageLineType)) {
-                    throw new FieldParseException("Parse error: unexpected line order of" + currentMessageLineType.name(), currentMessageLineNumber);
+                    throw new FieldParseException("Parse error: Expected " + currentValidFieldSet + ", but was '"+ currentMessageLineType.name() + "'", currentMessageLineNumber);
                 }
 
                 // lookahead

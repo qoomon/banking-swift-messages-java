@@ -2,11 +2,13 @@ package com.qoomon.banking.swift.message.submessage.mt942;
 
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.Files;
@@ -52,17 +54,27 @@ public class SwiftMT942ParserTest {
         Stream<Path> files = Files.walk(Paths.get(mt942_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
 
         // When
+        final int[] errors = {0};
         files.forEach(filePath -> {
             try {
                 System.out.println(filePath);
                 classUnderTest.parse(new FileReader(filePath.toFile()));
             } catch (Exception e) {
-                throw new RuntimeException(e);
+
+                String fileContent = null;
+                try {
+                    fileContent = Resources.toString(filePath.toUri().toURL(), Charsets.UTF_8);
+                } catch (IOException ioe) {
+                    throw new RuntimeException(ioe);
+                }
+                System.out.println(fileContent);
+                System.out.println(Throwables.getStackTraceAsString(e));
+                errors[0]++;
             }
         });
 
         // Then
-        // No Exception
+        assertThat(errors[0]).isEqualTo(0);
 
     }
 
