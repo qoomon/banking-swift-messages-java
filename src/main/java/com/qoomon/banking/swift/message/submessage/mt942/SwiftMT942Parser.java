@@ -82,7 +82,7 @@ public class SwiftMT942Parser {
                                 TransactionSummary.FIELD_TAG_90D,
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                Seperator.TAG);
+                                PageSeperator.TAG);
                         break;
                     }
                     case StatementLine.FIELD_TAG_61: {
@@ -93,7 +93,7 @@ public class SwiftMT942Parser {
                                 TransactionSummary.FIELD_TAG_90D,
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                Seperator.TAG);
+                                PageSeperator.TAG);
                         break;
                     }
                     case TransactionSummary.FIELD_TAG_90D: {
@@ -101,14 +101,14 @@ public class SwiftMT942Parser {
                         nextValidFieldSet = ImmutableSet.of(
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                Seperator.TAG);
+                                PageSeperator.TAG);
                         break;
                     }
                     case TransactionSummary.FIED_TAG_90C: {
                         transactionSummaryCredit = TransactionSummary.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                Seperator.TAG);
+                                PageSeperator.TAG);
                         break;
                     }
                     case InformationToAccountOwner.FIELD_TAG_86: {
@@ -129,11 +129,11 @@ public class SwiftMT942Parser {
                         } else {
                             informationToAccountOwner = InformationToAccountOwner.of(currentField);
                             nextValidFieldSet = ImmutableSet.of(
-                                    Seperator.TAG);
+                                    PageSeperator.TAG);
                         }
                         break;
                     }
-                    case Seperator.TAG: {
+                    case PageSeperator.TAG: {
                         // see below at finish message
                         nextValidFieldSet = ImmutableSet.of(
                                 TransactionReferenceNumber.FIELD_TAG_20);
@@ -153,7 +153,7 @@ public class SwiftMT942Parser {
                 }
 
                 // handle finishing message
-                if (currentFieldTag.equals(Seperator.TAG)) {
+                if (currentFieldTag.equals(PageSeperator.TAG)) {
                     buildMessageInProgress = false;
                     result.add(new SwiftMT942(
                             transactionReferenceNumber,

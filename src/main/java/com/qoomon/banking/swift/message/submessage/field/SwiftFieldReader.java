@@ -72,7 +72,7 @@ public class SwiftFieldReader {
                         break;
                     }
                     case SEPARATOR: {
-                        currentFieldBuilder = GeneralField.newBuilder().setTag(Seperator.TAG);
+                        currentFieldBuilder = GeneralField.newBuilder().setTag(PageSeperator.TAG);
                         nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
                         break;
                     }
@@ -110,7 +110,7 @@ public class SwiftFieldReader {
         if (messageLine.isEmpty()) {
             return MessageLineType.EMPTY;
         }
-        if (messageLine.equals(Seperator.TAG)) {
+        if (messageLine.equals(PageSeperator.TAG)) {
             return MessageLineType.SEPARATOR;
         }
         if (messageLine.startsWith(":")) {

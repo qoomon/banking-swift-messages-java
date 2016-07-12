@@ -95,7 +95,7 @@ public class SwiftMT940Parser {
                                 ClosingAvailableBalance.FIELD_TAG_64,
                                 ForwardAvailableBalance.FIELD_TAG_65,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                Seperator.TAG);
+                                PageSeperator.TAG);
                         break;
                     }
                     case ClosingAvailableBalance.FIELD_TAG_64: {
@@ -103,7 +103,7 @@ public class SwiftMT940Parser {
                         nextValidFieldSet = ImmutableSet.of(
                                 ForwardAvailableBalance.FIELD_TAG_65,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                Seperator.TAG);
+                                PageSeperator.TAG);
                         break;
                     }
                     case ForwardAvailableBalance.FIELD_TAG_65: {
@@ -111,7 +111,7 @@ public class SwiftMT940Parser {
                         forwardAvailableBalanceList.add(forwardAvailableBalance);
                         nextValidFieldSet = ImmutableSet.of(
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                Seperator.TAG);
+                                PageSeperator.TAG);
                         break;
                     }
                     case InformationToAccountOwner.FIELD_TAG_86: {
@@ -130,11 +130,11 @@ public class SwiftMT940Parser {
                                     ClosingBalance.FIELD_TAG_62M);
                         } else {
                             informationToAccountOwner = InformationToAccountOwner.of(currentField);
-                            nextValidFieldSet = ImmutableSet.of(Seperator.TAG);
+                            nextValidFieldSet = ImmutableSet.of(PageSeperator.TAG);
                         }
                         break;
                     }
-                    case Seperator.TAG: {
+                    case PageSeperator.TAG: {
                         // see below at finish message
                         nextValidFieldSet = ImmutableSet.of(
                                 TransactionReferenceNumber.FIELD_TAG_20);
@@ -153,7 +153,7 @@ public class SwiftMT940Parser {
                 }
 
                 // handle finishing message
-                if (currentField.getTag().equals(Seperator.TAG)) {
+                if (currentField.getTag().equals(PageSeperator.TAG)) {
                     buildMessageInProgress = false;
                     result.add(new SwiftMT940(
                             transactionReferenceNumber,
