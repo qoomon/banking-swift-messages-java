@@ -45,21 +45,22 @@ public class SwiftFieldNotation {
 
     private static final String SEPARATOR_SET = "(?:/|//|BR|ISIN)";
 
-    private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<String, String>() {{
+    private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<String, String>();
+    static {
         // see class description for charset details
-        put("a", "[A-Z]");
-        put("n", "[0-9]");
-        put("c", "[0-9A-Z]");
-        put("d", "[0-9,]");
-        put("e", " ");
-        put("s", "[+_]");
-        put("h", "[0-9A-F]");
-        put("x", "[ 0-9A-Za-z+-/?.:,()'\\n]");
-        put("y", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;]");
-        put("z", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;\\n]");
-        put("A", "[A-Za-z]");
-        put("B", "[0-9A-Za-z]");
-    }};
+        CHARSET_REGEX_MAP.put("a", "[A-Z]");
+        CHARSET_REGEX_MAP.put("n", "[0-9]");
+        CHARSET_REGEX_MAP.put("c", "[0-9A-Z]");
+        CHARSET_REGEX_MAP.put("d", "[0-9,]");
+        CHARSET_REGEX_MAP.put("e", " ");
+        CHARSET_REGEX_MAP.put("s", "[+_]");
+        CHARSET_REGEX_MAP.put("h", "[0-9A-F]");
+        CHARSET_REGEX_MAP.put("x", "[ 0-9A-Za-z+-/?.:,()'\\n]");
+        CHARSET_REGEX_MAP.put("y", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;]");
+        CHARSET_REGEX_MAP.put("z", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;\\n]");
+        CHARSET_REGEX_MAP.put("A", "[A-Za-z]");
+        CHARSET_REGEX_MAP.put("B", "[0-9A-Za-z]");
+    }
 
 
     private final String notation;

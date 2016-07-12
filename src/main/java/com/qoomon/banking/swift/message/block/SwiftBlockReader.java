@@ -21,17 +21,17 @@ public class SwiftBlockReader {
 
     private final Reader textReader;
 
+    private int lineNumber = 1;
+    private int lineCharIndex = 0;
+    private int openingBrackets = 0;
+    private int closingBrackets = 0;
+
     public SwiftBlockReader(Reader textReader) {
 
         Preconditions.checkArgument(textReader != null, "textReader can't be null");
 
         this.textReader = textReader;
     }
-
-    private int lineNumber = 1;
-    private int lineCharIndex = 0;
-    private int openingBrackets = 0;
-    private int closingBrackets = 0;
 
     public GeneralBlock readBlock() throws BlockParseException {
 
