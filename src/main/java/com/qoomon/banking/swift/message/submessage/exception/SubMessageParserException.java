@@ -13,7 +13,7 @@ public class SubMessageParserException extends RuntimeException {
     }
 
     public SubMessageParserException(String message, int lineNumber, Throwable cause) {
-        super(message + " at line number " + lineNumber , cause);
+        super(message + " at line number " + lineNumber, cause);
         this.lineNumber = lineNumber;
     }
 

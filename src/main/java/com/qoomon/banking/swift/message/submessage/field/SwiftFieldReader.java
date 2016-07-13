@@ -55,7 +55,7 @@ public class SwiftFieldReader {
 
                 ensureValidNextLine(nextFieldLine, nextValidFieldLineTypeSet, lineReader);
 
-                currentFieldLine  = nextFieldLine;
+                currentFieldLine = nextFieldLine;
                 currentLineNumber = lineReader.getLineNumber();
                 nextFieldLine = readFieldLine(lineReader);
 

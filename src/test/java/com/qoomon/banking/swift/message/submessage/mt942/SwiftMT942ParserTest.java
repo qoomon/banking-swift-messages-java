@@ -5,13 +5,9 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.qoomon.banking.swift.TestUtils;
-import com.qoomon.banking.swift.message.submessage.mt940.SwiftMT940;
-import com.qoomon.banking.swift.message.submessage.mt940.SwiftMT940Reader;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.Files;

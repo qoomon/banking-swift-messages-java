@@ -84,60 +84,60 @@ public class StatementLine implements SwiftField {
 
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_61), "unexpected field tag '%s'", field.getTag());
 
-            List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
+        List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-            LocalDate valueDate = LocalDate.parse(subFields.get(0), VALUE_DATE_FORMATTER);
-            LocalDate entryDate = null;
-            // calculate entry date
-            if (subFields.get(1) != null) {
-                MonthDay entryMonthDay = MonthDay.parse(subFields.get(1), ENTRY_DATE_FORMATTER);
-                // calculate entry year
-                int entryYear = entryMonthDay.getMonthValue() >= valueDate.getMonthValue()
-                        ? valueDate.getYear()
-                        : valueDate.getYear() + 1;
-                entryDate = entryMonthDay.atYear(entryYear);
-            }
-            DebitCreditMark debitCreditMark;
-            String foundsCode;
-            //// due to ambiguous format notation fo field 3 & 4 (2a[1!a]) it need some extra logic
-            // if field 3 starts with 'R' it is a two letter mark 'RC' or 'RD' and everything is fine
-            if (subFields.get(2).startsWith("R")) {
-                debitCreditMark = DebitCreditMark.of(subFields.get(2));
-                foundsCode = subFields.get(3);
-            }
-            // if field 3 does not start with 'R' it is a one letter mark 'C' or 'D'
-            // in this case optional field 4 can be part of field 3
-            else {
+        LocalDate valueDate = LocalDate.parse(subFields.get(0), VALUE_DATE_FORMATTER);
+        LocalDate entryDate = null;
+        // calculate entry date
+        if (subFields.get(1) != null) {
+            MonthDay entryMonthDay = MonthDay.parse(subFields.get(1), ENTRY_DATE_FORMATTER);
+            // calculate entry year
+            int entryYear = entryMonthDay.getMonthValue() >= valueDate.getMonthValue()
+                    ? valueDate.getYear()
+                    : valueDate.getYear() + 1;
+            entryDate = entryMonthDay.atYear(entryYear);
+        }
+        DebitCreditMark debitCreditMark;
+        String foundsCode;
+        //// due to ambiguous format notation fo field 3 & 4 (2a[1!a]) it need some extra logic
+        // if field 3 starts with 'R' it is a two letter mark 'RC' or 'RD' and everything is fine
+        if (subFields.get(2).startsWith("R")) {
+            debitCreditMark = DebitCreditMark.of(subFields.get(2));
+            foundsCode = subFields.get(3);
+        }
+        // if field 3 does not start with 'R' it is a one letter mark 'C' or 'D'
+        // in this case optional field 4 can be part of field 3
+        else {
 
-                String firstLetterOfField3 = subFields.get(2).substring(0, 1);
-                String secondLetterOfField3 = subFields.get(2).length() > 1 ? subFields.get(2).substring(1, 2) : null;
+            String firstLetterOfField3 = subFields.get(2).substring(0, 1);
+            String secondLetterOfField3 = subFields.get(2).length() > 1 ? subFields.get(2).substring(1, 2) : null;
 
-                debitCreditMark = DebitCreditMark.of(firstLetterOfField3);
-                foundsCode = secondLetterOfField3;
+            debitCreditMark = DebitCreditMark.of(firstLetterOfField3);
+            foundsCode = secondLetterOfField3;
 
-                // ensure field 4 is not set also
-                if (subFields.get(3) != null) {
-                    throw new ParseException("Field " + FIELD_TAG_61 + ": Founds Code already set", 0);
-                }
-
+            // ensure field 4 is not set also
+            if (subFields.get(3) != null) {
+                throw new ParseException("Field " + FIELD_TAG_61 + ": Founds Code already set", 0);
             }
 
-            BigDecimal amount = new BigDecimal(subFields.get(4).replaceFirst(",", "."));
-            TransactionTypeIdentificationCode transactionTypeIdentificationCode = TransactionTypeIdentificationCode.of(subFields.get(5) + subFields.get(6));
-            String referenceForAccountOwner = subFields.get(7);
-            String referenceForBank = subFields.get(8);
-            String supplementaryDetails = subFields.get(9);
+        }
 
-            return new StatementLine(
-                    valueDate,
-                    entryDate,
-                    debitCreditMark,
-                    foundsCode,
-                    amount,
-                    transactionTypeIdentificationCode,
-                    referenceForAccountOwner,
-                    referenceForBank,
-                    supplementaryDetails);
+        BigDecimal amount = new BigDecimal(subFields.get(4).replaceFirst(",", "."));
+        TransactionTypeIdentificationCode transactionTypeIdentificationCode = TransactionTypeIdentificationCode.of(subFields.get(5) + subFields.get(6));
+        String referenceForAccountOwner = subFields.get(7);
+        String referenceForBank = subFields.get(8);
+        String supplementaryDetails = subFields.get(9);
+
+        return new StatementLine(
+                valueDate,
+                entryDate,
+                debitCreditMark,
+                foundsCode,
+                amount,
+                transactionTypeIdentificationCode,
+                referenceForAccountOwner,
+                referenceForBank,
+                supplementaryDetails);
     }
 
     public LocalDate getValueDate() {

@@ -166,7 +166,7 @@ public class SwiftMT940Reader {
                 }
 
                 // finish message
-                if ( MESSAGE_END_FIELD_TAG_SET.contains(currentField.getTag())) {
+                if (MESSAGE_END_FIELD_TAG_SET.contains(currentField.getTag())) {
                     message = new SwiftMT940(
                             transactionReferenceNumber,
                             relatedReference,

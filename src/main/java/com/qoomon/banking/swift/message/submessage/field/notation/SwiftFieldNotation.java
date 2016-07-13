@@ -1,6 +1,5 @@
 package com.qoomon.banking.swift.message.submessage.field.notation;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 
 import java.text.ParseException;
@@ -8,7 +7,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.regex.Pattern.quote;
+import static java.util.regex.Pattern.*;
 
 /**
  * <pre>
@@ -47,6 +46,7 @@ public class SwiftFieldNotation {
     private static final String SEPARATOR_SET = "(?:/|//|BR|ISIN)";
 
     private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<String, String>();
+
     static {
         // see class description for charset details
         CHARSET_REGEX_MAP.put("a", "[A-Z]");
