@@ -110,7 +110,7 @@ public class SwiftMessage {
     /**
      * {3:} User Header Block
      */
-    private final UserHeaderBlock userHeaderBlock;
+    private final Optional<UserHeaderBlock> userHeaderBlock;
 
     /**
      * {4:} Text Block
@@ -137,12 +137,11 @@ public class SwiftMessage {
 
         Preconditions.checkArgument(basicHeaderBlock != null, "basicHeaderBlock can't be null");
         Preconditions.checkArgument(applicationHeaderBlock != null, "applicationHeaderBlock can't be null");
-        Preconditions.checkArgument(userHeaderBlock != null, "userHeaderBlock can't be null");
         Preconditions.checkArgument(textBlock != null, "textBlock can't be null");
 
         this.basicHeaderBlock = basicHeaderBlock;
         this.applicationHeaderBlock = applicationHeaderBlock;
-        this.userHeaderBlock = userHeaderBlock;
+        this.userHeaderBlock = Optional.ofNullable(userHeaderBlock);
         this.textBlock = textBlock;
         this.userTrailerBlock = Optional.ofNullable(userTrailerBlock);
         this.systemTrailerBlock = Optional.ofNullable(systemTrailerBlock);
@@ -156,7 +155,7 @@ public class SwiftMessage {
         return applicationHeaderBlock;
     }
 
-    public UserHeaderBlock getUserHeaderBlock() {
+    public Optional<UserHeaderBlock> getUserHeaderBlock() {
         return userHeaderBlock;
     }
 
