@@ -47,7 +47,7 @@ public class SwiftMT942Reader {
             RelatedReference relatedReference = null;
             AccountIdentification accountIdentification = null;
             StatementNumber statementNumber = null;
-            FloorLimitIndicator floorLimitIndicatorDebitCredit = null;
+            FloorLimitIndicator floorLimitIndicatorDebit = null;
             FloorLimitIndicator floorLimitIndicatorCredit = null;
             DateTimeIndicator dateTimeIndicator = null;
             List<TransactionGroup> transactionList = new LinkedList<>();
@@ -86,8 +86,8 @@ public class SwiftMT942Reader {
                         break;
                     }
                     case FloorLimitIndicator.FIELD_TAG_34F: {
-                        if (floorLimitIndicatorDebitCredit == null) {
-                            floorLimitIndicatorDebitCredit = FloorLimitIndicator.of(currentField);
+                        if (floorLimitIndicatorDebit == null) {
+                            floorLimitIndicatorDebit = FloorLimitIndicator.of(currentField);
                             nextValidFieldSet = ImmutableSet.of(
                                     FloorLimitIndicator.FIELD_TAG_34F,
                                     DateTimeIndicator.FIELD_TAG_13D);
@@ -170,7 +170,7 @@ public class SwiftMT942Reader {
                             relatedReference,
                             accountIdentification,
                             statementNumber,
-                            floorLimitIndicatorDebitCredit,
+                            floorLimitIndicatorDebit,
                             floorLimitIndicatorCredit,
                             dateTimeIndicator,
                             transactionList,
