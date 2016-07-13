@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.message.submessage;
 
+import com.qoomon.banking.swift.TestUtils;
 import com.qoomon.banking.swift.message.submessage.field.GeneralField;
 import com.qoomon.banking.swift.message.submessage.field.SwiftFieldReader;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
@@ -28,7 +29,7 @@ public class SwiftFieldReaderTest {
         SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        List<GeneralField> fieldList = collectAll(classUnderTest::readField);
+        List<GeneralField> fieldList = TestUtils.collectAll(classUnderTest::readField);
 
         // Then
         assertThat(fieldList).hasSize(2);
@@ -49,7 +50,7 @@ public class SwiftFieldReaderTest {
         SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        List<GeneralField> fieldList = collectAll(classUnderTest::readField);
+        List<GeneralField> fieldList = TestUtils.collectAll(classUnderTest::readField);
 
         // Then
         assertThat(fieldList).hasSize(2);
@@ -69,7 +70,7 @@ public class SwiftFieldReaderTest {
         SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        Throwable exception = catchThrowable(() -> collectAll(classUnderTest::readField));
+        Throwable exception = catchThrowable(() -> TestUtils.collectAll(classUnderTest::readField));
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(FieldParseException.class);
@@ -77,16 +78,6 @@ public class SwiftFieldReaderTest {
         FieldParseException parseException = (FieldParseException) exception;
         assertThat(parseException.getLineNumber()).isEqualTo(1);
 
-    }
-
-
-    private List<GeneralField> collectAll(Callable<GeneralField> readFieldFunction) throws Exception {
-        List<GeneralField> fields = new LinkedList<>();
-        GeneralField field;
-        while ((field = readFieldFunction.call()) != null) {
-            fields.add(field);
-        }
-        return fields;
     }
 
 }

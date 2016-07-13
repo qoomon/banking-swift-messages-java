@@ -15,10 +15,9 @@ public class SwiftMessageReader {
 
     private final static Set<String> MESSAGE_START_BLOCK_ID_SET = ImmutableSet.of(BasicHeaderBlock.BLOCK_ID_1);
 
-    private boolean init = false;
+    private final SwiftBlockReader blockReader;
 
-    private final SwiftBlockReader swiftBlockReader;
-
+    private GeneralBlock currentBlock = null;
     private GeneralBlock nextBlock = null;
 
 
@@ -26,14 +25,13 @@ public class SwiftMessageReader {
 
         Preconditions.checkArgument(textReader != null, "textReader can't be null");
 
-        this.swiftBlockReader = new SwiftBlockReader(textReader);
+        this.blockReader = new SwiftBlockReader(textReader);
     }
 
     public SwiftMessage readMessage() throws SwiftMessageParseException {
         try {
-            if (!init) {
-                nextBlock = swiftBlockReader.readBlock();
-                init = true;
+            if (currentBlock == null) {
+                nextBlock = blockReader.readBlock();
             }
 
             SwiftMessage message = null;
@@ -50,11 +48,10 @@ public class SwiftMessageReader {
 
             while (message == null && nextBlock != null) {
 
-                ensureValidNextBlock(nextBlock, nextValidBlockIdSet, swiftBlockReader);
+                ensureValidNextBlock(nextBlock, nextValidBlockIdSet, blockReader);
 
-                GeneralBlock currentBlock = nextBlock;
-
-                nextBlock = swiftBlockReader.readBlock();
+                currentBlock = nextBlock;
+                nextBlock = blockReader.readBlock();
 
                 switch (currentBlock.getId()) {
                     case BasicHeaderBlock.BLOCK_ID_1: {
@@ -88,7 +85,7 @@ public class SwiftMessageReader {
                         break;
                     }
                     default:
-                        throw new SwiftMessageParseException("unexpected block id '" + currentBlock.getId() + "'", swiftBlockReader.getLineNumber());
+                        throw new SwiftMessageParseException("unexpected block id '" + currentBlock.getId() + "'", blockReader.getLineNumber());
                 }
 
                 // finish message
@@ -107,14 +104,14 @@ public class SwiftMessageReader {
         } catch (Exception e) {
             if (e instanceof SwiftMessageParseException)
                 throw (SwiftMessageParseException) e;
-            throw new SwiftMessageParseException("Block error", swiftBlockReader.getLineNumber(), e);
+            throw new SwiftMessageParseException(e.getMessage(), blockReader.getLineNumber(), e);
         }
     }
 
-    private void ensureValidNextBlock(GeneralBlock block, Set<String> expectedBlockIdSet, SwiftBlockReader swiftBlockReader) throws SwiftMessageParseException {
+    private void ensureValidNextBlock(GeneralBlock block, Set<String> expectedBlockIdSet, SwiftBlockReader blockReader) throws SwiftMessageParseException {
         String blockId = block != null ? block.getId() : null;
         if (!expectedBlockIdSet.contains(blockId)) {
-            throw new SwiftMessageParseException("Expected Block '" + expectedBlockIdSet + "', but was '" + blockId + "'", swiftBlockReader.getLineNumber());
+            throw new SwiftMessageParseException("Expected Block '" + expectedBlockIdSet + "', but was '" + blockId + "'", blockReader.getLineNumber());
         }
     }
 

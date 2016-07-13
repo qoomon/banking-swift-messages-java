@@ -4,6 +4,9 @@ package com.qoomon.banking.swift.message.submessage.mt942;
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
+import com.qoomon.banking.swift.TestUtils;
+import com.qoomon.banking.swift.message.submessage.mt940.SwiftMT940;
+import com.qoomon.banking.swift.message.submessage.mt940.SwiftMT940Reader;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
@@ -24,10 +27,6 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class SwiftMT942ParserTest {
 
-    private SoftAssertions softly = new SoftAssertions();
-
-    private SwiftMT942Parser classUnderTest = new SwiftMT942Parser();
-
     @Test
     public void parse() throws Exception {
 
@@ -35,8 +34,10 @@ public class SwiftMT942ParserTest {
         URL mt940MessageUrl = Resources.getResource("submessage/mt942_valid/valid-mt942-content.txt");
         String mt920MessageText = Resources.toString(mt940MessageUrl, Charsets.UTF_8);
 
+        SwiftMT942Reader classUnderTest = new SwiftMT942Reader(new StringReader(mt920MessageText));
+
         // When
-        List<SwiftMT942> mt942MessageList = classUnderTest.parse(new StringReader(mt920MessageText));
+        List<SwiftMT942> mt942MessageList = TestUtils.collectAll(classUnderTest::readMessage);
 
         // Then
         assertThat(mt942MessageList).hasSize(1);
@@ -57,7 +58,8 @@ public class SwiftMT942ParserTest {
         final int[] errors = {0};
         files.forEach(filePath -> {
             try {
-                classUnderTest.parse(new FileReader(filePath.toFile()));
+                SwiftMT942Reader classUnderTest = new SwiftMT942Reader(new FileReader(filePath.toFile()));
+                TestUtils.collectAll(classUnderTest::readMessage);
             } catch (Exception e) {
                 System.out.println(filePath);
                 System.out.println(Throwables.getStackTraceAsString(e));

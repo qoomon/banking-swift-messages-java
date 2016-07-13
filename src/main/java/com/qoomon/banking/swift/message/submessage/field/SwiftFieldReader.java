@@ -21,12 +21,13 @@ public class SwiftFieldReader {
 
     private final static Set<FieldLineType> FIELD_START_LINE_TYPE_SET = ImmutableSet.of(FieldLineType.FIELD, FieldLineType.SEPARATOR);
 
-    private boolean init = false;
-
     private int currentFieldLineNumber = 0;
 
     private final LineNumberReader lineReader;
 
+
+    private FieldLine currentFieldLine = null;
+    private int currentLineNumber = 0;
     private FieldLine nextFieldLine = null;
 
 
@@ -40,9 +41,8 @@ public class SwiftFieldReader {
 
     public GeneralField readField() throws FieldParseException {
         try {
-            if (!init) {
+            if (currentFieldLine == null) {
                 nextFieldLine = readFieldLine(lineReader);
-                init = true;
             }
 
             GeneralField field = null;
@@ -55,9 +55,8 @@ public class SwiftFieldReader {
 
                 ensureValidNextLine(nextFieldLine, nextValidFieldLineTypeSet, lineReader);
 
-                FieldLine currentFieldLine = nextFieldLine;
-                int currentLineNumber = lineReader.getLineNumber();
-
+                currentFieldLine  = nextFieldLine;
+                currentLineNumber = lineReader.getLineNumber();
                 nextFieldLine = readFieldLine(lineReader);
 
                 switch (currentFieldLine.getType()) {
@@ -89,7 +88,6 @@ public class SwiftFieldReader {
                     }
                     default:
                         throw new FieldParseException("Bug: Missing handling for line type " + currentFieldLine.getType().name(), currentLineNumber);
-
                 }
 
                 // finish field
@@ -102,7 +100,7 @@ public class SwiftFieldReader {
         } catch (Exception e) {
             if (e instanceof FieldParseException)
                 throw (FieldParseException) e;
-            throw new FieldParseException(e);
+            throw new FieldParseException(e.getMessage(), currentFieldLineNumber, e);
         }
     }
 
