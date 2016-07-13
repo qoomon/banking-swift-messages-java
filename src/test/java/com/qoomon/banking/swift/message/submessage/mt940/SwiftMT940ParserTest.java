@@ -3,7 +3,9 @@ package com.qoomon.banking.swift.message.submessage.mt940;
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
+import com.qoomon.banking.swift.message.submessage.field.PageSeperator;
 import org.assertj.core.api.SoftAssertions;
+import org.joda.money.CurrencyUnit;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -15,6 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -55,17 +59,11 @@ public class SwiftMT940ParserTest {
         final int[] errors = {0};
         files.forEach(filePath -> {
             try {
-                System.out.println(filePath);
                 classUnderTest.parse(new FileReader(filePath.toFile()));
             } catch (Exception e) {
-                String fileContent = null;
-                try {
-                    fileContent = Resources.toString(filePath.toUri().toURL(), Charsets.UTF_8);
-                } catch (IOException ioe) {
-                    throw new RuntimeException(ioe);
-                }
-                System.out.println(fileContent);
+                System.out.println(filePath);
                 System.out.println(Throwables.getStackTraceAsString(e));
+                System.out.println();
                 errors[0]++;
             }
         });

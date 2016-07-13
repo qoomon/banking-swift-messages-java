@@ -57,18 +57,11 @@ public class SwiftMT942ParserTest {
         final int[] errors = {0};
         files.forEach(filePath -> {
             try {
-                System.out.println(filePath);
                 classUnderTest.parse(new FileReader(filePath.toFile()));
             } catch (Exception e) {
-
-                String fileContent = null;
-                try {
-                    fileContent = Resources.toString(filePath.toUri().toURL(), Charsets.UTF_8);
-                } catch (IOException ioe) {
-                    throw new RuntimeException(ioe);
-                }
-                System.out.println(fileContent);
+                System.out.println(filePath);
                 System.out.println(Throwables.getStackTraceAsString(e));
+                System.out.println();
                 errors[0]++;
             }
         });

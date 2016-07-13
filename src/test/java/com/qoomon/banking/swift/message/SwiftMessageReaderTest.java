@@ -46,26 +46,6 @@ public class SwiftMessageReaderTest {
         assertThat(parseException.getLineNumber()).isEqualTo(1);
     }
 
-    @Test
-    public void parse_WHEN_block4_has_wrong_termination_THEN_throw_exception() throws Exception {
-
-        // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + "{4:\n"
-                + "}"
-                + BLOCK_5_DUMMY_EMPTY;
-
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
-
-        // When
-        Throwable exception = catchThrowable(classUnderTest::readMessage);
-
-        // Then
-        assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
-
-        SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
-        assertThat(parseException.getLineNumber()).isEqualTo(2);
-    }
-
 
     @Test
     public void parse_WHEN_first_bracket_is_missing_THEN_throw_exception() throws Exception {
@@ -108,11 +88,10 @@ public class SwiftMessageReaderTest {
     }
 
     @Test
-    public void parse_WHEN_block_appears_multiple_times_THEN_throw_exception() throws Exception {
+    public void parse_WHEN_message_is_not_finished_THEN_throw_exception() throws Exception {
 
         // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
-                + BLOCK_5_DUMMY_EMPTY + "{1:}";
+        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID;
 
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
@@ -123,7 +102,7 @@ public class SwiftMessageReaderTest {
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
         SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
-        assertThat(parseException.getLineNumber()).isEqualTo(2);
+        assertThat(parseException.getLineNumber()).isEqualTo(1);
 
     }
 

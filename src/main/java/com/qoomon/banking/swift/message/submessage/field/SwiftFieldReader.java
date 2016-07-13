@@ -2,6 +2,7 @@ package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldLineParseException;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 
 import java.io.IOException;
@@ -18,116 +19,145 @@ public class SwiftFieldReader {
 
     private static final Pattern FIELD_STRUCTURE_PATTERN = Pattern.compile(":(?<tag>[^:]+):(?<content>.*)");
 
+    private final static Set<FieldLineType> FIELD_START_LINE_TYPE_SET = ImmutableSet.of(FieldLineType.FIELD, FieldLineType.SEPARATOR);
+
+    private boolean init = false;
+
+    private int currentFieldLineNumber = 0;
+
     private final LineNumberReader lineReader;
 
-    private int fieldLineNumber = 0;
+    private FieldLine nextFieldLine = null;
 
-    private Set<MessageLineType> nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
 
     public SwiftFieldReader(Reader textReader) {
         this.lineReader = new LineNumberReader(textReader);
     }
 
     public int getFieldLineNumber() {
-        return fieldLineNumber;
+        return currentFieldLineNumber;
     }
 
     public GeneralField readField() throws FieldParseException {
-        GeneralField field = null;
         try {
-            Set<MessageLineType> currentValidFieldSet = nextValidFieldSet;
-            String currentMessageLine;
-            int currentMessageLineNumber;
+            if (!init) {
+                nextFieldLine = readFieldLine(lineReader);
+                init = true;
+            }
 
-            GeneralField.Builder currentFieldBuilder = null;
+            GeneralField field = null;
 
-            while (field == null && (currentMessageLine = lineReader.readLine()) != null) {
-                currentMessageLineNumber = lineReader.getLineNumber();
-                if (currentMessageLineNumber == 1 && currentMessageLine.isEmpty()) {
-                    continue;  // Skip first empty line if any
-                }
+            GeneralField.Builder fieldBuilder = GeneralField.newBuilder();
 
-                MessageLineType currentMessageLineType = determineMessageLineType(currentMessageLine);
-                switch (currentMessageLineType) {
+            Set<FieldLineType> nextValidFieldLineTypeSet = FIELD_START_LINE_TYPE_SET;
+
+            while (field == null && nextFieldLine != null) {
+
+                ensureValidNextLine(nextFieldLine, nextValidFieldLineTypeSet, lineReader);
+
+                FieldLine currentFieldLine = nextFieldLine;
+                int currentLineNumber = lineReader.getLineNumber();
+
+                nextFieldLine = readFieldLine(lineReader);
+
+                switch (currentFieldLine.getType()) {
                     case FIELD: {
-                        Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentMessageLine);
+                        Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentFieldLine.getContent());
                         if (!fieldMatcher.matches()) {
-                            throw new FieldParseException("Parse error: " + currentMessageLineType.name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), currentMessageLineNumber);
+                            throw new FieldParseException("Parse error: " + currentFieldLine.getType().name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), currentLineNumber);
                         }
 
                         // start of a new field
-                        fieldLineNumber = lineReader.getLineNumber();
-                        currentFieldBuilder = GeneralField.newBuilder()
+                        currentFieldLineNumber = lineReader.getLineNumber();
+                        fieldBuilder
                                 .setTag(fieldMatcher.group("tag"))
                                 .appendContent(fieldMatcher.group("content"));
-
-                        nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
+                        nextValidFieldLineTypeSet = ImmutableSet.of(FieldLineType.FIELD, FieldLineType.FIELD_CONTINUATION, FieldLineType.SEPARATOR);
                         break;
                     }
-                    case EMPTY:
                     case FIELD_CONTINUATION: {
-                        if (currentFieldBuilder == null) {
-                            throw new FieldParseException("Field content without any tag", currentMessageLineNumber);
-                        }
-                        currentFieldBuilder.appendContent("\n")
-                                .appendContent(currentMessageLine);
-                        nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD, MessageLineType.FIELD_CONTINUATION, MessageLineType.SEPARATOR);
+                        fieldBuilder
+                                .appendContent("\n")
+                                .appendContent(currentFieldLine.getContent());
+                        nextValidFieldLineTypeSet = ImmutableSet.of(FieldLineType.FIELD, FieldLineType.FIELD_CONTINUATION, FieldLineType.SEPARATOR);
                         break;
                     }
                     case SEPARATOR: {
-                        currentFieldBuilder = GeneralField.newBuilder().setTag(PageSeperator.TAG);
-                        nextValidFieldSet = ImmutableSet.of(MessageLineType.FIELD);
+                        fieldBuilder.setTag(PageSeperator.TAG);
+                        nextValidFieldLineTypeSet = ImmutableSet.of();
                         break;
                     }
                     default:
-                        throw new FieldParseException("Bug: Missing handling for line type " + currentMessageLineType.name(), currentMessageLineNumber);
+                        throw new FieldParseException("Bug: Missing handling for line type " + currentFieldLine.getType().name(), currentLineNumber);
 
                 }
 
-                if (!currentValidFieldSet.contains(currentMessageLineType)) {
-                    throw new FieldParseException("Parse error: Expected " + currentValidFieldSet + ", but was '"+ currentMessageLineType.name() + "'", currentMessageLineNumber);
+                // finish field
+                if (nextFieldLine == null || FIELD_START_LINE_TYPE_SET.contains(nextFieldLine.getType())) {
+                    field = fieldBuilder.build();
                 }
-
-                // lookahead
-                lineReader.mark(256);
-                String nextMessageLine = lineReader.readLine();
-                lineReader.reset();
-
-                // handle finishing field
-                MessageLineType nextMessageLineType = nextMessageLine == null ? null : determineMessageLineType(nextMessageLine);
-                if (nextMessageLineType != MessageLineType.FIELD_CONTINUATION && currentFieldBuilder != null) {
-                    field = currentFieldBuilder.build();
-                }
-
             }
-        } catch (IOException e) {
+
+            return field;
+        } catch (Exception e) {
+            if (e instanceof FieldParseException)
+                throw (FieldParseException) e;
             throw new FieldParseException(e);
         }
-        return field;
+    }
+
+    private void ensureValidNextLine(FieldLine nextFieldLine, Set<FieldLineType> expectedFieldLineTypeSet, LineNumberReader lineReader) throws FieldParseException {
+        FieldLineType fieldLineType = nextFieldLine != null ? nextFieldLine.getType() : null;
+        if (!expectedFieldLineTypeSet.contains(fieldLineType)) {
+            throw new FieldParseException("Expected FieldLine '" + expectedFieldLineTypeSet + "', but was '" + fieldLineType + "'", lineReader.getLineNumber());
+        }
     }
 
 
-    private MessageLineType determineMessageLineType(String messageLine) {
-        Preconditions.checkArgument(messageLine != null, "messageLine can't be null");
+    private FieldLineType determineMessageLineType(String messageLine) {
+        Preconditions.checkArgument(messageLine != null && !messageLine.isEmpty(), "messageLine can't be null or empty");
 
-        if (messageLine.isEmpty()) {
-            return MessageLineType.EMPTY;
-        }
         if (messageLine.equals(PageSeperator.TAG)) {
-            return MessageLineType.SEPARATOR;
+            return FieldLineType.SEPARATOR;
         }
         if (messageLine.startsWith(":")) {
-            return MessageLineType.FIELD;
+            return FieldLineType.FIELD;
         }
-        return MessageLineType.FIELD_CONTINUATION;
+        return FieldLineType.FIELD_CONTINUATION;
 
     }
 
-    private enum MessageLineType {
+    private FieldLine readFieldLine(LineNumberReader lineReader) throws FieldLineParseException {
+        try {
+            String line = lineReader.readLine();
+            return line == null ? null : new FieldLine(line);
+        } catch (IOException e) {
+            throw new FieldLineParseException(e.getMessage(), lineReader.getLineNumber(), e);
+        }
+    }
+
+    private class FieldLine {
+        private FieldLineType type;
+        private String content;
+
+        public FieldLine(String content) {
+            this.type = determineMessageLineType(content);
+            this.content = content;
+        }
+
+        public FieldLineType getType() {
+            return type;
+        }
+
+        public String getContent() {
+            return content;
+        }
+    }
+
+    private enum FieldLineType {
         FIELD,
         FIELD_CONTINUATION,
-        SEPARATOR,
-        EMPTY
+        SEPARATOR
     }
 
 

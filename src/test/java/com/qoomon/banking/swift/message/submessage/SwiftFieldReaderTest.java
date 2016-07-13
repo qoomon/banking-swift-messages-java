@@ -34,9 +34,7 @@ public class SwiftFieldReaderTest {
         assertThat(fieldList).hasSize(2);
         softly.assertThat(fieldList.get(0).getTag()).isEqualTo("1");
         softly.assertThat(fieldList.get(0).getContent()).isEqualTo("fizz");
-        ;
         softly.assertThat(fieldList.get(1).getTag()).isEqualTo("2");
-        ;
         softly.assertThat(fieldList.get(1).getContent()).isEqualTo("buzz");
         softly.assertAll();
 
