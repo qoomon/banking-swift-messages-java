@@ -15,7 +15,7 @@ import static java.util.regex.Pattern.*;
  */
 public class SwiftBlockReader {
 
-    private final char END_OF_STREAM = (char) -1;
+    private static final char END_OF_STREAM = (char) -1;
 
     private static final Pattern BLOCK_PATTERN = Pattern.compile("^\\{(?<id>[^:]+):(?<content>.*)}", DOTALL);
 
@@ -50,11 +50,9 @@ public class SwiftBlockReader {
 
                 lineCharIndex++;
 
-                if (blockBuilder.length() == 0) {
-                    if (messageCharacter != "{".charAt(0)) {
+                if (blockBuilder.length() == 0 && messageCharacter != "{".charAt(0)) {
                         throw new BlockParseException("No characters are allowed outside of blocks, but was: '" + messageCharacter + "'", lineNumber);
                     }
-                }
 
                 if (messageCharacter != "{".charAt(0)) {
                     openingBrackets++;

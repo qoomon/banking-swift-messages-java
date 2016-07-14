@@ -17,12 +17,11 @@ import java.util.Set;
  */
 public class SwiftMT940Reader {
 
-    private final static Set<String> MESSAGE_START_FIELD_TAG_SET = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
-    private final static Set<String> MESSAGE_END_FIELD_TAG_SET = ImmutableSet.of(PageSeperator.TAG);
+    private static final Set<String> MESSAGE_START_FIELD_TAG_SET = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
+    private static final Set<String> MESSAGE_END_FIELD_TAG_SET = ImmutableSet.of(PageSeperator.TAG);
 
     private final SwiftFieldReader fieldReader;
 
-    private GeneralField previousField = null;
     private GeneralField currentField = null;
     private GeneralField nextField = null;
 
@@ -34,7 +33,7 @@ public class SwiftMT940Reader {
         this.fieldReader = new SwiftFieldReader(textReader);
     }
 
-    public SwiftMT940 readMessage() throws FieldParseException {
+    public SwiftMT940 readMessage() throws SwiftMessageParseException {
         try {
             if (currentField == null) {
                 nextField = fieldReader.readField();
@@ -42,7 +41,7 @@ public class SwiftMT940Reader {
 
             SwiftMT940 message = null;
 
-            // message fields (builder) // TODO create builder
+            // message fields
             TransactionReferenceNumber transactionReferenceNumber = null;
             RelatedReference relatedReference = null;
             AccountIdentification accountIdentification = null;
@@ -60,7 +59,7 @@ public class SwiftMT940Reader {
 
                 ensureValidNextField(nextField, nextValidFieldSet, fieldReader);
 
-                previousField = currentField;
+                GeneralField previousField = currentField;
                 currentField = nextField;
                 nextField = fieldReader.readField();
 
@@ -183,10 +182,10 @@ public class SwiftMT940Reader {
             }
 
             return message;
+        } catch (SwiftMessageParseException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof SubMessageParserException)
-                throw (SubMessageParserException) e;
-            throw new SubMessageParserException(e.getMessage(), fieldReader.getFieldLineNumber(), e);
+            throw new SwiftMessageParseException(e.getMessage(), fieldReader.getFieldLineNumber(), e);
         }
     }
 

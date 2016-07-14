@@ -45,7 +45,7 @@ public class SwiftFieldNotation {
 
     private static final String SEPARATOR_SET = "(?:/|//|BR|ISIN)";
 
-    private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<String, String>();
+    private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<>();
 
     static {
         // see class description for charset details
@@ -109,8 +109,9 @@ public class SwiftFieldNotation {
             }
 
             //remove prefix
-            if (subfield.getPrefix().isPresent()) {
-                fieldValue = fieldValue.replaceFirst(quote(subfield.getPrefix().get()), "");
+            Optional<String> prefix = subfield.getPrefix();
+            if (prefix.isPresent()) {
+                fieldValue = fieldValue.replaceFirst(quote(prefix.get()), "");
             }
 
             // add field value
@@ -132,16 +133,16 @@ public class SwiftFieldNotation {
     private static Pattern buildSubfieldRegex(SubField subfield) {
         String charSetRegex = CHARSET_REGEX_MAP.get(subfield.getCharSet());
         if (charSetRegex == null) {
-            throw new IllegalArgumentException("Unknown charset: " + charSetRegex);
+            throw new IllegalArgumentException("Unknown charset: " + subfield.getCharSet());
         }
 
         String subFieldRegex = "";
-        if (!subfield.getLengthSign().isPresent()) {
+        Optional<String> lengthSign = subfield.getLengthSign();
+        if (!lengthSign.isPresent()) {
             int maxCharacters = subfield.getLength0();
             subFieldRegex += charSetRegex + "{1," + maxCharacters + "}";
         } else {
-            String lengthSign = subfield.getLengthSign().get();
-            switch (lengthSign) {
+            switch (lengthSign.get()) {
                 case "!": {
                     int fixedCharacters = subfield.getLength0();
                     subFieldRegex += charSetRegex + "{" + fixedCharacters + "}";
@@ -169,8 +170,9 @@ public class SwiftFieldNotation {
         }
 
 
-        if (subfield.getPrefix().isPresent()) {
-            subFieldRegex = quote(subfield.getPrefix().get()) + subFieldRegex;
+        Optional<String> prefix = subfield.getPrefix();
+        if (prefix.isPresent()) {
+            subFieldRegex = quote(prefix.get()) + subFieldRegex;
         }
 
         if (subfield.isOptional()) {

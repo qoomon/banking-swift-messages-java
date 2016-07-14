@@ -41,5 +41,7 @@ public class TextBlock {
         return content;
     }
 
-
+    public Optional<String> getInfoLine() {
+        return infoLine;
+    }
 }

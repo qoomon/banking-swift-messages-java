@@ -1,10 +1,10 @@
 package com.qoomon.banking.swift.message.block;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 import com.qoomon.banking.swift.message.submessage.field.subfield.MessagePriority;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,8 +49,8 @@ public class ApplicationHeaderInputBlock {
         this.messageType = messageType;
         this.receiverAddress = receiverAddress;
         this.messagePriority = messagePriority;
-        this.deliveryMonitoring = Optional.fromNullable(deliveryMonitoring);
-        this.obsolescencePeriod = Optional.fromNullable(obsolescencePeriod);
+        this.deliveryMonitoring = Optional.ofNullable(deliveryMonitoring);
+        this.obsolescencePeriod = Optional.ofNullable(obsolescencePeriod);
     }
 
     public static ApplicationHeaderInputBlock of(GeneralBlock block) throws BlockFieldParseException {

@@ -101,9 +101,9 @@ public class SwiftMessageReader {
             }
 
             return message;
+        } catch (SwiftMessageParseException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof SwiftMessageParseException)
-                throw (SwiftMessageParseException) e;
             throw new SwiftMessageParseException(e.getMessage(), blockReader.getLineNumber(), e);
         }
     }

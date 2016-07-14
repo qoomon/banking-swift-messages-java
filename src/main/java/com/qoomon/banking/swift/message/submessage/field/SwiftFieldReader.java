@@ -27,7 +27,6 @@ public class SwiftFieldReader {
 
 
     private FieldLine currentFieldLine = null;
-    private int currentLineNumber = 0;
     private FieldLine nextFieldLine = null;
 
 
@@ -47,7 +46,9 @@ public class SwiftFieldReader {
 
             GeneralField field = null;
 
-            GeneralField.Builder fieldBuilder = GeneralField.newBuilder();
+            // field fields
+            String tag = null;
+            StringBuilder contentBuilder = new StringBuilder();
 
             Set<FieldLineType> nextValidFieldLineTypeSet = FIELD_START_LINE_TYPE_SET;
 
@@ -56,43 +57,44 @@ public class SwiftFieldReader {
                 ensureValidNextLine(nextFieldLine, nextValidFieldLineTypeSet, lineReader);
 
                 currentFieldLine = nextFieldLine;
-                currentLineNumber = lineReader.getLineNumber();
+                currentFieldLineNumber = lineReader.getLineNumber();
                 nextFieldLine = readFieldLine(lineReader);
 
                 switch (currentFieldLine.getType()) {
                     case FIELD: {
                         Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentFieldLine.getContent());
                         if (!fieldMatcher.matches()) {
-                            throw new FieldParseException("Parse error: " + currentFieldLine.getType().name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), currentLineNumber);
+                            throw new FieldParseException("Parse error: " + currentFieldLine.getType().name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), currentFieldLineNumber);
                         }
 
                         // start of a new field
                         currentFieldLineNumber = lineReader.getLineNumber();
-                        fieldBuilder
-                                .setTag(fieldMatcher.group("tag"))
-                                .appendContent(fieldMatcher.group("content"));
+                        tag = fieldMatcher.group("tag");
+                        contentBuilder.append(fieldMatcher.group("content"));
                         nextValidFieldLineTypeSet = ImmutableSet.of(FieldLineType.FIELD, FieldLineType.FIELD_CONTINUATION, FieldLineType.SEPARATOR);
                         break;
                     }
                     case FIELD_CONTINUATION: {
-                        fieldBuilder
-                                .appendContent("\n")
-                                .appendContent(currentFieldLine.getContent());
+                        contentBuilder.append("\n");
+                        contentBuilder.append(currentFieldLine.getContent());
                         nextValidFieldLineTypeSet = ImmutableSet.of(FieldLineType.FIELD, FieldLineType.FIELD_CONTINUATION, FieldLineType.SEPARATOR);
                         break;
                     }
                     case SEPARATOR: {
-                        fieldBuilder.setTag(PageSeperator.TAG);
+                        tag = PageSeperator.TAG;
                         nextValidFieldLineTypeSet = ImmutableSet.of();
                         break;
                     }
                     default:
-                        throw new FieldParseException("Bug: Missing handling for line type " + currentFieldLine.getType().name(), currentLineNumber);
+                        throw new FieldParseException("Bug: Missing handling for line type " + currentFieldLine.getType().name(), currentFieldLineNumber);
                 }
 
                 // finish field
                 if (nextFieldLine == null || FIELD_START_LINE_TYPE_SET.contains(nextFieldLine.getType())) {
-                    field = fieldBuilder.build();
+                    field = new GeneralField(
+                            tag,
+                            contentBuilder.toString()
+                    );
                 }
             }
 
