@@ -2,6 +2,7 @@ package com.qoomon.banking.swift.message.block;
 
 import com.google.common.base.Optional;
 import com.qoomon.banking.swift.TestUtils;
+import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,7 +21,7 @@ public class TextBlockTest {
     public void of_WHEN_valid_block_is_passed_RETURN_new_block() throws Exception {
 
         // Given
-        GeneralBlock generalBlock = new GeneralBlock("4", "\nabc\n-");
+        GeneralBlock generalBlock = new GeneralBlock(TextBlock.BLOCK_ID_4, "\nabc\n-");
 
         // When
         TextBlock block = TextBlock.of(generalBlock);
@@ -42,6 +43,19 @@ public class TextBlockTest {
 
         // Then
         assertThat(exception).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public <T> void of_WHEN_block_with_invalid_ending_is_passed_THROW_exception() throws Exception {
+
+        // Given
+        GeneralBlock generalBlock = new GeneralBlock(TextBlock.BLOCK_ID_4, "\nabc");
+
+        // When
+        Throwable exception = catchThrowable(() -> TextBlock.of(generalBlock));
+
+        // Then
+        assertThat(exception).isInstanceOf(BlockFieldParseException.class);
     }
 
 }

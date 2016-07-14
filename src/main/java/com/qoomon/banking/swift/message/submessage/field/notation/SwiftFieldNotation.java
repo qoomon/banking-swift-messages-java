@@ -56,9 +56,9 @@ public class SwiftFieldNotation {
         CHARSET_REGEX_MAP.put("e", " ");
         CHARSET_REGEX_MAP.put("s", "[+_]");
         CHARSET_REGEX_MAP.put("h", "[0-9A-F]");
-        CHARSET_REGEX_MAP.put("x", "[ 0-9A-Za-z+-/?.:,()'\n]");
+        CHARSET_REGEX_MAP.put("x", "[ 0-9A-Za-z+-/?.:,()'\\n]");
         CHARSET_REGEX_MAP.put("y", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;]");
-        CHARSET_REGEX_MAP.put("z", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;\n]");
+        CHARSET_REGEX_MAP.put("z", "[ 0-9A-Za-z+-/?.:,()'=!\"%&*<>;\\n]");
         CHARSET_REGEX_MAP.put("A", "[A-Za-z]");
         CHARSET_REGEX_MAP.put("B", "[0-9A-Za-z]");
     }
@@ -158,9 +158,9 @@ public class SwiftFieldNotation {
                     int maxLines = subfield.getLength0();
                     int maxLineCharacters = subfield.getLength1().get();
                     String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
-                    String lineRegex = "[^\n]" + lineCharactersRegexRange;
-                    subFieldRegex = "(?=" + lineRegex + "(\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
-                            + "(?:" + charSetRegex + "|\n)"  // add new line character to charset
+                    String lineRegex = "[^\\n]" + lineCharactersRegexRange;
+                    subFieldRegex = "(?=" + lineRegex + "(\\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
+                            + "(?:" + charSetRegex + "|\\n)"  // add new line character to charset
                             + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
                     break;
                 }

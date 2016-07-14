@@ -10,13 +10,12 @@ import org.joda.money.CurrencyUnit;
 import org.junit.Test;
 
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,11 +31,24 @@ public class SwiftMT940ReaderTest {
 
 
     @Test
-    public void parse() throws Exception {
+    public void parse_WHEN_parse_valid_file_RETURN_message() throws Exception {
 
         // Given
-        URL mt940MessageUrl = Resources.getResource("submessage/mt940_valid/valid-mt940-content.txt");
-        String mt940MessageText = Resources.toString(mt940MessageUrl, Charsets.UTF_8);
+        String mt940MessageText = ":20:02618\n" +
+                ":21:123456/DEV\n" +
+                ":25:6-9412771\n" +
+                ":28C:00102\n" +
+                ":60F:C000103USD672,\n" +
+                ":61:0312091209D880,FTRFREF:BPHPBK/081203/0003//59512092915002\n" +
+                ":86:multiline info\n" +
+                "info\n" +
+                ":61:0312091209D880,FTRFREF:BPHPBK/081203/0003//59512092915002\n" +
+                ":86:singleline info\n" +
+                ":61:0312091209D880,FTRFREF:BPHPBK/081203/0003//59512092915002\n" +
+                ":62F:C000103USD987,\n" +
+                ":86:multiline summary\n" +
+                "summary\n" +
+                "-";
 
         SwiftMT940Reader classUnderTest = new SwiftMT940Reader(new StringReader(mt940MessageText));
 
@@ -45,7 +57,10 @@ public class SwiftMT940ReaderTest {
 
         // Then
         assertThat(mt940MessageList).hasSize(1);
-        assertThat(mt940MessageList.get(0).getTransactionGroupList()).hasSize(3);
+        SwiftMT940 swiftMT940 = mt940MessageList.get(0);
+        SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(swiftMT940.getTransactionGroupList()).hasSize(3);
+        softly.assertThat(swiftMT940.getTransactionGroupList()).hasSize(3);
     }
 
     @Test
@@ -54,8 +69,6 @@ public class SwiftMT940ReaderTest {
         // Given
         URL mt940_valid_folder = Resources.getResource("submessage/mt940_valid");
         Stream<Path> files = Files.walk(Paths.get(mt940_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
-
-        CurrencyUnit.registerCurrency("DEM", 276, 2, Arrays.asList());
 
         // When
         final int[] errors = {0};
@@ -75,8 +88,4 @@ public class SwiftMT940ReaderTest {
         assertThat(errors[0]).isEqualTo(0);
 
     }
-
-
-
-
 }
