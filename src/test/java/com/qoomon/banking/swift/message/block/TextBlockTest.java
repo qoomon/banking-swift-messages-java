@@ -1,8 +1,15 @@
 package com.qoomon.banking.swift.message.block;
 
+import com.google.common.base.Optional;
+import com.qoomon.banking.swift.TestUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import java.text.ParseException;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 /**
  * Created by qoomon on 07/07/16.
@@ -10,18 +17,31 @@ import static org.assertj.core.api.Assertions.*;
 public class TextBlockTest {
 
     @Test
-    public void of_SHOULD_remove_leading_blank_line_and_trailing_minus() throws Exception {
+    public void of_WHEN_valid_block_is_passed_RETURN_new_block() throws Exception {
 
         // Given
         GeneralBlock generalBlock = new GeneralBlock("4", "\nabc\n-");
 
         // When
-        TextBlock textBlock = TextBlock.of(generalBlock);
+        TextBlock block = TextBlock.of(generalBlock);
 
         // Then
-        assertThat(textBlock).isNotNull();
-        assertThat(textBlock.getContent()).isEqualTo("abc\n-");
+        assertThat(block).isNotNull();
+        assertThat(block.getInfoLine()).isNotPresent();
+        assertThat(block.getContent()).isEqualTo("abc\n-");
+    }
 
+    @Test
+    public <T> void of_WHEN_block_with_invalid_id_is_passed_THROW_exception() throws Exception {
+
+        // Given
+        GeneralBlock generalBlock = new GeneralBlock("0", "\nabc\n-");
+
+        // When
+        Throwable exception = catchThrowable(() -> TextBlock.of(generalBlock));
+
+        // Then
+        assertThat(exception).isInstanceOf(IllegalArgumentException.class);
     }
 
 }

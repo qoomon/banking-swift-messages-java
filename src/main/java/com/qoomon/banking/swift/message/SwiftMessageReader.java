@@ -56,10 +56,10 @@ public class SwiftMessageReader {
                 switch (currentBlock.getId()) {
                     case BasicHeaderBlock.BLOCK_ID_1: {
                         messageBuilderBasicHeaderBlock = BasicHeaderBlock.of(currentBlock);
-                        nextValidBlockIdSet = ImmutableSet.of(ApplicationHeaderOutputBlock.BLOCK_ID_2);
+                        nextValidBlockIdSet = ImmutableSet.of(ApplicationHeaderBlock.BLOCK_ID_2);
                         break;
                     }
-                    case ApplicationHeaderOutputBlock.BLOCK_ID_2: {
+                    case ApplicationHeaderBlock.BLOCK_ID_2: {
                         messageBuilderApplicationHeaderBlock = ApplicationHeaderBlock.of(currentBlock);
                         nextValidBlockIdSet = ImmutableSet.of(UserHeaderBlock.BLOCK_ID_3);
                         break;

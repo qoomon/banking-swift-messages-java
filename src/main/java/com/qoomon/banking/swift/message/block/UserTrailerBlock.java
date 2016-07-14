@@ -13,14 +13,14 @@ import java.util.Optional;
 /**
  * <b>User Header Block</b>
  * <p>
- * <b>Format</b>
+ * <b>Sub Blocks</b>
  * <pre>
- * 1:  {MAC:x...} - Message Authentication Code calculated based on the entire contents of the message using a key that has been exchanged with the destination and a secret algorithm. Found on message categories 1,2,4,5,7,8, most 6s and 304.
- * 2:  {PAC:x...} - Proprietary Authentication Code.
- * 3:  {CHK:x...} - Checksum calculated for all message types.
- * 4:  {TNG:x...} - Training.
- * 5:  {PDE:x...} - Possible Duplicate Emission added if user thinks the same message was sent previously
- * 6:  {DLM:x...} - Added by SWIFT if an urgent message (U) has not been delivered within 15 minutes, or a normal message (N) within 100 minutes.
+ * 1: MAC - Message Authentication Code calculated based on the entire contents of the message using a key that has been exchanged with the destination and a secret algorithm. Found on message categories 1,2,4,5,7,8, most 6s and 304.
+ * 2: PAC - Proprietary Authentication Code.
+ * 3: CHK - Checksum calculated for all message types.
+ * 4: TNG - Training.
+ * 5: PDE - Possible Duplicate Emission added if user thinks the same message was sent previously
+ * 6: DLM - Added by SWIFT if an urgent message (U) has not been delivered within 15 minutes, or a normal message (N) within 100 minutes.
  * </pre>
  * <p>
  * <b>Example</b><br>
@@ -115,7 +115,15 @@ public class UserTrailerBlock {
         return deliveryDelay;
     }
 
-    public Map<String, GeneralBlock> getAdditionalSubblock(String id) {
-        return additionalSubblocks;
+    public GeneralBlock getAdditionalSubblock(String id) {
+        return additionalSubblocks.get(id);
+    }
+
+    public Optional<String> getTraining() {
+        return training;
+    }
+
+    public Optional<String> getProprietaryAuthenticationCode() {
+        return proprietaryAuthenticationCode;
     }
 }

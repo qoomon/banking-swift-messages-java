@@ -8,6 +8,14 @@ import java.util.Optional;
 /**
  * <b>Input Application Header Block</b>
  * <p>
+ * <b>Fixed Length Format</b>
+ * <pre>
+ * 1:  1  - Mode - I = Input, O = Output
+ * ...
+ * ..
+ * .
+ * </pre>
+ * <p>
  *
  * @see ApplicationHeaderInputBlock
  * @see ApplicationHeaderOutputBlock

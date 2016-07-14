@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * <p>
  * <b>Fixed Length Format</b>
  * <pre>
- * 1:  1  - Mode - I = Input, O = Output
+ * 1:  1  - Mode - I = Input
  * 2:  3  - Message Type MTxxx e.g. 940
  * 3: 12  - Receiver's address with X in position 9 It is padded with Xs if no branch is required. Typically 8 - BIC, 1 - 'X', 3 - Branch Code
  * 4:  1  - Message Priority - U = Urgent, N = Normal, S = System
@@ -27,8 +27,6 @@ import java.util.regex.Pattern;
  * @see <a href="https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm">https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm</a>
  */
 public class ApplicationHeaderInputBlock {
-
-    public static final String BLOCK_ID_2 = "2";
 
     public static final String MODE_CODE = "I";
 
@@ -54,7 +52,7 @@ public class ApplicationHeaderInputBlock {
     }
 
     public static ApplicationHeaderInputBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '%s'", block.getId());
+        Preconditions.checkArgument(block.getId().equals(ApplicationHeaderBlock.BLOCK_ID_2), "unexpected block id '%s'", block.getId());
 
         Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
         if (!blockContentMatcher.matches()) {

@@ -51,8 +51,12 @@ public class SwiftBlockReader {
                 lineCharIndex++;
 
                 if (blockBuilder.length() == 0 && messageCharacter != "{".charAt(0)) {
+                    if (messageCharacter == "}".charAt(0)) {
+                        throw new BlockParseException("Found closing bracket without preceding opening bracket", lineNumber);
+                    } else {
                         throw new BlockParseException("No characters are allowed outside of blocks, but was: '" + messageCharacter + "'", lineNumber);
                     }
+                }
 
                 if (messageCharacter != "{".charAt(0)) {
                     openingBrackets++;

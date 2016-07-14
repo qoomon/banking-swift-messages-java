@@ -14,13 +14,13 @@ import java.util.regex.Pattern;
  * <p>
  * <b>Fixed Length Format</b>
  * <pre>
- *  1:  1  - Mode - I = Input, O = Output
+ *  1:  1  - Mode - O = Output
  *  2:  3  - Message Type MTxxx e.g. 940
  *  3:  4  - Input time with respect to the sender
  *  4:  6  - Input date with respect to the sender
  *  5: 12  - The Message Input Reference (MIR), with Sender's address
  *  6:  4  - Session number
- *  7   6  — Sequence number
+ *  7:  6  — Sequence number
  *  8:  6  - Output date with respect to Receiver
  *  9:  4  - Output time with respect to Receiver
  * 10:  1  - Message Priority - U = Urgent, N = Normal, S = System
@@ -32,8 +32,6 @@ import java.util.regex.Pattern;
  * @see <a href="https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm">https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm</a>
  */
 public class ApplicationHeaderOutputBlock {
-
-    public static final String BLOCK_ID_2 = "2";
 
     public static final String MODE_CODE = "O";
 
@@ -69,7 +67,7 @@ public class ApplicationHeaderOutputBlock {
     }
 
     public static ApplicationHeaderOutputBlock of(GeneralBlock block) throws BlockFieldParseException {
-        Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '%s'", block.getId());
+        Preconditions.checkArgument(block.getId().equals(ApplicationHeaderBlock.BLOCK_ID_2), "unexpected block id '%s'", block.getId());
 
         Matcher blockContentMatcher = BLOCK_CONTENT_PATTERN.matcher(block.getContent());
         if (!blockContentMatcher.matches()) {
