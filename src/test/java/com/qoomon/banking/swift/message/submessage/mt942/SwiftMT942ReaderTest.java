@@ -1,10 +1,10 @@
 package com.qoomon.banking.swift.message.submessage.mt942;
 
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.qoomon.banking.swift.TestUtils;
+import com.qoomon.banking.swift.message.submessage.mt940.SwiftMT940;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -21,14 +21,30 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * Created by qoomon on 05/07/16.
  */
-public class SwiftMT942ParserTest {
+public class SwiftMT942ReaderTest {
 
     @Test
-    public void parse() throws Exception {
+    public void parse_WHEN_parse_valid_file_RETURN_message() throws Exception {
 
         // Given
-        URL mt940MessageUrl = Resources.getResource("submessage/mt942_valid/valid-mt942-content.txt");
-        String mt920MessageText = Resources.toString(mt940MessageUrl, Charsets.UTF_8);
+
+        String mt920MessageText = "" +
+                ":20:02761\n" +
+                ":25:6-9412771\n" +
+                ":28C:1/1\n" +
+                ":34F:USD123,\n" +
+                ":13D:0001032359+0500\n" +
+                ":61:0312091209D880,FTRFREF:BPHPBK/081203/0003//59512092915002\n" +
+                ":86:multiline info\n" +
+                "info\n" +
+                ":61:0312091209D880,FTRFREF:BPHPBK/081203/0003//59512092915002\n" +
+                ":86:singleline info\n" +
+                ":61:0312091209D880,FTRFREF:BPHPBK/081203/0003//59512092915002\n" +
+                ":90D:75475USD123,\n" +
+                ":90C:75475USD123,\n" +
+                ":86:multiline summary\n" +
+                "summary\n" +
+                "-";
 
         SwiftMT942Reader classUnderTest = new SwiftMT942Reader(new StringReader(mt920MessageText));
 
@@ -43,8 +59,9 @@ public class SwiftMT942ParserTest {
         assertThat(swiftMT942.getStatementNumber().getSequenceNumber()).contains("1");
     }
 
+
     @Test
-    public void parse_SHOULD_parse_valid_files() throws Exception {
+    public void parse_WHEN_parse_many_valid_file_RETURN_message() throws Exception {
 
         // Given
         URL mt942_valid_folder = Resources.getResource("submessage/mt942_valid");
@@ -55,7 +72,8 @@ public class SwiftMT942ParserTest {
         files.forEach(filePath -> {
             try {
                 SwiftMT942Reader classUnderTest = new SwiftMT942Reader(new FileReader(filePath.toFile()));
-                TestUtils.collectAll(classUnderTest::readMessage);
+                List<SwiftMT942> messageList = TestUtils.collectAll(classUnderTest::readMessage);
+                assertThat(messageList).isNotEmpty();
             } catch (Exception e) {
                 System.out.println(filePath);
                 System.out.println(Throwables.getStackTraceAsString(e));

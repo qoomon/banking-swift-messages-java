@@ -1,13 +1,9 @@
 package com.qoomon.banking.swift.message.submessage.mt940;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.qoomon.banking.swift.TestUtils;
-import com.qoomon.banking.swift.message.submessage.field.PageSeperator;
 import org.assertj.core.api.SoftAssertions;
-import org.joda.money.CurrencyUnit;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -16,10 +12,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -65,7 +58,7 @@ public class SwiftMT940ReaderTest {
     }
 
     @Test
-    public void parse_SHOULD_parse_valid_files() throws Exception {
+    public void parse_WHEN_parse_many_valid_file_RETURN_message() throws Exception {
 
         // Given
         URL mt940_valid_folder = Resources.getResource("submessage/mt940_valid");
@@ -76,7 +69,8 @@ public class SwiftMT940ReaderTest {
         files.forEach(filePath -> {
             try {
                 SwiftMT940Reader classUnderTest = new SwiftMT940Reader(new FileReader(filePath.toFile()));
-                TestUtils.collectAll(classUnderTest::readMessage);
+                List<SwiftMT940> messageList = TestUtils.collectAll(classUnderTest::readMessage);
+                assertThat(messageList).isNotEmpty();
             } catch (Exception e) {
                 System.out.println(filePath);
                 System.out.println(Throwables.getStackTraceAsString(e));

@@ -17,11 +17,13 @@ import java.util.Set;
 public class SwiftMT940Reader {
 
     private static final Set<String> MESSAGE_START_FIELD_TAG_SET = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
+
     private static final Set<String> MESSAGE_END_FIELD_TAG_SET = ImmutableSet.of(PageSeperator.TAG);
 
     private final SwiftFieldReader fieldReader;
 
     private GeneralField currentField = null;
+
     private GeneralField nextField = null;
 
 
