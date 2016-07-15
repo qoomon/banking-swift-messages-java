@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import com.qoomon.banking.swift.message.submessage.exception.SubMessageParserException;
 import com.qoomon.banking.swift.message.submessage.field.*;
-import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
 
 import java.io.Reader;
 import java.util.LinkedList;

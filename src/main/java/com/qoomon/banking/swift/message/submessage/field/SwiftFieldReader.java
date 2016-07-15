@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldLineParseException;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldParseException;
-import com.sun.istack.internal.NotNull;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
