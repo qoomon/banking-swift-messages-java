@@ -29,8 +29,11 @@ public class UserHeaderBlock {
     public static final String BLOCK_ID_3 = "3";
 
     public final Optional<String> bankingPriorityCode;
+
     public final String messageUserReference;
+
     public final ImmutableMap<String, GeneralBlock> additionalSubblocks;
+
 
     public UserHeaderBlock(String bankingPriorityCode, String messageUserReference, Map<String, GeneralBlock> additionalSubblocks) {
 

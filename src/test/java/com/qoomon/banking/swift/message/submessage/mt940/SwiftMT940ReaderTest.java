@@ -7,6 +7,7 @@ import com.qoomon.banking.swift.TestUtils;
 import com.qoomon.banking.swift.message.submessage.field.PageSeperator;
 import org.assertj.core.api.SoftAssertions;
 import org.joda.money.CurrencyUnit;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileReader;

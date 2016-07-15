@@ -41,17 +41,27 @@ public class StatementLine implements SwiftField {
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][34x]");
 
     private static final DateTimeFormatter VALUE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
+
     private static final DateTimeFormatter ENTRY_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMdd");
 
     private final LocalDate valueDate;
+
     private final LocalDate entryDate;
+
     private final DebitCreditMark debitCreditMark;
+
     private final Optional<String> fundsCode;
+
     private final BigDecimal amount;
+
     private final TransactionTypeIdentificationCode transactionTypeIdentificationCode;
+
     private final String referenceForAccountOwner;
+
     private final Optional<String> referenceForBank;
+
     private final Optional<String> supplementaryDetails;
+
 
     public StatementLine(LocalDate valueDate,
                          LocalDate entryDate,

@@ -27,6 +27,7 @@ public class TransactionReferenceNumber implements SwiftField {
 
     private final String value;
 
+
     public TransactionReferenceNumber(String value) {
 
         Preconditions.checkArgument(value != null, "value can't be null");

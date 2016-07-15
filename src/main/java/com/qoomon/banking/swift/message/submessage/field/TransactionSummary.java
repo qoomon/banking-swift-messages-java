@@ -30,13 +30,17 @@ import java.util.List;
 public class TransactionSummary implements SwiftField {
 
     public static final String FIELD_TAG_90D = "90D";
+
     public static final String FIED_TAG_90C = "90C";
 
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("5n3!a15d");
 
     private final Type type;
+
     private final int transactionCount;
+
     private final BigMoney amount;
+
 
     public TransactionSummary(Type type, int transactionCount, BigMoney amount) {
 

@@ -27,7 +27,9 @@ public class StatementNumber implements SwiftField {
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("5n[/5n]");
 
     private final String value;
+
     private final Optional<String> sequenceNumber;
+
 
     public StatementNumber(String value, String sequenceNumber) {
 

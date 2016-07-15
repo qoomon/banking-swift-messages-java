@@ -34,8 +34,11 @@ public class ForwardAvailableBalance implements SwiftField {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
 
     private final DebitCreditMark debitCreditMark;
+
     private final LocalDate entryDate;
+
     private final BigMoney amount;
+
 
     public ForwardAvailableBalance(DebitCreditMark debitCreditMark, LocalDate entryDate, BigMoney amount) {
 

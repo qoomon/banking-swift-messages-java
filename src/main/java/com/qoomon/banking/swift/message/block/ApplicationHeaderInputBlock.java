@@ -33,10 +33,15 @@ public class ApplicationHeaderInputBlock {
     public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(I)(.{3})(.{12})(.{1})(.{1})?(.{3})?");
 
     private final String messageType;
+
     private final String receiverAddress;
+
     private final MessagePriority messagePriority;
+
     private final Optional<String> deliveryMonitoring;
+
     private final Optional<String> obsolescencePeriod;
+
 
     public ApplicationHeaderInputBlock(String messageType, String receiverAddress, MessagePriority messagePriority, String deliveryMonitoring, String obsolescencePeriod) {
 

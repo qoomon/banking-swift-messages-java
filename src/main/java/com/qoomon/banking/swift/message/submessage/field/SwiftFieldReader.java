@@ -25,8 +25,8 @@ public class SwiftFieldReader {
 
     private final LineNumberReader lineReader;
 
-
     private FieldLine currentFieldLine = null;
+
     private FieldLine nextFieldLine = null;
 
 

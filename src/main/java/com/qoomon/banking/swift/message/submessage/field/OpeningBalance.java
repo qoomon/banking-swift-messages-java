@@ -38,8 +38,11 @@ public class OpeningBalance implements SwiftField {
     private final Type type;
 
     private final DebitCreditMark debitCreditMark;
+
     private final LocalDate date;
+
     private final BigMoney amount;
+
 
     public OpeningBalance(Type type, DebitCreditMark debitCreditMark, LocalDate date, BigMoney amount) {
 

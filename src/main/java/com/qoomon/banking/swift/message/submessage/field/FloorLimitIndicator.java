@@ -30,7 +30,9 @@ public class FloorLimitIndicator implements SwiftField {
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("3!a[1!a]15d");
 
     private final Optional<DebitCreditMark> debitCreditMark;
+
     private final BigMoney amount;
+
 
     public FloorLimitIndicator(DebitCreditMark debitCreditMark, BigMoney amount) {
 

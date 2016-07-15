@@ -36,9 +36,13 @@ public class ClosingBalance implements SwiftField {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
 
     private final Type type;
+
     private final DebitCreditMark debitCreditMark;
+
     private final LocalDate date;
+
     private final BigMoney amount;
+
 
     public ClosingBalance(Type type, DebitCreditMark debitCreditMark, LocalDate date, BigMoney amount) {
 

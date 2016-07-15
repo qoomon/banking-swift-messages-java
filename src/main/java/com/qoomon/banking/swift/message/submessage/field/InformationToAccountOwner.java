@@ -26,6 +26,7 @@ public class InformationToAccountOwner implements SwiftField {
 
     private final String value;
 
+
     public InformationToAccountOwner(String value) {
 
         Preconditions.checkArgument(value != null, "value can't be null");

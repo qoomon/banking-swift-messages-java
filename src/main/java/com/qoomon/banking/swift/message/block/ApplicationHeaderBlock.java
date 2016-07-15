@@ -25,7 +25,9 @@ public class ApplicationHeaderBlock {
     public static final String BLOCK_ID_2 = "2";
 
     private final Optional<ApplicationHeaderInputBlock> input;
+
     private final Optional<ApplicationHeaderOutputBlock> output;
+
 
     public ApplicationHeaderBlock(ApplicationHeaderInputBlock input) {
         this.input = Optional.of(input);
@@ -40,6 +42,8 @@ public class ApplicationHeaderBlock {
     public static ApplicationHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '%s'", block.getId());
 
+        String blockType = block.getContent().substring(0,1);
+
         if (block.getContent().startsWith("I")) {
             ApplicationHeaderInputBlock input = ApplicationHeaderInputBlock.of(block);
             return new ApplicationHeaderBlock(input);
@@ -50,7 +54,7 @@ public class ApplicationHeaderBlock {
             return new ApplicationHeaderBlock(output);
         }
 
-        throw new BlockFieldParseException("Block '" + block.getId() + "' unknown I/O Type");
+        throw new IllegalArgumentException("Block '" + block.getId() + "' unknown Type " + "");
 
     }
 

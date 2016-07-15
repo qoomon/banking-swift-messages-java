@@ -8,7 +8,9 @@ import com.google.common.base.Preconditions;
 public class GeneralField implements SwiftField {
 
     private final String tag;
+
     private final String content;
+
 
     public GeneralField(String tag, String content) {
 

@@ -30,9 +30,13 @@ public class BasicHeaderBlock {
     public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(.{1})(.{2})(.{12})(.{4})(.{6})");
 
     private final String applicationId;
+
     private final String serviceId;
+
     private final String logicalTerminalAddress;
+
     private final String sessionNumber;
+
     private final String sequenceNumber;
 
 

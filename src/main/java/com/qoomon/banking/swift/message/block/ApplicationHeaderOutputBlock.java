@@ -40,12 +40,19 @@ public class ApplicationHeaderOutputBlock {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmm");
 
     private final String sessionNumber;
+
     private final String sequenceNumber;
+
     private final String messageType;
+
     private final LocalDateTime inputDateTime;
+
     private final String inputReference;
+
     private final LocalDateTime outputDateTime;
+
     private final MessagePriority messagePriority;
+    
 
     public ApplicationHeaderOutputBlock(String sessionNumber, String sequenceNumber, String messageType, LocalDateTime inputDateTime, String inputReference, LocalDateTime outputDateTime, MessagePriority messagePriority) {
 

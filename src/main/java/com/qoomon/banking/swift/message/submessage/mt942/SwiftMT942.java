@@ -11,6 +11,8 @@ import java.util.Optional;
  */
 public class SwiftMT942 {
 
+    public static final String MESSAGE_ID_942 = "942";
+
     /**
      * @see TransactionReferenceNumber#FIELD_TAG_20
      */

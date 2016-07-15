@@ -139,6 +139,8 @@ import java.util.Optional;
  */
 public class SwiftMT940 {
 
+    public static final String MESSAGE_ID_940 = "940";
+
     /**
      * @see TransactionReferenceNumber#FIELD_TAG_20
      */

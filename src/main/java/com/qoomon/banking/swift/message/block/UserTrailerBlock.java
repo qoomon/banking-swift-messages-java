@@ -33,12 +33,19 @@ public class UserTrailerBlock {
     public static final String BLOCK_ID_5 = "5";
 
     public final Optional<String> messageAuthenticationCode;
+
     public final Optional<String> proprietaryAuthenticationCode;
+
     public final Optional<String> checksum;
+
     public final Optional<String> training;
+
     public final Optional<String> possibleDuplicateEmission;
+
     public final Optional<String> deliveryDelay;
+
     private final ImmutableMap<String, GeneralBlock> additionalSubblocks;
+
 
     public UserTrailerBlock(String messageAuthenticationCode, String proprietaryAuthenticationCode, String checksum, String training, String possibleDuplicateEmission, String deliveryDelay, Map<String, GeneralBlock> additionalSubblocks) {
 

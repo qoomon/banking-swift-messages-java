@@ -26,6 +26,7 @@ public class AccountIdentification implements SwiftField {
 
     private final String value;
 
+
     public AccountIdentification(String value) {
         Preconditions.checkArgument(value != null, "value can't be null");
         this.value = value;

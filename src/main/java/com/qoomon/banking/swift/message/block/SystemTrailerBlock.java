@@ -31,11 +31,17 @@ public class SystemTrailerBlock {
     public static final String BLOCK_ID_S = "S";
 
     private final Optional<String> checksum;
+
     private final Optional<String> systemOriginatedMessage;
+
     private final Optional<String> training;
+
     private final Optional<String> possibleDuplicateMessage;
+
     private final Optional<String> delayedMessage;
+
     private final Optional<String> messageReference;
+
 
     private final Map<String, GeneralBlock> additionalSubblocks;
 

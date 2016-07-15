@@ -17,6 +17,7 @@ public class TransactionGroup {
      */
     private final Optional<InformationToAccountOwner> informationToAccountOwner;
 
+
     public TransactionGroup(StatementLine statementLine, InformationToAccountOwner informationToAccountOwner) {
 
         Preconditions.checkArgument(statementLine != null, "statementLine can't be null");
