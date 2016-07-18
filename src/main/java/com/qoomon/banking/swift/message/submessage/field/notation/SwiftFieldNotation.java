@@ -266,6 +266,7 @@ public class SwiftFieldNotation {
             throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
         }
 
+        // generate regex patterns
         int subfieldIndex = -1;
         for (SubField subField : result) {
             subfieldIndex++;
