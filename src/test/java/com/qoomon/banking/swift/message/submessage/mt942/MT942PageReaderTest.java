@@ -53,7 +53,7 @@ public class MT942PageReaderTest {
         // Then
         assertThat(pageList).hasSize(1);
         MT942Page MT942Page = pageList.get(0);
-        assertThat(MT942Page.getTransactionList()).hasSize(3);
+        assertThat(MT942Page.getTransactionGroupList()).hasSize(3);
         assertThat(MT942Page.getStatementNumber().getValue()).isEqualTo("1");
         assertThat(MT942Page.getStatementNumber().getSequenceNumber()).contains("1");
     }

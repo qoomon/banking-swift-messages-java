@@ -52,7 +52,7 @@ public class MT942Page {
      * @see StatementLine#FIELD_TAG_61
      * @see InformationToAccountOwner#FIELD_TAG_86
      */
-    private final List<TransactionGroup> transactionList;
+    private final List<TransactionGroup> transactionGroupList;
 
     /**
      * @see InformationToAccountOwner#FIELD_TAG_86
@@ -78,7 +78,7 @@ public class MT942Page {
             FloorLimitIndicator floorLimitIndicatorDebit,
             FloorLimitIndicator floorLimitIndicatorCredit,
             DateTimeIndicator dateTimeIndicator,
-            List<TransactionGroup> transactionList,
+            List<TransactionGroup> transactionGroupList,
             TransactionSummary transactionSummaryDebit,
             TransactionSummary transactionSummaryCredit,
             InformationToAccountOwner informationToAccountOwner) {
@@ -88,7 +88,7 @@ public class MT942Page {
         Preconditions.checkArgument(statementNumber != null, "statementNumber can't be null");
         Preconditions.checkArgument(floorLimitIndicatorDebit != null, "floorLimitIndicatorDebit can't be null");
         Preconditions.checkArgument(dateTimeIndicator != null, "dateTimeIndicator can't be null");
-        Preconditions.checkArgument(transactionList != null, "transactionList can't be null");
+        Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
 
         this.transactionReferenceNumber = transactionReferenceNumber;
         this.relatedReference = Optional.ofNullable(relatedReference);
@@ -97,7 +97,7 @@ public class MT942Page {
         this.floorLimitIndicatorDebit = floorLimitIndicatorDebit;
         this.floorLimitIndicatorCredit = Optional.ofNullable(floorLimitIndicatorCredit).orElse(floorLimitIndicatorDebit);
         this.dateTimeIndicator = dateTimeIndicator;
-        this.transactionList = transactionList;
+        this.transactionGroupList = transactionGroupList;
         this.transactionSummaryDebit = Optional.ofNullable(transactionSummaryDebit);
         this.transactionSummaryCredit = Optional.ofNullable(transactionSummaryCredit);
         this.informationToAccountOwner = Optional.ofNullable(informationToAccountOwner);
@@ -131,8 +131,8 @@ public class MT942Page {
         return dateTimeIndicator;
     }
 
-    public List<TransactionGroup> getTransactionList() {
-        return transactionList;
+    public List<TransactionGroup> getTransactionGroupList() {
+        return transactionGroupList;
     }
 
     public Optional<InformationToAccountOwner> getInformationToAccountOwner() {
