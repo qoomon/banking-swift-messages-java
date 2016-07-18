@@ -3,7 +3,7 @@ package com.qoomon.banking.swift.message.submessage.field;
 /**
  * Created by qoomon on 08/07/2016.
  */
-public class PageSeperator implements SwiftField {
+public class PageSeparator implements SwiftField {
 
     public static final String TAG = "-";
 

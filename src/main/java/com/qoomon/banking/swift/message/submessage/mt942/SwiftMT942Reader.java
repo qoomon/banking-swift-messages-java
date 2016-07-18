@@ -18,7 +18,7 @@ public class SwiftMT942Reader {
 
     private static final Set<String> MESSAGE_START_FIELD_TAG_SET = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
 
-    private static final Set<String> MESSAGE_END_FIELD_TAG_SET = ImmutableSet.of(PageSeperator.TAG);
+    private static final Set<String> MESSAGE_END_FIELD_TAG_SET = ImmutableSet.of(PageSeparator.TAG);
 
     private final SwiftFieldReader fieldReader;
 
@@ -104,7 +104,7 @@ public class SwiftMT942Reader {
                                 TransactionSummary.FIELD_TAG_90D,
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                PageSeperator.TAG);
+                                PageSeparator.TAG);
                         break;
                     }
                     case StatementLine.FIELD_TAG_61: {
@@ -115,7 +115,7 @@ public class SwiftMT942Reader {
                                 TransactionSummary.FIELD_TAG_90D,
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                PageSeperator.TAG);
+                                PageSeparator.TAG);
                         break;
                     }
                     case TransactionSummary.FIELD_TAG_90D: {
@@ -123,14 +123,14 @@ public class SwiftMT942Reader {
                         nextValidFieldSet = ImmutableSet.of(
                                 TransactionSummary.FIED_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                PageSeperator.TAG);
+                                PageSeparator.TAG);
                         break;
                     }
                     case TransactionSummary.FIED_TAG_90C: {
                         transactionSummaryCredit = TransactionSummary.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                PageSeperator.TAG);
+                                PageSeparator.TAG);
                         break;
                     }
                     case InformationToAccountOwner.FIELD_TAG_86: {
@@ -150,11 +150,11 @@ public class SwiftMT942Reader {
                                     InformationToAccountOwner.FIELD_TAG_86);
                         } else {
                             informationToAccountOwner = InformationToAccountOwner.of(currentField);
-                            nextValidFieldSet = ImmutableSet.of(PageSeperator.TAG);
+                            nextValidFieldSet = ImmutableSet.of(PageSeparator.TAG);
                         }
                         break;
                     }
-                    case PageSeperator.TAG: {
+                    case PageSeparator.TAG: {
                         nextValidFieldSet = ImmutableSet.of();
                         break;
                     }

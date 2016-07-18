@@ -81,7 +81,7 @@ public class SwiftFieldReader {
                         break;
                     }
                     case SEPARATOR: {
-                        tag = PageSeperator.TAG;
+                        tag = PageSeparator.TAG;
                         nextValidFieldLineTypeSet = ImmutableSet.of();
                         break;
                     }
@@ -117,7 +117,7 @@ public class SwiftFieldReader {
     private FieldLineType determineMessageLineType(String messageLine) {
         Preconditions.checkArgument(messageLine != null && !messageLine.isEmpty(), "messageLine can't be null or empty");
 
-        if (messageLine.equals(PageSeperator.TAG)) {
+        if (messageLine.equals(PageSeparator.TAG)) {
             return FieldLineType.SEPARATOR;
         }
         if (messageLine.startsWith(":")) {

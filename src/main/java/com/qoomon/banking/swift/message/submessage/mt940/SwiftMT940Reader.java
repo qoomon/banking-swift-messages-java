@@ -18,7 +18,7 @@ public class SwiftMT940Reader {
 
     private static final Set<String> MESSAGE_START_FIELD_TAG_SET = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
 
-    private static final Set<String> MESSAGE_END_FIELD_TAG_SET = ImmutableSet.of(PageSeperator.TAG);
+    private static final Set<String> MESSAGE_END_FIELD_TAG_SET = ImmutableSet.of(PageSeparator.TAG);
 
     private final SwiftFieldReader fieldReader;
 
@@ -117,7 +117,7 @@ public class SwiftMT940Reader {
                                 ClosingAvailableBalance.FIELD_TAG_64,
                                 ForwardAvailableBalance.FIELD_TAG_65,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                PageSeperator.TAG);
+                                PageSeparator.TAG);
                         break;
                     }
                     case ClosingAvailableBalance.FIELD_TAG_64: {
@@ -125,7 +125,7 @@ public class SwiftMT940Reader {
                         nextValidFieldSet = ImmutableSet.of(
                                 ForwardAvailableBalance.FIELD_TAG_65,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                PageSeperator.TAG);
+                                PageSeparator.TAG);
                         break;
                     }
                     case ForwardAvailableBalance.FIELD_TAG_65: {
@@ -134,7 +134,7 @@ public class SwiftMT940Reader {
                         nextValidFieldSet = ImmutableSet.of(
                                 ForwardAvailableBalance.FIELD_TAG_65,
                                 InformationToAccountOwner.FIELD_TAG_86,
-                                PageSeperator.TAG);
+                                PageSeparator.TAG);
                         break;
                     }
                     case InformationToAccountOwner.FIELD_TAG_86: {
@@ -153,11 +153,11 @@ public class SwiftMT940Reader {
                                     ClosingBalance.FIELD_TAG_62M);
                         } else {
                             informationToAccountOwner = InformationToAccountOwner.of(currentField);
-                            nextValidFieldSet = ImmutableSet.of(PageSeperator.TAG);
+                            nextValidFieldSet = ImmutableSet.of(PageSeparator.TAG);
                         }
                         break;
                     }
-                    case PageSeperator.TAG: {
+                    case PageSeparator.TAG: {
                         nextValidFieldSet = ImmutableSet.of();
                         break;
                     }

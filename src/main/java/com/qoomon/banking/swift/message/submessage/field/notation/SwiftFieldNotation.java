@@ -111,7 +111,11 @@ public class SwiftFieldNotation {
             //remove prefix
             Optional<String> prefix = subfield.getPrefix();
             if (prefix.isPresent()) {
-                fieldValue = fieldValue.replaceFirst(quote(prefix.get()), "");
+                if (prefix.get().equals("BR")) {
+                    fieldValue = fieldValue.replaceFirst("\n", "");
+                } else {
+                    fieldValue = fieldValue.replaceFirst(quote(prefix.get()), "");
+                }
             }
 
             // add field value
@@ -172,7 +176,11 @@ public class SwiftFieldNotation {
 
         Optional<String> prefix = subfield.getPrefix();
         if (prefix.isPresent()) {
-            subFieldRegex = quote(prefix.get()) + subFieldRegex;
+            if (prefix.get().equals("BR")) {
+                subFieldRegex = "\\n" + subFieldRegex;
+            } else {
+                subFieldRegex = quote(prefix.get()) + subFieldRegex;
+            }
         }
 
         if (subfield.isOptional()) {
