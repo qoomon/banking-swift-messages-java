@@ -12,5 +12,5 @@ info
 :90D:75475USD123,
 :90C:75475USD123,
 :86:multiline summary
-smumary
+summary
 -

@@ -3,14 +3,12 @@ package com.qoomon.banking.swift.message.submessage.field;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.message.submessage.field.subfield.TransactionTypeIdentificationCode;
 import org.joda.money.CurrencyUnit;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by qoomon on 18/07/2016.
@@ -18,7 +16,6 @@ import static org.junit.Assert.*;
 public class StatementLineTest {
 
     @Test
-    @Ignore
     public void of() throws Exception {
 
         // Given
@@ -35,10 +32,8 @@ public class StatementLineTest {
         assertThat(field.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(123.456));
         assertThat(field.getTransactionTypeIdentificationCode()).isEqualTo(TransactionTypeIdentificationCode.of("NSTO"));
         assertThat(field.getReferenceForAccountOwner()).isEqualTo("abcdef");
-        assertThat(field.getReferenceForBank()).isEqualTo("xyz");
-        assertThat(field.getSupplementaryDetails()).isEqualTo("foobar");
-
+        assertThat(field.getReferenceForBank()).contains("xyz");
+        assertThat(field.getSupplementaryDetails()).contains("foobar");
 
     }
-
 }

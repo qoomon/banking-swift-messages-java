@@ -6,8 +6,9 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import static java.util.regex.Pattern.quote;
+import static java.util.regex.Pattern.*;
 
 /**
  * <pre>
@@ -43,7 +44,14 @@ import static java.util.regex.Pattern.quote;
  */
 public class SwiftFieldNotation {
 
-    private static final String SEPARATOR_SET = "(?:/|//|BR|ISIN)";
+    private static final Map<String, String> SEPARATOR_MAP = new HashMap<>();
+
+    static {
+        // see class description for separator details
+        SEPARATOR_MAP.put("/", "\\/");
+        SEPARATOR_MAP.put("//", "\\/\\/");
+        SEPARATOR_MAP.put("BR", "\\n");
+    }
 
     private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<>();
 
@@ -88,16 +96,19 @@ public class SwiftFieldNotation {
 
         List<String> result = new LinkedList<>();
 
+        int fieldIndex = -1;
         for (SubField subfield : swiftSubFields) {
+            fieldIndex++;
+
             Pattern subfieldPattern = Pattern.compile("^" + subfield.getRegex());
             Matcher subfieldMatcher = subfieldPattern.matcher(fieldText).region(parseIndex, fieldText.length());
             if (!subfieldMatcher.find()) {
                 throw new ParseException(subfield + " did not found matching characters."
                         + " near index " + parseIndex + " '" + fieldText.substring(parseIndex) + "'", parseIndex);
             }
-            parseIndex = subfieldMatcher.end();
+            String fieldValue = subfieldMatcher.group(1);
 
-            String fieldValue = subfieldMatcher.group();
+            parseIndex = subfieldMatcher.end();
 
             // special handling for d charset due to only on comma constraint
             if (subfield.getCharSet().equals("d")) {
@@ -108,22 +119,8 @@ public class SwiftFieldNotation {
                 }
             }
 
-            //remove prefix
-            Optional<String> prefix = subfield.getPrefix();
-            if (prefix.isPresent()) {
-                if (prefix.get().equals("BR")) {
-                    fieldValue = fieldValue.replaceFirst("\n", "");
-                } else {
-                    fieldValue = fieldValue.replaceFirst(quote(prefix.get()), "");
-                }
-            }
-
             // add field value
-            if (!fieldValue.isEmpty()) {
-                result.add(fieldValue);
-            } else {
-                result.add(null);
-            }
+            result.add(fieldValue);
         }
 
         if (parseIndex != fieldText.length()) {
@@ -134,37 +131,72 @@ public class SwiftFieldNotation {
         return result;
     }
 
-    private static Pattern buildSubfieldRegex(SubField subfield) {
-        String charSetRegex = CHARSET_REGEX_MAP.get(subfield.getCharSet());
+    /**
+     * select charset
+     * handle delimiter
+     * handle length
+     * group field value
+     * handle prefix
+     * set optional if so
+     *
+     * @param currentSubfield
+     * @param upcomingSubfieldList
+     * @return pattern - group 1 matches field value without prefix
+     */
+    private static Pattern buildSubfieldRegex(SubField currentSubfield, List<SubField> upcomingSubfieldList) {
+        Preconditions.checkArgument(upcomingSubfieldList != null, "subfieldList can't be null");
+
+        // select charset
+        String charSetRegex = CHARSET_REGEX_MAP.get(currentSubfield.getCharSet());
         if (charSetRegex == null) {
-            throw new IllegalArgumentException("Unknown charset: " + subfield.getCharSet());
+            throw new IllegalArgumentException("Unknown charset: " + currentSubfield.getCharSet());
         }
 
-        String subFieldRegex = "";
-        Optional<String> lengthSign = subfield.getLengthSign();
+        // handle delimiter if any
+        String delimiterLookaheadRegex = "";
+        // collect possible delimiters
+        List<String> fieldDelimiterList = new LinkedList<>();
+        for (SubField upcomingSubField : upcomingSubfieldList) {
+            if (upcomingSubField.getPrefix().isPresent()) {
+                fieldDelimiterList.add(SEPARATOR_MAP.get(upcomingSubField.getPrefix().get()));
+            }
+            if (!upcomingSubField.isOptional()) {
+                break;
+            }
+        }
+        if (!fieldDelimiterList.isEmpty()) {
+            delimiterLookaheadRegex = "(?!" + String.join("|", fieldDelimiterList) + ")";
+        }
+
+        // create subfield regex
+        String subFieldRegex;
+
+
+        // handle length
+        Optional<String> lengthSign = currentSubfield.getLengthSign();
         if (!lengthSign.isPresent()) {
-            int maxCharacters = subfield.getLength0();
-            subFieldRegex += charSetRegex + "{1," + maxCharacters + "}";
+            int maxCharacters = currentSubfield.getLength0();
+            subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{1," + maxCharacters + "}";
         } else {
             switch (lengthSign.get()) {
                 case "!": {
-                    int fixedCharacters = subfield.getLength0();
-                    subFieldRegex += charSetRegex + "{" + fixedCharacters + "}";
+                    int fixedCharacters = currentSubfield.getLength0();
+                    subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{" + fixedCharacters + "}";
                     break;
                 }
                 case "-": {
-                    int minCharacters = subfield.getLength0();
-                    int maxCharacters = subfield.getLength1().get();
-                    subFieldRegex += charSetRegex + "{" + minCharacters + "," + maxCharacters + "}";
+                    int minCharacters = currentSubfield.getLength0();
+                    int maxCharacters = currentSubfield.getLength1().get();
+                    subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{" + minCharacters + "," + maxCharacters + "}";
                     break;
                 }
                 case "*": {
-                    int maxLines = subfield.getLength0();
-                    int maxLineCharacters = subfield.getLength1().get();
+                    int maxLines = currentSubfield.getLength0();
+                    int maxLineCharacters = currentSubfield.getLength1().get();
                     String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
                     String lineRegex = "[^\\n]" + lineCharactersRegexRange;
                     subFieldRegex = "(?=" + lineRegex + "(\\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
-                            + "(?:" + charSetRegex + "|\\n)"  // add new line character to charset
+                            + "(:?" + delimiterLookaheadRegex + "(:?" + charSetRegex + "|\\n)" + ")" // add new line character to charset
                             + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
                     break;
                 }
@@ -173,17 +205,17 @@ public class SwiftFieldNotation {
             }
         }
 
+        // group field value
+        subFieldRegex = "(" + subFieldRegex + ")";
 
-        Optional<String> prefix = subfield.getPrefix();
+        // handle prefix
+        Optional<String> prefix = currentSubfield.getPrefix();
         if (prefix.isPresent()) {
-            if (prefix.get().equals("BR")) {
-                subFieldRegex = "\\n" + subFieldRegex;
-            } else {
-                subFieldRegex = quote(prefix.get()) + subFieldRegex;
-            }
+            subFieldRegex = SEPARATOR_MAP.get(prefix.get()) + subFieldRegex;
         }
 
-        if (subfield.isOptional()) {
+        // make field optional if so
+        if (currentSubfield.isOptional()) {
             subFieldRegex = "(?:" + subFieldRegex + ")?";
         }
 
@@ -198,7 +230,8 @@ public class SwiftFieldNotation {
         // Group 3: Field length sign ! - *
         // Group 4: Field length1
         // Group 5: Field charset
-        Pattern fieldValueNotationPattern = Pattern.compile("(" + SEPARATOR_SET + ")?([0-9]{1,2})([!-*])?([0-9]{1,2})?([acdehnsxyzAB])");
+        List<String> regexSeparatorList = SEPARATOR_MAP.keySet().stream().map(it -> Pattern.quote(it).toString()).collect(Collectors.toList());
+        Pattern fieldValueNotationPattern = Pattern.compile("(" + String.join("|", regexSeparatorList) + ")?([0-9]{1,2})([!-*])?([0-9]{1,2})?([acdehnsxyzAB])");
         Pattern fieldNotationPattern = Pattern.compile(quote("[") + fieldValueNotationPattern + quote("]") + "|" + fieldValueNotationPattern);
         Matcher fieldNotationMatcher = fieldNotationPattern.matcher(swiftNotation);
         int parseIndex = 0;
@@ -237,6 +270,14 @@ public class SwiftFieldNotation {
         if (parseIndex != swiftNotation.length()) {
             throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
         }
+
+        int subfieldIndex = -1;
+        for (SubField subField : result) {
+            subfieldIndex++;
+            Pattern pattern = buildSubfieldRegex(subField, result.subList(subfieldIndex + 1, result.size()));
+            subField.setPattern(pattern);
+        }
+
         return result;
     }
 
@@ -265,7 +306,6 @@ public class SwiftFieldNotation {
             this.length0 = length0;
             this.length1 = Optional.ofNullable(length1);
             this.lengthSign = Optional.ofNullable(lengthSign);
-            this.regex = buildSubfieldRegex(this);
 
             if (!this.lengthSign.isPresent()) {
                 Preconditions.checkArgument(!this.length1.isPresent(), "Missing field length sign between field lengths : '%s'", this);
@@ -282,6 +322,11 @@ public class SwiftFieldNotation {
                 default:
                     Preconditions.checkArgument(false, "Unknown length sign : '" + this.toString() + "'");
             }
+        }
+
+        public void setPattern(Pattern regex) {
+            Preconditions.checkState(this.regex == null, "regex cant be set twice");
+            this.regex = regex;
         }
 
         public Boolean isOptional() {
