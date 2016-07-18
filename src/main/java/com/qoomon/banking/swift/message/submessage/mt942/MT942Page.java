@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * TODO adjust from mt940 to mt492
  */
-public class SwiftMT942 {
+public class MT942Page {
 
     public static final String MESSAGE_ID_942 = "942";
 
@@ -70,7 +70,7 @@ public class SwiftMT942 {
     private final Optional<TransactionSummary> transactionSummaryCredit;
 
 
-    public SwiftMT942(
+    public MT942Page(
             TransactionReferenceNumber transactionReferenceNumber,
             RelatedReference relatedReference,
             AccountIdentification accountIdentification,

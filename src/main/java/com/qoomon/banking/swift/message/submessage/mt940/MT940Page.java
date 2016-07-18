@@ -137,7 +137,7 @@ import java.util.Optional;
  *
  * @see <a href="http://www.sepaforcorporates.com/swift-for-corporates/account-statement-mt940-file-format-overview/">http://www.sepaforcorporates.com/swift-for-corporates/account-statement-mt940-file-format-overview/</a>
  */
-public class SwiftMT940 {
+public class MT940Page {
 
     public static final String MESSAGE_ID_940 = "940";
 
@@ -194,7 +194,7 @@ public class SwiftMT940 {
      */
     private final Optional<InformationToAccountOwner> informationToAccountOwner;
 
-    public SwiftMT940(
+    public MT940Page(
             TransactionReferenceNumber transactionReferenceNumber,
             RelatedReference relatedReference,
             AccountIdentification accountIdentification,

@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Parser for {@link SwiftMT942}
+ * Parser for {@link MT942Page}
  */
-public class SwiftMT942Reader {
+public class MT942PageReader {
 
     private static final Set<String> MESSAGE_START_FIELD_TAG_SET = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
 
@@ -27,20 +27,20 @@ public class SwiftMT942Reader {
     private GeneralField nextField = null;
 
 
-    public SwiftMT942Reader(Reader textReader) {
+    public MT942PageReader(Reader textReader) {
 
         Preconditions.checkArgument(textReader != null, "textReader can't be null");
 
         this.fieldReader = new SwiftFieldReader(textReader);
     }
 
-    public SwiftMT942 readMessage() throws SwiftMessageParseException {
+    public MT942Page readPage() throws SwiftMessageParseException {
         try {
             if (currentField == null) {
                 nextField = fieldReader.readField();
             }
 
-            SwiftMT942 message = null;
+            MT942Page page = null;
 
             // message fields
             TransactionReferenceNumber transactionReferenceNumber = null;
@@ -57,7 +57,7 @@ public class SwiftMT942Reader {
 
             Set<String> nextValidFieldSet = MESSAGE_START_FIELD_TAG_SET;
 
-            while (message == null && nextField != null) {
+            while (page == null && nextField != null) {
 
                 ensureValidNextField(nextField, nextValidFieldSet, fieldReader);
 
@@ -165,7 +165,7 @@ public class SwiftMT942Reader {
 
                 // finish message
                 if (MESSAGE_END_FIELD_TAG_SET.contains(currentField.getTag())) {
-                    message = new SwiftMT942(
+                    page = new MT942Page(
                             transactionReferenceNumber,
                             relatedReference,
                             accountIdentification,
@@ -181,7 +181,7 @@ public class SwiftMT942Reader {
                 }
             }
 
-            return message;
+            return page;
         } catch (SwiftMessageParseException e) {
             throw e;
         } catch (Exception e) {
