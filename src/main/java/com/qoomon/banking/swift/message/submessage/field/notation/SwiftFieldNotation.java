@@ -3,13 +3,10 @@ package com.qoomon.banking.swift.message.submessage.field.notation;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
 
-import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static java.util.regex.Pattern.*;
 
 /**
  * <pre>
@@ -49,8 +46,8 @@ public class SwiftFieldNotation {
 
     static {
         // see class description for separator details
-        SEPARATOR_MAP.put("/", "\\/");
-        SEPARATOR_MAP.put("//", "\\/\\/");
+        SEPARATOR_MAP.put("/", "/");
+        SEPARATOR_MAP.put("//", "//");
         SEPARATOR_MAP.put("BR", "\\n");
     }
 
@@ -229,9 +226,8 @@ public class SwiftFieldNotation {
         // Group 3: Field length sign ! - *
         // Group 4: Field length1
         // Group 5: Field charset
-        List<String> regexSeparatorList = SEPARATOR_MAP.keySet().stream().map(it -> Pattern.quote(it).toString()).collect(Collectors.toList());
-        Pattern fieldValueNotationPattern = Pattern.compile("(" + String.join("|", regexSeparatorList) + ")?([0-9]{1,2})([!-*])?([0-9]{1,2})?([acdehnsxyzAB])");
-        Pattern fieldNotationPattern = Pattern.compile(quote("[") + fieldValueNotationPattern + quote("]") + "|" + fieldValueNotationPattern);
+        Pattern fieldValueNotationPattern = Pattern.compile("(" + String.join("|", SEPARATOR_MAP.keySet()) + ")?([0-9]{1,2})([!-*])?([0-9]{1,2})?([acdehnsxyzAB])");
+        Pattern fieldNotationPattern = Pattern.compile("\\[" + fieldValueNotationPattern + "\\]" + "|" + fieldValueNotationPattern);
         Matcher fieldNotationMatcher = fieldNotationPattern.matcher(swiftNotation);
         int parseIndex = 0;
         while (fieldNotationMatcher.find(parseIndex)) {
@@ -242,7 +238,7 @@ public class SwiftFieldNotation {
 
             String subfieldNotation = fieldNotationMatcher.group();
             // trim optional indicator
-            String trimmedSubfieldNotation = subfieldNotation.replaceFirst("^" + quote("[") + "(.*)" + quote("]") + "$", "$1");
+            String trimmedSubfieldNotation = subfieldNotation.replaceFirst("^\\[(.*)\\]$", "$1");
             Matcher fieldPropertiesMatcher = fieldValueNotationPattern.matcher(trimmedSubfieldNotation);
             if (!fieldPropertiesMatcher.matches()) {
                 throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");

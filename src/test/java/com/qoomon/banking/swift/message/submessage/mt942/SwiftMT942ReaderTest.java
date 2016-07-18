@@ -4,7 +4,6 @@ package com.qoomon.banking.swift.message.submessage.mt942;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.qoomon.banking.swift.TestUtils;
-import com.qoomon.banking.swift.message.submessage.mt940.SwiftMT940;
 import org.junit.Test;
 
 import java.io.FileReader;

@@ -3,9 +3,8 @@ package com.qoomon.banking.swift.message.block;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-import static org.junit.Assert.*;
 
 /**
  * Created by qoomon on 14/07/16.

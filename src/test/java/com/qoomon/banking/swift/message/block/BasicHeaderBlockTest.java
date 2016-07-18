@@ -1,10 +1,7 @@
 package com.qoomon.banking.swift.message.block;
 
-import com.qoomon.banking.swift.message.submessage.field.subfield.MessagePriority;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
-
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;

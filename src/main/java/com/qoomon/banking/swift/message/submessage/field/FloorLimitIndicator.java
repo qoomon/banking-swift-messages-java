@@ -6,7 +6,6 @@ import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNota
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 

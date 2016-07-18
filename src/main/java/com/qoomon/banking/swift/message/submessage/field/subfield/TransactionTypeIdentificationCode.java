@@ -2,8 +2,6 @@ package com.qoomon.banking.swift.message.submessage.field.subfield;
 
 import com.google.common.base.Preconditions;
 
-import java.text.ParseException;
-
 /**
  * BNK, // Securities Related Item – Bank fees
  * BOE, // Bill of exchange

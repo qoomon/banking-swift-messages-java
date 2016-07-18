@@ -7,7 +7,6 @@ import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMar
 import com.qoomon.banking.swift.message.submessage.field.subfield.TransactionTypeIdentificationCode;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;

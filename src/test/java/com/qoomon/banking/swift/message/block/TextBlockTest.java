@@ -1,13 +1,7 @@
 package com.qoomon.banking.swift.message.block;
 
-import com.google.common.base.Optional;
-import com.qoomon.banking.swift.TestUtils;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import java.text.ParseException;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
