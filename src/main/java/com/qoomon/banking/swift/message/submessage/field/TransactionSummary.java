@@ -5,7 +5,6 @@ import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotation
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
 import org.joda.money.BigMoney;
 
-import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -32,7 +31,7 @@ public class TransactionSummary implements SwiftField {
 
     public static final String FIELD_TAG_90D = "90D";
 
-    public static final String FIED_TAG_90C = "90C";
+    public static final String FIELD_TAG_90C = "90C";
 
     public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("5n3!a15d");
 
@@ -55,7 +54,7 @@ public class TransactionSummary implements SwiftField {
     }
 
     public static TransactionSummary of(GeneralField field) throws FieldNotationParseException {
-        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_90D) || field.getTag().equals(FIED_TAG_90C), "unexpected field tag '%s'", field.getTag());
+        Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_90D) || field.getTag().equals(FIELD_TAG_90C), "unexpected field tag '%s'", field.getTag());
         Type type = field.getTag().equals(FIELD_TAG_90D) ? Type.DEBIT : Type.CREDIT;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
@@ -82,7 +81,7 @@ public class TransactionSummary implements SwiftField {
 
     @Override
     public String getTag() {
-        return type == Type.DEBIT ? FIELD_TAG_90D : FIED_TAG_90C;
+        return type == Type.DEBIT ? FIELD_TAG_90D : FIELD_TAG_90C;
     }
 
     public enum Type {

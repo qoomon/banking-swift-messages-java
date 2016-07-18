@@ -102,7 +102,7 @@ public class SwiftMT942Reader {
                         nextValidFieldSet = ImmutableSet.of(
                                 StatementLine.FIELD_TAG_61,
                                 TransactionSummary.FIELD_TAG_90D,
-                                TransactionSummary.FIED_TAG_90C,
+                                TransactionSummary.FIELD_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
                                 PageSeparator.TAG);
                         break;
@@ -113,7 +113,7 @@ public class SwiftMT942Reader {
                         nextValidFieldSet = ImmutableSet.of(
                                 StatementLine.FIELD_TAG_61,
                                 TransactionSummary.FIELD_TAG_90D,
-                                TransactionSummary.FIED_TAG_90C,
+                                TransactionSummary.FIELD_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
                                 PageSeparator.TAG);
                         break;
@@ -121,12 +121,12 @@ public class SwiftMT942Reader {
                     case TransactionSummary.FIELD_TAG_90D: {
                         transactionSummaryDebit = TransactionSummary.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(
-                                TransactionSummary.FIED_TAG_90C,
+                                TransactionSummary.FIELD_TAG_90C,
                                 InformationToAccountOwner.FIELD_TAG_86,
                                 PageSeparator.TAG);
                         break;
                     }
-                    case TransactionSummary.FIED_TAG_90C: {
+                    case TransactionSummary.FIELD_TAG_90C: {
                         transactionSummaryCredit = TransactionSummary.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(
                                 InformationToAccountOwner.FIELD_TAG_86,
@@ -146,7 +146,7 @@ public class SwiftMT942Reader {
                             nextValidFieldSet = ImmutableSet.of(
                                     StatementLine.FIELD_TAG_61,
                                     TransactionSummary.FIELD_TAG_90D,
-                                    TransactionSummary.FIED_TAG_90C,
+                                    TransactionSummary.FIELD_TAG_90C,
                                     InformationToAccountOwner.FIELD_TAG_86);
                         } else {
                             informationToAccountOwner = InformationToAccountOwner.of(currentField);

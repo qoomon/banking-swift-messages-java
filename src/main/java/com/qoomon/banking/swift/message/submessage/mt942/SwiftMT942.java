@@ -65,7 +65,7 @@ public class SwiftMT942 {
     private final Optional<TransactionSummary> transactionSummaryDebit;
 
     /**
-     * @see TransactionSummary#FIED_TAG_90C
+     * @see TransactionSummary#FIELD_TAG_90C
      */
     private final Optional<TransactionSummary> transactionSummaryCredit;
 
