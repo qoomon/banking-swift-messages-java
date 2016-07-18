@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
@@ -51,7 +52,7 @@ public class ClosingAvailableBalance implements SwiftField {
         this.amount = amount;
     }
 
-    public static ClosingAvailableBalance of(GeneralField field) throws ParseException {
+    public static ClosingAvailableBalance of(GeneralField field) throws FieldNotationParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_64), "unexpected field tag '%s'", field.getTag());
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

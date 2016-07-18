@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
 import org.joda.money.BigMoney;
 
@@ -53,7 +54,7 @@ public class TransactionSummary implements SwiftField {
         this.amount = amount;
     }
 
-    public static TransactionSummary of(GeneralField field) throws ParseException {
+    public static TransactionSummary of(GeneralField field) throws FieldNotationParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_90D) || field.getTag().equals(FIED_TAG_90C), "unexpected field tag '%s'", field.getTag());
         Type type = field.getTag().equals(FIELD_TAG_90D) ? Type.DEBIT : Type.CREDIT;
 

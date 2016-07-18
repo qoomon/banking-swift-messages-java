@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
@@ -42,7 +43,7 @@ public class FloorLimitIndicator implements SwiftField {
         this.amount = amount;
     }
 
-    public static FloorLimitIndicator of(GeneralField field) throws ParseException {
+    public static FloorLimitIndicator of(GeneralField field) throws FieldNotationParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_34F), "unexpected field tag '%s'", field.getTag());
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

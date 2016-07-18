@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
 
 import java.text.ParseException;
@@ -34,7 +35,7 @@ public class RelatedReference implements SwiftField {
         this.value = value;
     }
 
-    public static RelatedReference of(GeneralField field) throws ParseException {
+    public static RelatedReference of(GeneralField field) throws FieldNotationParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_21), "unexpected field tag '%s'", field.getTag());
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());

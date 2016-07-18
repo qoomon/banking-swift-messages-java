@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field.notation;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
 
 import java.text.ParseException;
 import java.util.*;
@@ -88,23 +89,21 @@ public class SwiftFieldNotation {
      *
      * @param fieldText Text to parse
      * @return List of subfield values. Missing optional fields are represented as NULL
-     * @throws ParseException
+     * @throws FieldNotationParseException
      */
-    public List<String> parse(String fieldText) throws ParseException {
+    public List<String> parse(String fieldText) throws FieldNotationParseException {
 
         int parseIndex = 0;
 
         List<String> result = new LinkedList<>();
 
-        int fieldIndex = -1;
         for (SubField subfield : swiftSubFields) {
-            fieldIndex++;
 
             Pattern subfieldPattern = Pattern.compile("^" + subfield.getRegex());
             Matcher subfieldMatcher = subfieldPattern.matcher(fieldText).region(parseIndex, fieldText.length());
             if (!subfieldMatcher.find()) {
-                throw new ParseException(subfield + " did not found matching characters."
-                        + " near index " + parseIndex + " '" + fieldText.substring(parseIndex) + "'", parseIndex);
+                throw new FieldNotationParseException(subfield + " did not found matching characters."
+                        + "'" + fieldText.substring(parseIndex) + "'", parseIndex);
             }
             String fieldValue = subfieldMatcher.group(1);
 
@@ -114,8 +113,8 @@ public class SwiftFieldNotation {
             if (subfield.getCharSet().equals("d")) {
                 Matcher decimalCharsetMatcher = Pattern.compile("[^,]+,[^,]*").matcher(fieldValue);
                 if (!decimalCharsetMatcher.matches()) {
-                    throw new ParseException(subfield + " did not found matching characters."
-                            + " near index " + parseIndex + " '" + fieldText.substring(parseIndex) + "'", parseIndex);
+                    throw new FieldNotationParseException(subfield + " did not found matching characters."
+                            + "'" + fieldText.substring(parseIndex) + "'", parseIndex);
                 }
             }
 
@@ -124,8 +123,8 @@ public class SwiftFieldNotation {
         }
 
         if (parseIndex != fieldText.length()) {
-            throw new ParseException("Unparsed characters remain."
-                    + " near index " + parseIndex + " '" + fieldText.substring(parseIndex) + "'", parseIndex);
+            throw new FieldNotationParseException("Unparsed characters remain."
+                    + "'" + fieldText.substring(parseIndex) + "'", parseIndex);
         }
 
         return result;

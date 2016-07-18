@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
 import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.message.submessage.field.subfield.TransactionTypeIdentificationCode;
@@ -90,7 +91,7 @@ public class StatementLine implements SwiftField {
         this.supplementaryDetails = Optional.ofNullable(supplementaryDetails);
     }
 
-    public static StatementLine of(GeneralField field) throws ParseException {
+    public static StatementLine of(GeneralField field) throws FieldNotationParseException {
 
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_61), "unexpected field tag '%s'", field.getTag());
 
@@ -127,7 +128,7 @@ public class StatementLine implements SwiftField {
 
             // ensure field 4 is not set also
             if (subFields.get(3) != null) {
-                throw new ParseException("Field " + FIELD_TAG_61 + ": Founds Code already set", 0);
+                throw new IllegalStateException("Field " + FIELD_TAG_61 + ": Founds Code already set");
             }
 
         }
