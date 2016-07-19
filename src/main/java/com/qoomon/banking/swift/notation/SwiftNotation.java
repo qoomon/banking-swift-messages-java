@@ -1,7 +1,6 @@
-package com.qoomon.banking.swift.message.submessage.field.notation;
+package com.qoomon.banking.swift.notation;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -40,7 +39,7 @@ import java.util.regex.Pattern;
  * 6*50x = up to 6 lines of up to 50 characters
  * </pre>
  */
-public class SwiftFieldNotation {
+public class SwiftNotation {
 
     private final static Pattern DECIMAL_NUMBER_PATTERN = Pattern.compile("[^,]+,[^,]*");
 
@@ -88,7 +87,7 @@ public class SwiftFieldNotation {
     private final List<SubFieldNotation> swiftSubFieldNotations;
 
 
-    public SwiftFieldNotation(String notation) {
+    public SwiftNotation(String notation) {
 
         this.swiftSubFieldNotations = parseSwiftNotation(notation);
         this.notation = notation;

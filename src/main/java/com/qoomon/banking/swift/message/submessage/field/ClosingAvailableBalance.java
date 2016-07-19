@@ -1,8 +1,8 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
-import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
 
@@ -29,7 +29,7 @@ public class ClosingAvailableBalance implements SwiftField {
 
     public static final String FIELD_TAG_64 = "64";
 
-    public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("1!a6!n3!a15d");
+    public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("1!a6!n3!a15d");
 
     private static final DateTimeFormatter ENTRY_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
 

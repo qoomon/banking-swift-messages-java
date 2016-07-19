@@ -1,8 +1,8 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
-import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class TransactionReferenceNumber implements SwiftField {
 
     public static final String FIELD_TAG_20 = "20";
 
-    public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("20x");
+    public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("20x");
 
     private final String value;
 

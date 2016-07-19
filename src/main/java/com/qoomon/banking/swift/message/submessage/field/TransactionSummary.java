@@ -1,8 +1,8 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
-import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 import org.joda.money.BigMoney;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class TransactionSummary implements SwiftField {
 
     public static final String FIELD_TAG_90C = "90C";
 
-    public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("5n3!a15d");
+    public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("5n3!a15d");
 
     private final Type type;
 

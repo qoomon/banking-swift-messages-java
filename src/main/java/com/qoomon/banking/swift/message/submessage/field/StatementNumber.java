@@ -1,8 +1,8 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
-import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ public class StatementNumber implements SwiftField {
 
     public static final String FIELD_TAG_28C = "28C";
 
-    public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("5n[/5n]");
+    public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("5n[/5n]");
 
     private final String value;
 

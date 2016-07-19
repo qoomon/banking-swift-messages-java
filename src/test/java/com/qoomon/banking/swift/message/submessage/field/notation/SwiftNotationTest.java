@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.message.submessage.field.notation;
 
+import com.qoomon.banking.swift.notation.SwiftNotation;
 import org.junit.Test;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * Created by qoomon on 29/06/16.
  */
-public class SwiftFieldNotationTest {
+public class SwiftNotationTest {
 
     @Test
     public void parse() throws Exception {
@@ -21,7 +22,7 @@ public class SwiftFieldNotationTest {
 
         // When
 
-        List<String> fieldValueList = new SwiftFieldNotation(swiftFieldNotation).parse(fieldText);
+        List<String> fieldValueList = new SwiftNotation(swiftFieldNotation).parse(fieldText);
 
         // Then
 
@@ -43,7 +44,7 @@ public class SwiftFieldNotationTest {
 
         // When
 
-        List<String> fieldValueList = new SwiftFieldNotation(swiftFieldNotation).parse(fieldText);
+        List<String> fieldValueList = new SwiftNotation(swiftFieldNotation).parse(fieldText);
 
         // Then
 
@@ -63,7 +64,7 @@ public class SwiftFieldNotationTest {
 
         // When
 
-        List<String> fieldValueList = new SwiftFieldNotation(swiftFieldNotation).parse(fieldText);
+        List<String> fieldValueList = new SwiftNotation(swiftFieldNotation).parse(fieldText);
 
         // Then
 

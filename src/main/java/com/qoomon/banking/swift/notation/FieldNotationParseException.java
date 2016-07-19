@@ -1,4 +1,4 @@
-package com.qoomon.banking.swift.message.submessage.field.exception;
+package com.qoomon.banking.swift.notation;
 
 /**
  * Created by qoomon on 27/06/16.

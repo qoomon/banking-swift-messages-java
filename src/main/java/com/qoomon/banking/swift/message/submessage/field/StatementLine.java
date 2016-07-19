@@ -1,8 +1,8 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
-import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.message.submessage.field.subfield.TransactionTypeIdentificationCode;
 
@@ -38,7 +38,7 @@ public class StatementLine implements SwiftField {
 
     public static final String FIELD_TAG_61 = "61";
 
-    public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][BR34x]");
+    public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][BR34x]");
 
     private static final DateTimeFormatter VALUE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
 

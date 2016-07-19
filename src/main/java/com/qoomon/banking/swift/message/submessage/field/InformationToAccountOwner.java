@@ -1,8 +1,8 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.message.submessage.field.exception.FieldNotationParseException;
-import com.qoomon.banking.swift.message.submessage.field.notation.SwiftFieldNotation;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class InformationToAccountOwner implements SwiftField {
 
     public static final String FIELD_TAG_86 = "86";
 
-    public static final SwiftFieldNotation SWIFT_NOTATION = new SwiftFieldNotation("6*65x");
+    public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("6*65x");
 
     private final String value;
 
