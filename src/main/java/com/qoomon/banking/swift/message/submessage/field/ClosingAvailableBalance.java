@@ -14,7 +14,7 @@ import java.util.List;
  * <b>Closing Available Balance (Available Funds)</b>
  * <p>
  * <b>Field Tag</b> :64:
- * <p>
+ * </p>
  * <b>Format</b> 1!a6!n3!a15d
  * <p>
  * <b>SubFields</b>

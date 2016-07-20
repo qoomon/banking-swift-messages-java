@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
  *  9:  4  - Output time with respect to Receiver
  * 10:  1  - Message Priority - U = Urgent, N = Normal, S = System
  * </pre>
- * <p>
  * <b>Example</b><br>
  * O1001200970103BANKBEBBAXXX22221234569701031201N
  *

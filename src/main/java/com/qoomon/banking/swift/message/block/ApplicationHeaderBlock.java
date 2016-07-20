@@ -15,7 +15,6 @@ import java.util.Optional;
  * ..
  * .
  * </pre>
- * <p>
  *
  * @see ApplicationHeaderInputBlock
  * @see ApplicationHeaderOutputBlock
@@ -42,7 +41,7 @@ public class ApplicationHeaderBlock {
     public static ApplicationHeaderBlock of(GeneralBlock block) throws BlockFieldParseException {
         Preconditions.checkArgument(block.getId().equals(BLOCK_ID_2), "unexpected block id '%s'", block.getId());
 
-        String blockType = block.getContent().substring(0,1);
+        String blockType = block.getContent().substring(0, 1);
 
         if (block.getContent().startsWith("I")) {
             ApplicationHeaderInputBlock input = ApplicationHeaderInputBlock.of(block);

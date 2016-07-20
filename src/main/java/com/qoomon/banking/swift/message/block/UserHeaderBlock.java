@@ -18,7 +18,6 @@ import java.util.Optional;
  * 1: 113 - Banking Priority Code of 4 alphanumeric characters - Optional
  * 2: 108 - Indicates the Message User Reference (MUR) value, which can be up to 16 characters, and will be returned in the ACK
  * </pre>
- * <p>
  * <b>Example</b><br>
  * {113:SEPA}{108:ILOVESEPA}
  *

@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
  * 5:  1  - Delivery Monitoring - Optional
  * 6:  3  - Obsolescence Period - Optional
  * </pre>
- * <p>
  * <b>Example</b><br>
  * I00BANKDEFFXXXXU3003
  *

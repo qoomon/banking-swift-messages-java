@@ -22,7 +22,6 @@ import java.util.Optional;
  * 5: PDE - Possible Duplicate Emission added if user thinks the same message was sent previously
  * 6: DLM - Added by SWIFT if an urgent message (U) has not been delivered within 15 minutes, or a normal message (N) within 100 minutes.
  * </pre>
- * <p>
  * <b>Example</b><br>
  * {MAC:12345678}{CHK:123456789ABC}
  *

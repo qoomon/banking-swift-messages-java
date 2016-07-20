@@ -14,9 +14,9 @@ import java.util.List;
  * <b>Format</b> 1!a6!n3!a15d
  * <p>
  * <b>SubFields</b>
- * <pre>
+ * <pre>{@literal
  * 1: 35x - Value
- * </pre>
+ * }</pre>
  */
 public class AccountIdentification implements SwiftField {
 

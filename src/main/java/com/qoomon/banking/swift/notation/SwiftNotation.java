@@ -12,27 +12,24 @@ import java.util.regex.Pattern;
  * <pre>
  * a = alphabetic, A through Z, upper case only
  * n = numeric digits, 0 through 9 only
- * c = alpha-numeric capital letters and numeric digits only ( a & n above )
- * d = decimals, including decimal comma ',' preceding the fractional part. The fractional part may be missing, but the decimal comman must always be present
+ * c = alpha-numeric capital letters and numeric digits only ( a &amp; n above )
+ * d = decimals, including decimal comma ',' preceding the fractional part. The fractional part may be missing, but the decimal comma must always be present
  * e = space
  * s = sign ( + or _ )
  * h = hex ( 0 to 9, A to F)
  * x = SWIFT X character set : SPACE, A to Z, a to z, 0 to 9, and  + - / ? . : , ( ) '                   and CrLF
- * y = SWIFT Y character set : SPACE, A to Z, a to z, 0 to 9, and  + - / ? . : , ( ) ' = ! " % & * < > ;
- * z = SWIFT Z character set : SPACE, A to Z, a to z, 0 to 9, and  + - / ? . : , ( ) ' = ! " % & * < > ; and CrLf
+ * y = SWIFT Y character set : SPACE, A to Z, a to z, 0 to 9, and  + - / ? . : , ( ) ' = ! &quot; % &amp; * &lt; &gt; ;
+ * z = SWIFT Z character set : SPACE, A to Z, a to z, 0 to 9, and  + - / ? . : , ( ) ' = ! &quot; % &amp; * &lt; &gt; ; and CrLf
  * A = alphabetic, A through Z, upper and lower case
  * B = alphanumeric upper case or lower case, and numeric digits
- *
  * length specification:
  * nn = maximum length ( minimum is 1 )
  * nn-nn = minimum and maximum length
  * nn! = fixed length
  * nn*nn = maximum number of lines time maximum line length - Will always be the last field
- *
  * separators
- * LSep = left separator ("/", "//", "BR" for CrLf, "ISIN ", etc.), field starts with the character specified
- * RSep = right separator ("/", "//", "BR" for CrLf, "ISIN ", etc.), field ends with the character specified
- *
+ * LSep = left separator (&quot;/&quot;, &quot;//&quot;, &quot;BR&quot; for CrLf, &quot;ISIN &quot;, etc.), field starts with the character specified
+ * RSep = right separator (&quot;/&quot;, &quot;//&quot;, &quot;BR&quot; for CrLf, &quot;ISIN &quot;, etc.), field ends with the character specified
  * examples,
  * 6!n = 6 numeric, fixed length
  * 6n = numeric up to 6 characters
@@ -102,7 +99,7 @@ public class SwiftNotation {
      *
      * @param fieldValues field values
      * @return rendered field
-     * @throws FieldNotationParseException
+     * @throws FieldNotationParseException on invalid field values
      */
     public String render(List<String> fieldValues) throws FieldNotationParseException {
 
@@ -143,7 +140,7 @@ public class SwiftNotation {
      *
      * @param fieldText Text to parse
      * @return List of subfield values. Missing optional fields are represented as NULL
-     * @throws FieldNotationParseException
+     * @throws FieldNotationParseException on invalid field values
      */
     public List<String> parse(String fieldText) throws FieldNotationParseException {
 

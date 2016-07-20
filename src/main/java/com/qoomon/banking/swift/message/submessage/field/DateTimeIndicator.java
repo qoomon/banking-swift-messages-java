@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  * 3: 1x  - Offset sign - '+' or '-'
  * 4: 4!n - Offset - Format 'hhmm'
  * </pre>
- * <p>
  * <b>Example</b>
  * <pre>
  * 1605191047+0100

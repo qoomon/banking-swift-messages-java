@@ -15,7 +15,7 @@ import java.util.List;
  * <p>
  * <b>Field Tag</b> :62F:
  * <b>Field Tag</b> :62M: - Intermediate Balance
- * <p>
+ * </p>
  * <b>Format</b> 1!a6!n3!a15d
  * <p>
  * <b>SubFields</b>

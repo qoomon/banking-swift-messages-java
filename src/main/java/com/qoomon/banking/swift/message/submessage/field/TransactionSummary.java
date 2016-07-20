@@ -21,7 +21,6 @@ import java.util.List;
  * 2: 3!a - Currency - Three Digit Code
  * 4: 15d - Amount
  * </pre>
- * <p>
  * <b>Example</b>
  * <pre>
  * 4USD5782,64
