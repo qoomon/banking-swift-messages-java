@@ -10,7 +10,7 @@ before_install:
 
 install: 
   - mvn validate -V
-script
+script:
   - mvn verify -V -B
   
 after_script:
