@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftNotation;
 
@@ -66,9 +67,10 @@ public class StatementNumber implements SwiftField {
     }
 
     public String getValue() {
-        StringBuilder valueBuilder = new StringBuilder();
-        valueBuilder.append(statementNumber);
-        sequenceNumber.ifPresent(value -> valueBuilder.append("/").append(value));
-        return valueBuilder.toString();
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(statementNumber, sequenceNumber.orElse(null)));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
     }
 }

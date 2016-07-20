@@ -81,4 +81,6 @@ public class ClosingAvailableBalance implements SwiftField {
     public String getTag() {
         return FIELD_TAG_64;
     }
+
+
 }

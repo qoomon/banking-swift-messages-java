@@ -98,6 +98,47 @@ public class SwiftNotation {
 
 
     /**
+     * Render field values
+     *
+     * @param fieldValues field values
+     * @return rendered field
+     * @throws FieldNotationParseException
+     */
+    public String render(List<String> fieldValues) throws FieldNotationParseException {
+
+        if (fieldValues.size() != swiftSubFieldNotations.size()) {
+            throw new FieldNotationParseException("Expected fieldValues count " + swiftSubFieldNotations.size() + ", but was " + fieldValues.size(), 0);
+        }
+
+        StringBuilder resultBuilder = new StringBuilder();
+
+        int subfieldIndex = -1;
+        for (SubFieldNotation subfieldNotation : swiftSubFieldNotations) {
+            subfieldIndex++;
+            Pattern subfieldPattern = swiftSubFieldNotationPatterns.get(subfieldIndex);
+            String fieldValue = fieldValues.get(subfieldIndex);
+
+            if (fieldValue == null) {
+                if (!subfieldNotation.isOptional()) {
+                    throw new FieldNotationParseException("Mandatory field '" + subfieldIndex + "' value can't be null", resultBuilder.toString().length());
+                }
+            } else {
+                String renderedFieldValue = subfieldNotation.getPrefix().orElse("") + fieldValue;
+                Matcher fieldMatcher = subfieldPattern.matcher(renderedFieldValue);
+                if (!fieldMatcher.find() || fieldMatcher.end() != renderedFieldValue.length()) {
+                    throw new FieldNotationParseException("Field value '" + renderedFieldValue + "' didn't match " + subfieldNotation, resultBuilder.toString().length());
+                }
+
+                resultBuilder.append(renderedFieldValue);
+            }
+        }
+
+
+        return resultBuilder.toString();
+
+    }
+
+    /**
      * Parse sub fields
      *
      * @param fieldText Text to parse
