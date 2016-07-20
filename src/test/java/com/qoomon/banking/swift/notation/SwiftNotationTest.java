@@ -1,6 +1,5 @@
-package com.qoomon.banking.swift.message.submessage.field.notation;
+package com.qoomon.banking.swift.notation;
 
-import com.qoomon.banking.swift.notation.SwiftNotation;
 import org.junit.Test;
 
 import java.util.List;

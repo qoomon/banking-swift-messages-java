@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.notation;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -85,12 +86,14 @@ public class SwiftNotation {
 
     private final String notation;
     private final List<SubFieldNotation> swiftSubFieldNotations;
+    private final List<Pattern> swiftSubFieldNotationPatterns;
 
 
     public SwiftNotation(String notation) {
 
-        this.swiftSubFieldNotations = parseSwiftNotation(notation);
         this.notation = notation;
+        this.swiftSubFieldNotations = parseSwiftNotation(notation);
+        this.swiftSubFieldNotationPatterns = generateSubfieldPatterns(this.swiftSubFieldNotations);
     }
 
 
@@ -107,9 +110,11 @@ public class SwiftNotation {
 
         List<String> result = new LinkedList<>();
 
+        int subfieldIndex = -1;
         for (SubFieldNotation subfieldNotation : swiftSubFieldNotations) {
+            subfieldIndex++;
+            Pattern subfieldPattern = swiftSubFieldNotationPatterns.get(subfieldIndex);
 
-            Pattern subfieldPattern = Pattern.compile("^" + subfieldNotation.getPattern());
             Matcher subfieldMatcher = subfieldPattern.matcher(fieldText).region(parseIndex, fieldText.length());
             if (!subfieldMatcher.find()) {
                 throw new FieldNotationParseException(subfieldNotation + " did not found matching characters."
@@ -148,86 +153,94 @@ public class SwiftNotation {
      * handle prefix
      * set optional if so
      *
-     * @param currentSubfield
-     * @param upcomingSubfieldList
-     * @return pattern - group 1 matches field value without prefix
+     * @param subFieldNotationList
+     * @return patterns for continuous field matching
      */
-    private static Pattern buildSubfieldRegex(SubFieldNotation currentSubfield, List<SubFieldNotation> upcomingSubfieldList) {
-        Preconditions.checkArgument(upcomingSubfieldList != null, "subfieldList can't be null");
+    private static List<Pattern> generateSubfieldPatterns(List<SubFieldNotation> subFieldNotationList) {
+        Preconditions.checkArgument(subFieldNotationList != null, "subFieldNotationList can't be null");
 
-        // select charset
-        String charSetRegex = CHARSET_REGEX_MAP.get(currentSubfield.getCharSet());
-        if (charSetRegex == null) {
-            throw new IllegalArgumentException("Unknown charset: " + currentSubfield.getCharSet());
-        }
-
-        // handle delimiter if any
-        String delimiterLookaheadRegex = "";
-        // collect possible delimiters
-        List<String> fieldDelimiterList = new LinkedList<>();
-        for (SubFieldNotation upcomingSubFieldNotation : upcomingSubfieldList) {
-            if (upcomingSubFieldNotation.getPrefix().isPresent()) {
-                fieldDelimiterList.add(SEPARATOR_MAP.get(upcomingSubFieldNotation.getPrefix().get()));
+        List<Pattern> patterns = new ArrayList<>(subFieldNotationList.size());
+        int subfieldIndex = -1;
+        for (SubFieldNotation currentSubfield : subFieldNotationList) {
+            subfieldIndex++;
+            // select charset
+            String charSetRegex = CHARSET_REGEX_MAP.get(currentSubfield.getCharSet());
+            if (charSetRegex == null) {
+                throw new IllegalArgumentException("Unknown charset: " + currentSubfield.getCharSet());
             }
-            if (!upcomingSubFieldNotation.isOptional()) {
-                break;
-            }
-        }
-        if (!fieldDelimiterList.isEmpty()) {
-            delimiterLookaheadRegex = "(?!" + String.join("|", fieldDelimiterList) + ")";
-        }
 
-        // create subfield regex
-        String subFieldRegex;
-
-        // handle length
-        Optional<String> lengthSign = currentSubfield.getLengthSign();
-        if (!lengthSign.isPresent()) {
-            int maxCharacters = currentSubfield.getLength0();
-            subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{1," + maxCharacters + "}";
-        } else {
-            switch (lengthSign.get()) {
-                case FIXED_LENGTH_SIGN: {
-                    int fixedCharacters = currentSubfield.getLength0();
-                    subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{" + fixedCharacters + "}";
+            // handle delimiter if any
+            String delimiterLookaheadRegex = "";
+            // collect possible delimiters
+            List<String> fieldDelimiterList = new LinkedList<>();
+            List<SubFieldNotation> upcomingSubFieldNotations = subFieldNotationList.subList(subfieldIndex + 1, subFieldNotationList.size());
+            for (SubFieldNotation upcomingSubFieldNotation : upcomingSubFieldNotations) {
+                if (upcomingSubFieldNotation.getPrefix().isPresent()) {
+                    fieldDelimiterList.add(SEPARATOR_MAP.get(upcomingSubFieldNotation.getPrefix().get()));
+                }
+                if (!upcomingSubFieldNotation.isOptional()) {
                     break;
                 }
-                case RANGE_LENGTH_SIGN: {
-                    int minCharacters = currentSubfield.getLength0();
-                    int maxCharacters = currentSubfield.getLength1().get();
-                    subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{" + minCharacters + "," + maxCharacters + "}";
-                    break;
-                }
-                case MULTILINE_LENGTH_SIGN: {
-                    int maxLines = currentSubfield.getLength0();
-                    int maxLineCharacters = currentSubfield.getLength1().get();
-                    String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
-                    String lineRegex = "[^\\n]" + lineCharactersRegexRange;
-                    subFieldRegex = "(?=" + lineRegex + "(\\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
-                            + "(:?" + delimiterLookaheadRegex + "(:?" + charSetRegex + "|\\n)" + ")" // add new line character to charset
-                            + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
-                    break;
-                }
-                default:
-                    throw new RuntimeException("Unsupported length sign '" + lengthSign + "'");
             }
+            if (!fieldDelimiterList.isEmpty()) {
+                delimiterLookaheadRegex = "(?!" + String.join("|", fieldDelimiterList) + ")";
+            }
+
+            // create subfield regex
+            String subFieldRegex;
+
+            // handle length
+            Optional<String> lengthSign = currentSubfield.getLengthSign();
+            if (!lengthSign.isPresent()) {
+                int maxCharacters = currentSubfield.getLength0();
+                subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{1," + maxCharacters + "}";
+            } else {
+                switch (lengthSign.get()) {
+                    case FIXED_LENGTH_SIGN: {
+                        int fixedCharacters = currentSubfield.getLength0();
+                        subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{" + fixedCharacters + "}";
+                        break;
+                    }
+                    case RANGE_LENGTH_SIGN: {
+                        int minCharacters = currentSubfield.getLength0();
+                        int maxCharacters = currentSubfield.getLength1().get();
+                        subFieldRegex = "(:?" + delimiterLookaheadRegex + charSetRegex + ")" + "{" + minCharacters + "," + maxCharacters + "}";
+                        break;
+                    }
+                    case MULTILINE_LENGTH_SIGN: {
+                        int maxLines = currentSubfield.getLength0();
+                        int maxLineCharacters = currentSubfield.getLength1().get();
+                        String lineCharactersRegexRange = "{1," + maxLineCharacters + "}";
+                        String lineRegex = "[^\\n]" + lineCharactersRegexRange;
+                        subFieldRegex = "(?=" + lineRegex + "(\\n" + lineRegex + ")" + "{0," + (maxLines - 1) + "}" + "$)" // lookahead for maxLines
+                                + "(:?" + delimiterLookaheadRegex + "(:?" + charSetRegex + "|\\n)" + ")" // add new line character to charset
+                                + "{1," + (maxLines * maxLineCharacters + (maxLines - 1)) + "}$";  // calculate max length including newline signs
+                        break;
+                    }
+                    default:
+                        throw new RuntimeException("Unsupported length sign '" + lengthSign + "'");
+                }
+            }
+
+            // group field value
+            subFieldRegex = "(" + subFieldRegex + ")";
+
+            // handle prefix
+            Optional<String> prefix = currentSubfield.getPrefix();
+            if (prefix.isPresent()) {
+                subFieldRegex = SEPARATOR_MAP.get(prefix.get()) + subFieldRegex;
+            }
+
+            // make field optional if so
+            if (currentSubfield.isOptional()) {
+                subFieldRegex = "(?:" + subFieldRegex + ")?";
+            }
+
+            Pattern pattern = Pattern.compile("^" + subFieldRegex);
+            patterns.add(pattern);
         }
 
-        // group field value
-        subFieldRegex = "(" + subFieldRegex + ")";
-
-        // handle prefix
-        Optional<String> prefix = currentSubfield.getPrefix();
-        if (prefix.isPresent()) {
-            subFieldRegex = SEPARATOR_MAP.get(prefix.get()) + subFieldRegex;
-        }
-
-        // make field optional if so
-        if (currentSubfield.isOptional()) {
-            subFieldRegex = "(?:" + subFieldRegex + ")?";
-        }
-
-        return Pattern.compile(subFieldRegex);
+        return ImmutableList.copyOf(patterns);
     }
 
     public List<SubFieldNotation> parseSwiftNotation(String swiftNotation) {
@@ -272,20 +285,9 @@ public class SwiftNotation {
             throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
         }
 
-        // generate regex patterns
-        int subfieldIndex = -1;
-        for (SubFieldNotation subFieldNotation : result) {
-            subfieldIndex++;
-            Pattern pattern = buildSubfieldRegex(subFieldNotation, result.subList(subfieldIndex + 1, result.size()));
-            subFieldNotation.setPattern(pattern);
-        }
-
-        return result;
+        return ImmutableList.copyOf(result);
     }
 
-    public String getNotation() {
-        return notation;
-    }
 
     private class SubFieldNotation {
         private final Boolean optional;
@@ -294,7 +296,6 @@ public class SwiftNotation {
         private final Integer length0;
         private final Optional<Integer> length1;
         private final Optional<String> lengthSign;
-        private Pattern pattern;
 
         public SubFieldNotation(Boolean optional, String prefix, String charSet, Integer length0, Integer length1, String lengthSign) {
 
@@ -324,11 +325,6 @@ public class SwiftNotation {
                 default:
                     Preconditions.checkArgument(false, "Unknown length sign : '" + this.toString() + "'");
             }
-        }
-
-        public void setPattern(Pattern pattern) {
-            Preconditions.checkState(this.pattern == null, "pattern can't be set twice");
-            this.pattern = pattern;
         }
 
         public Boolean isOptional() {
@@ -377,9 +373,13 @@ public class SwiftNotation {
             return fieldNotation;
         }
 
-        public Pattern getPattern() {
-            return pattern;
-        }
     }
 
+    public String getNotation() {
+        return notation;
+    }
+
+    public List<SubFieldNotation> getSwiftSubFieldNotations() {
+        return swiftSubFieldNotations;
+    }
 }

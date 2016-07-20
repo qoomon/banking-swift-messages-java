@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * TODO adjust from mt940 to mt492
+ *
  */
 public class MT942Page {
 

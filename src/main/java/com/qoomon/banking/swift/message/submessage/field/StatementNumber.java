@@ -16,7 +16,7 @@ import java.util.Optional;
  * <p>
  * <b>SubFields</b>
  * <pre>
- * 1: 5n    - Value
+ * 1: 5n    - Statement Number
  * 2: [/5n] - Sequence Number
  * </pre>
  */
@@ -26,16 +26,18 @@ public class StatementNumber implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("5n[/5n]");
 
-    private final String value;
+    private final String statementNumber;
 
     private final Optional<String> sequenceNumber;
 
 
-    public StatementNumber(String value, String sequenceNumber) {
+    public StatementNumber(String statementNumber, String sequenceNumber) {
 
-        Preconditions.checkArgument(value != null, "value can't be null");
+        Preconditions.checkArgument(statementNumber != null, "statementNumber can't be null");
+        Preconditions.checkArgument(statementNumber.length() >= 1 && statementNumber.length() <= 5, "expected statementNumber length to be between 1 and 5, but was " + statementNumber.length());
+        Preconditions.checkArgument(sequenceNumber == null || sequenceNumber.length() >= 1 && sequenceNumber.length() <= 5, "expected sequenceNumber length to be between 1 and 5, but was " + (sequenceNumber != null ? sequenceNumber.length() : null));
 
-        this.value = value;
+        this.statementNumber = statementNumber;
         this.sequenceNumber = Optional.ofNullable(sequenceNumber);
     }
 
@@ -50,8 +52,8 @@ public class StatementNumber implements SwiftField {
         return new StatementNumber(value, sequenceNumber);
     }
 
-    public String getValue() {
-        return value;
+    public String getStatementNumber() {
+        return statementNumber;
     }
 
     public Optional<String> getSequenceNumber() {
@@ -61,5 +63,12 @@ public class StatementNumber implements SwiftField {
     @Override
     public String getTag() {
         return FIELD_TAG_28C;
+    }
+
+    public String getValue() {
+        StringBuilder valueBuilder = new StringBuilder();
+        valueBuilder.append(statementNumber);
+        sequenceNumber.ifPresent(value -> valueBuilder.append("/").append(value));
+        return valueBuilder.toString();
     }
 }

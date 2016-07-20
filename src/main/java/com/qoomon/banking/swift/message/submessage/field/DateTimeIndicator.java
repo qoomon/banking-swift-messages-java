@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
  * <p>
  * <b>SubFields</b>
  * <pre>
- * 1: 6!n - Debit/Credit Mark - 'D' = Debit, 'C' Credit
- * 2: 4!n - Date - Format 'YYMMDD'
+ * 1: 6!n - Date - Format 'YYMMDD'
+ * 2: 4!n - Time - Format 'hhmm'
  * 3: 1x  - Offset sign - '+' or '-'
  * 4: 4!n - Offset - Format 'hhmm'
  * </pre>
@@ -37,14 +37,14 @@ public class DateTimeIndicator implements SwiftField {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmZ");
 
-    private final OffsetDateTime value;
+    private final OffsetDateTime dateTime;
 
 
-    public DateTimeIndicator(OffsetDateTime value) {
+    public DateTimeIndicator(OffsetDateTime dateTime) {
 
-        Preconditions.checkArgument(value != null, "value can't be null");
+        Preconditions.checkArgument(dateTime != null, "dateTime can't be null");
 
-        this.value = value;
+        this.dateTime = dateTime;
     }
 
     public static DateTimeIndicator of(GeneralField field) throws FieldNotationParseException {
@@ -57,8 +57,8 @@ public class DateTimeIndicator implements SwiftField {
         return new DateTimeIndicator(value);
     }
 
-    public OffsetDateTime getValue() {
-        return value;
+    public OffsetDateTime getDateTime() {
+        return dateTime;
     }
 
     @Override
