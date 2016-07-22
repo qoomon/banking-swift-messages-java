@@ -1,11 +1,15 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.notation.FieldNotationParseException;
-import com.qoomon.banking.swift.notation.SwiftNotation;
+import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 import org.joda.money.BigMoney;
+import org.joda.money.CurrencyUnit;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -56,12 +60,12 @@ public class ForwardAvailableBalance implements SwiftField {
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        DebitCreditMark debitCreditMark = DebitCreditMark.of(subFields.get(0));
+        DebitCreditMark debitCreditMark = DebitCreditMark.ofFieldValue(subFields.get(0));
         LocalDate entryDate = LocalDate.parse(subFields.get(1), DATE_FORMATTER);
-        String amountCurrency = subFields.get(2);
-        String amountValue = subFields.get(3);
+        CurrencyUnit amountCurrency = CurrencyUnit.of(subFields.get(2));
+        BigDecimal amountValue = SwiftDecimalFormatter.parse(subFields.get(3));
 
-        BigMoney amount = BigMoney.parse(amountCurrency + amountValue.replaceFirst(",", "."));
+        BigMoney amount = BigMoney.of(amountCurrency, amountValue);
 
         return new ForwardAvailableBalance(debitCreditMark, entryDate, amount);
     }
@@ -81,5 +85,20 @@ public class ForwardAvailableBalance implements SwiftField {
     @Override
     public String getTag() {
         return FIELD_TAG_65;
+    }
+
+    @Override
+    public String getContent() {
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(
+
+                    debitCreditMark.toFieldValue(),
+                    DATE_FORMATTER.format(entryDate),
+                    amount.getCurrencyUnit().getCode(),
+                    SwiftDecimalFormatter.format(amount.getAmount())
+            ));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
     }
 }

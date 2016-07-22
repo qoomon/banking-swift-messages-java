@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftNotation;
 
@@ -52,5 +53,14 @@ public class TransactionReferenceNumber implements SwiftField {
     @Override
     public String getTag() {
         return FIELD_TAG_20;
+    }
+
+    @Override
+    public String getContent() {
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(value));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
     }
 }

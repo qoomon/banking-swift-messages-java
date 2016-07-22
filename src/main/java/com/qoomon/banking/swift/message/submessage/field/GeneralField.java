@@ -26,6 +26,7 @@ public class GeneralField implements SwiftField {
         return tag;
     }
 
+    @Override
     public String getContent() {
         return content;
     }

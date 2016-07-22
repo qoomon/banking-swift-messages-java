@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftNotation;
 
@@ -65,5 +66,13 @@ public class DateTimeIndicator implements SwiftField {
         return FIELD_TAG_13D;
     }
 
+    @Override
+    public String getContent() {
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(DATE_TIME_FORMATTER.format(dateTime)));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
+    }
 
 }

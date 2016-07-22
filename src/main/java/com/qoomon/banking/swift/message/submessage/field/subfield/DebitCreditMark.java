@@ -10,22 +10,33 @@ public enum DebitCreditMark {
     CREDIT,
     REVERSAL_CREDIT;
 
-    public static DebitCreditMark of(String value) {
+    public static DebitCreditMark ofFieldValue(String value) {
         switch (value) {
-            case "DEBIT":
             case "D":
                 return DEBIT;
-            case "CREDIT":
             case "C":
                 return CREDIT;
-            case "REVERSAL_DEBIT":
             case "RC":
                 return REVERSAL_DEBIT;
-            case "REVERSAL_CREDIT":
             case "RD":
                 return REVERSAL_CREDIT;
             default:
                 throw new IllegalArgumentException("No mapping found for value '" + value + "'");
+        }
+    }
+
+    public String toFieldValue() {
+        switch (this) {
+            case DEBIT:
+                return "D";
+            case CREDIT:
+                return "C";
+            case REVERSAL_DEBIT:
+                return "RD";
+            case REVERSAL_CREDIT:
+                return "RC";
+            default:
+                throw new IllegalStateException("No field value mapping for " + this.name());
         }
     }
 }

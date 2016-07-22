@@ -66,7 +66,8 @@ public class StatementNumber implements SwiftField {
         return FIELD_TAG_28C;
     }
 
-    public String getValue() {
+    @Override
+    public String getContent() {
         try {
             return SWIFT_NOTATION.render(Lists.newArrayList(statementNumber, sequenceNumber.orElse(null)));
         } catch (FieldNotationParseException e) {

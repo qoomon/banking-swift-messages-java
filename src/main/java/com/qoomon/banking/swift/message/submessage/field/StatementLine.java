@@ -1,10 +1,12 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.notation.FieldNotationParseException;
-import com.qoomon.banking.swift.notation.SwiftNotation;
+import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.message.submessage.field.subfield.TransactionTypeIdentificationCode;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -112,7 +114,7 @@ public class StatementLine implements SwiftField {
         //// due to ambiguous format notation fo field 3 & 4 (2a[1!a]) it need some extra logic
         // if field 3 starts with 'R' it is a two letter mark 'RC' or 'RD' and everything is fine
         if (subFields.get(2).startsWith("R")) {
-            debitCreditMark = DebitCreditMark.of(subFields.get(2));
+            debitCreditMark = DebitCreditMark.ofFieldValue(subFields.get(2));
             foundsCode = subFields.get(3);
         }
         // if field 3 does not start with 'R' it is a one letter mark 'C' or 'D'
@@ -122,7 +124,7 @@ public class StatementLine implements SwiftField {
             String firstLetterOfField3 = subFields.get(2).substring(0, 1);
             String secondLetterOfField3 = subFields.get(2).length() > 1 ? subFields.get(2).substring(1, 2) : null;
 
-            debitCreditMark = DebitCreditMark.of(firstLetterOfField3);
+            debitCreditMark = DebitCreditMark.ofFieldValue(firstLetterOfField3);
             foundsCode = secondLetterOfField3;
 
             // ensure field 4 is not set also
@@ -132,7 +134,7 @@ public class StatementLine implements SwiftField {
 
         }
 
-        BigDecimal amount = new BigDecimal(subFields.get(4).replaceFirst(",", "."));
+        BigDecimal amount = SwiftDecimalFormatter.parse(subFields.get(4));
         TransactionTypeIdentificationCode transactionTypeIdentificationCode = TransactionTypeIdentificationCode.of(subFields.get(5) + subFields.get(6));
         String referenceForAccountOwner = subFields.get(7);
         String referenceForBank = subFields.get(8);
@@ -189,5 +191,25 @@ public class StatementLine implements SwiftField {
     @Override
     public String getTag() {
         return FIELD_TAG_61;
+    }
+
+    @Override
+    public String getContent() {
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(
+                    VALUE_DATE_FORMATTER.format(valueDate),
+                    valueDate.equals(entryDate) ? null : ENTRY_DATE_FORMATTER.format(entryDate),
+                    debitCreditMark.toFieldValue(),
+                    fundsCode.orElse(null),
+                    SwiftDecimalFormatter.format(amount),
+                    transactionTypeIdentificationCode.getType().name(),
+                    transactionTypeIdentificationCode.getCode(),
+                    referenceForAccountOwner,
+                    referenceForBank.orElse(null),
+                    supplementaryDetails.orElse(null)
+            ));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
     }
 }

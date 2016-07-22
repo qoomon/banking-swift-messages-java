@@ -1,10 +1,14 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
 import com.qoomon.banking.swift.notation.SwiftNotation;
 import org.joda.money.BigMoney;
+import org.joda.money.CurrencyUnit;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -59,9 +63,9 @@ public class TransactionSummary implements SwiftField {
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
         int transactionCount = Integer.parseInt(subFields.get(0));
-        String amountCurrency = subFields.get(1);
-        String amountValue = subFields.get(2);
-        BigMoney amount = BigMoney.parse(amountCurrency + amountValue.replace(",", "."));
+        CurrencyUnit amountCurrency = CurrencyUnit.of(subFields.get(1));
+        BigDecimal amountValue = SwiftDecimalFormatter.parse(subFields.get(2));
+        BigMoney amount = BigMoney.of(amountCurrency, amountValue);
 
         return new TransactionSummary(type, transactionCount, amount);
     }
@@ -81,6 +85,19 @@ public class TransactionSummary implements SwiftField {
     @Override
     public String getTag() {
         return type == Type.DEBIT ? FIELD_TAG_90D : FIELD_TAG_90C;
+    }
+
+    @Override
+    public String getContent() {
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(
+                    String.valueOf(transactionCount),
+                    amount.getCurrencyUnit().getCode(),
+                    SwiftDecimalFormatter.format(amount.getAmount())
+            ));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
     }
 
     public enum Type {

@@ -1,9 +1,11 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
-import com.qoomon.banking.swift.notation.FieldNotationParseException;
-import com.qoomon.banking.swift.notation.SwiftNotation;
+import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
+import com.qoomon.banking.swift.notation.FieldNotationParseException;
+import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
+import com.qoomon.banking.swift.notation.SwiftNotation;
 import org.joda.money.BigMoney;
 
 import java.time.LocalDate;
@@ -63,7 +65,7 @@ public class OpeningBalance implements SwiftField {
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        DebitCreditMark debitCreditMark = subFields.get(0) != null ? DebitCreditMark.of(subFields.get(0)) : null;
+        DebitCreditMark debitCreditMark = subFields.get(0) != null ? DebitCreditMark.ofFieldValue(subFields.get(0)) : null;
         LocalDate date = LocalDate.parse(subFields.get(1), DATE_FORMATTER);
         String amountCurrency = subFields.get(2);
         String amountValue = subFields.get(3);
@@ -91,6 +93,20 @@ public class OpeningBalance implements SwiftField {
     @Override
     public String getTag() {
         return type == Type.OPENING ? FIELD_TAG_60F : FIELD_TAG_60M;
+    }
+
+    @Override
+    public String getContent() {
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(
+                    debitCreditMark.toFieldValue(),
+                    DATE_FORMATTER.format(date),
+                    amount.getCurrencyUnit().getCode(),
+                    SwiftDecimalFormatter.format(amount.getAmount())
+            ));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
     }
 
     public enum Type {

@@ -7,4 +7,6 @@ public interface SwiftField {
 
     String getTag();
 
+    String getContent();
+
 }

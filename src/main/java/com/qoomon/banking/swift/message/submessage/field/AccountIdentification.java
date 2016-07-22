@@ -1,9 +1,11 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftNotation;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -49,5 +51,14 @@ public class AccountIdentification implements SwiftField {
     @Override
     public String getTag() {
         return FIELD_TAG_25;
+    }
+
+    @Override
+    public String getContent() {
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(value));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
     }
 }

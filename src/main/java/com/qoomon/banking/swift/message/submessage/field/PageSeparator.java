@@ -11,4 +11,9 @@ public class PageSeparator implements SwiftField {
     public String getTag() {
         return TAG;
     }
+
+    @Override
+    public String getContent() {
+        return "";
+    }
 }

@@ -1,11 +1,14 @@
 package com.qoomon.banking.swift.message.submessage.field;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftNotation;
-import com.qoomon.banking.swift.message.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
+import org.joda.money.CurrencyUnit;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -56,11 +59,11 @@ public class ClosingAvailableBalance implements SwiftField {
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        DebitCreditMark debitCreditMark = DebitCreditMark.of(subFields.get(0));
+        DebitCreditMark debitCreditMark = DebitCreditMark.ofFieldValue(subFields.get(0));
         LocalDate entryDate = LocalDate.parse(subFields.get(1), ENTRY_DATE_FORMATTER);
-        String amountCurrency = subFields.get(2);
-        String amountValue = subFields.get(3);
-        BigMoney amount = BigMoney.parse(amountCurrency + amountValue.replaceFirst(",", "."));
+        CurrencyUnit amountCurrency = CurrencyUnit.of(subFields.get(2));
+        BigDecimal amountValue = new BigDecimal(subFields.get(3).replace(',', '.'));
+        BigMoney amount = BigMoney.of(amountCurrency, amountValue);
 
         return new ClosingAvailableBalance(debitCreditMark, entryDate, amount);
     }
@@ -82,5 +85,16 @@ public class ClosingAvailableBalance implements SwiftField {
         return FIELD_TAG_64;
     }
 
-
+    @Override
+    public String getContent() {
+        try {
+            return SWIFT_NOTATION.render(Lists.newArrayList(
+                    debitCreditMark.toFieldValue(),
+                    entryDate.format(ENTRY_DATE_FORMATTER),
+                    amount.getCurrencyUnit().getCode(),
+                    amount.getAmount().toPlainString().replace(',', '.')));
+        } catch (FieldNotationParseException e) {
+            throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
+        }
+    }
 }

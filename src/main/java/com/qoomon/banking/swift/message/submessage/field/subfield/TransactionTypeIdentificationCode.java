@@ -81,6 +81,8 @@ public class TransactionTypeIdentificationCode {
         return new TransactionTypeIdentificationCode(type, code);
     }
 
+
+
     public enum IdentificationType {
         F,
         N,
