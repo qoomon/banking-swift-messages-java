@@ -1,6 +1,6 @@
 package com.qoomon.banking.swift.message.block;
 
-import com.qoomon.banking.swift.message.submessage.field.subfield.MessagePriority;
+import com.qoomon.banking.swift.submessage.field.subfield.MessagePriority;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 

@@ -18,6 +18,7 @@ import java.util.List;
  * 3: 30!c  - BBAN (Basic Bank Account Number)
  * </pre>
  *
+ * @see <a href="http://www.sepaforcorporates.com/single-euro-payments-area/sepa-iban-number-the-definitive-guide/">http://www.sepaforcorporates.com/single-euro-payments-area/sepa-iban-number-the-definitive-guide/</a>
  * @see <a href="http://www.swift.com/dsp/resources/documents/IBAN_Registry.pdf">http://www.swift.com/dsp/resources/documents/IBAN_Registry.pdf</a>
  */
 public class IBAN {

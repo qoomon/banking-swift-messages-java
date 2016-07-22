@@ -3,10 +3,6 @@ package com.qoomon.banking.swift.notation;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,16 +41,17 @@ public class SwiftNotation {
 
     private final static Pattern DECIMAL_NUMBER_PATTERN = Pattern.compile("[0-9]+,[0-9]*");
 
-    private static final Map<String, String> SEPARATOR_MAP = new HashMap<>();
     public static final String FIXED_LENGTH_SIGN = "!";
     public static final String RANGE_LENGTH_SIGN = "-";
     public static final String MULTILINE_LENGTH_SIGN = "*";
+
+    private static final Map<String, String> SEPARATOR_MAP = new HashMap<>();
 
     static {
         // see class description for separator details
         SEPARATOR_MAP.put("/", "/");
         SEPARATOR_MAP.put("//", "//");
-        SEPARATOR_MAP.put("BR", "\\n");
+        SEPARATOR_MAP.put("BR", "\n");
     }
 
     private static final Map<String, String> CHARSET_REGEX_MAP = new HashMap<>();
@@ -124,7 +121,7 @@ public class SwiftNotation {
                     throw new FieldNotationParseException("Mandatory field '" + subfieldIndex + "' value can't be null", resultBuilder.toString().length());
                 }
             } else {
-                String renderedFieldValue = subfieldNotation.getPrefix().orElse("") + fieldValue;
+                String renderedFieldValue = subfieldNotation.getPrefix().map(SEPARATOR_MAP::get).orElse("") + fieldValue;
                 Matcher fieldMatcher = subfieldPattern.matcher(renderedFieldValue);
                 if (!fieldMatcher.find() || fieldMatcher.end() != renderedFieldValue.length()) {
                     throw new FieldNotationParseException("Field value '" + renderedFieldValue + "' didn't match " + subfieldNotation, resultBuilder.toString().length());

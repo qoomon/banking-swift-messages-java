@@ -2,7 +2,7 @@ package com.qoomon.banking.swift.message.block;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
-import com.qoomon.banking.swift.message.submessage.field.subfield.MessagePriority;
+import com.qoomon.banking.swift.submessage.field.subfield.MessagePriority;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

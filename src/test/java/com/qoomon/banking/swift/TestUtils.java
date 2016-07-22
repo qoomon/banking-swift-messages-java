@@ -10,7 +10,7 @@ import java.util.stream.Stream;
  */
 public class TestUtils {
 
-    public static <T> List<T> collectAll(Callable<T> function) throws Exception {
+    public static <T> List<T> collectUntilNull(Callable<T> function) throws Exception {
         Stream.generate(() -> "foo").limit(10);
         List<T> resultList = new LinkedList<>();
         T result;

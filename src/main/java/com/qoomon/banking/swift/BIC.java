@@ -20,7 +20,7 @@ import java.util.Optional;
  * 4: [3!c] - Branch Code
  * </pre>
  *
- * @see <a href="https://en.wikipedia.org/wiki/ISO_9362">https://en.wikipedia.org/wiki/ISO_9362</a>
+ * @see <a href="http://www.sepaforcorporates.com/single-euro-payments-area/sepa-iban-number-the-definitive-guide/">http://www.sepaforcorporates.com/single-euro-payments-area/sepa-iban-number-the-definitive-guide/</a>
  */
 public class BIC {
 
