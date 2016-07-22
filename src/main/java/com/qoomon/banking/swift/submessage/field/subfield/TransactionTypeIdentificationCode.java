@@ -75,12 +75,11 @@ public class TransactionTypeIdentificationCode {
         this.code = code;
     }
 
-    public static TransactionTypeIdentificationCode of(String text)  {
+    public static TransactionTypeIdentificationCode of(String text) {
         IdentificationType type = IdentificationType.valueOf(text.substring(0, 1));
         String code = text.substring(1);
         return new TransactionTypeIdentificationCode(type, code);
     }
-
 
 
     public enum IdentificationType {

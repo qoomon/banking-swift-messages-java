@@ -68,7 +68,7 @@ public class DateTimeIndicator implements SwiftField {
     @Override
     public String getContent() {
         try {
-            return SWIFT_NOTATION.render(SWIFT_NOTATION.parse( DATE_TIME_FORMATTER.format(dateTime)));
+            return SWIFT_NOTATION.render(SWIFT_NOTATION.parse(DATE_TIME_FORMATTER.format(dateTime)));
         } catch (FieldNotationParseException e) {
             throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
         }

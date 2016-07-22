@@ -3,7 +3,7 @@ package com.qoomon.banking.swift.submessage.field;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 /**
  * Created by qoomon on 22/07/16.

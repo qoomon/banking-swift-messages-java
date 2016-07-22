@@ -51,7 +51,7 @@ public class ApplicationHeaderOutputBlock {
     private final LocalDateTime outputDateTime;
 
     private final MessagePriority messagePriority;
-    
+
 
     public ApplicationHeaderOutputBlock(String sessionNumber, String sequenceNumber, String messageType, LocalDateTime inputDateTime, String inputReference, LocalDateTime outputDateTime, MessagePriority messagePriority) {
 

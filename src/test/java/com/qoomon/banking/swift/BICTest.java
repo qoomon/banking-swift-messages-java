@@ -3,8 +3,7 @@ package com.qoomon.banking.swift;
 import com.qoomon.banking.iban.IBAN;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by qoomon on 19/07/16.

@@ -2,12 +2,14 @@ package com.qoomon.banking.swift.submessage.field;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
 import com.qoomon.banking.swift.notation.SwiftNotation;
+import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
+import org.joda.money.CurrencyUnit;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -67,9 +69,9 @@ public class OpeningBalance implements SwiftField {
 
         DebitCreditMark debitCreditMark = subFields.get(0) != null ? DebitCreditMark.ofFieldValue(subFields.get(0)) : null;
         LocalDate date = LocalDate.parse(subFields.get(1), DATE_FORMATTER);
-        String amountCurrency = subFields.get(2);
-        String amountValue = subFields.get(3);
-        BigMoney amount = BigMoney.parse(amountCurrency + amountValue.replaceFirst(",", "."));
+        CurrencyUnit amountCurrency = CurrencyUnit.of(subFields.get(2));
+        BigDecimal amountValue = SwiftDecimalFormatter.parse(subFields.get(3));
+        BigMoney amount = BigMoney.of(amountCurrency, amountValue);
 
         return new OpeningBalance(type, debitCreditMark, date, amount);
     }
