@@ -25,12 +25,12 @@ public class AccountIdentification implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("35x");
 
-    private final String value;
+    private final String content;
 
 
-    public AccountIdentification(String value) {
-        Preconditions.checkArgument(value != null, "value can't be null");
-        this.value = value;
+    public AccountIdentification(String content) {
+        Preconditions.checkArgument(content != null, "content can't be null");
+        this.content = content;
     }
 
     public static AccountIdentification of(GeneralField field) throws FieldNotationParseException {
@@ -43,9 +43,6 @@ public class AccountIdentification implements SwiftField {
         return new AccountIdentification(value);
     }
 
-    public String getValue() {
-        return value;
-    }
 
     @Override
     public String getTag() {
@@ -55,7 +52,7 @@ public class AccountIdentification implements SwiftField {
     @Override
     public String getContent() {
         try {
-            return SWIFT_NOTATION.render(Lists.newArrayList(value));
+            return SWIFT_NOTATION.render(Lists.newArrayList(content));
         } catch (FieldNotationParseException e) {
             throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
         }

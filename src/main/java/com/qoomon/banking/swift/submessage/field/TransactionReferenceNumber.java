@@ -26,14 +26,14 @@ public class TransactionReferenceNumber implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("20x");
 
-    private final String value;
+    private final String content;
 
 
-    public TransactionReferenceNumber(String value) {
+    public TransactionReferenceNumber(String content) {
 
-        Preconditions.checkArgument(value != null, "value can't be null");
+        Preconditions.checkArgument(content != null, "content can't be null");
 
-        this.value = value;
+        this.content = content;
     }
 
     public static TransactionReferenceNumber of(GeneralField field) throws FieldNotationParseException {
@@ -46,9 +46,6 @@ public class TransactionReferenceNumber implements SwiftField {
         return new TransactionReferenceNumber(value);
     }
 
-    public String getValue() {
-        return value;
-    }
 
     @Override
     public String getTag() {
@@ -58,7 +55,7 @@ public class TransactionReferenceNumber implements SwiftField {
     @Override
     public String getContent() {
         try {
-            return SWIFT_NOTATION.render(Lists.newArrayList(value));
+            return SWIFT_NOTATION.render(Lists.newArrayList(content));
         } catch (FieldNotationParseException e) {
             throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
         }

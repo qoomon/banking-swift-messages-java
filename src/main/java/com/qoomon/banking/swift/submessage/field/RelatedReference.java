@@ -25,14 +25,14 @@ public class RelatedReference implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("16x");
 
-    private final String value;
+    private final String content;
 
 
-    public RelatedReference(String value) {
+    public RelatedReference(String content) {
 
-        Preconditions.checkArgument(value != null, "value can't be null");
+        Preconditions.checkArgument(content != null, "content can't be null");
 
-        this.value = value;
+        this.content = content;
     }
 
     public static RelatedReference of(GeneralField field) throws FieldNotationParseException {
@@ -45,9 +45,7 @@ public class RelatedReference implements SwiftField {
         return new RelatedReference(value);
     }
 
-    public String getValue() {
-        return value;
-    }
+
 
     @Override
     public String getTag() {
@@ -57,7 +55,7 @@ public class RelatedReference implements SwiftField {
     @Override
     public String getContent() {
         try {
-            return SWIFT_NOTATION.render(Lists.newArrayList(value));
+            return SWIFT_NOTATION.render(Lists.newArrayList(content));
         } catch (FieldNotationParseException e) {
             throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
         }
