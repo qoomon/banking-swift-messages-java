@@ -2,6 +2,7 @@ package com.qoomon.banking.swift.message;
 
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
+import com.qoomon.banking.swift.TestUtils;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import org.junit.Test;
 
@@ -11,6 +12,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -44,6 +46,24 @@ public class SwiftMessageReaderTest {
 
         SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
         assertThat(parseException.getLineNumber()).isEqualTo(1);
+    }
+
+    @Test
+    public void parse_SHOULD_read_multiple_messages() throws Exception {
+
+        // Given
+        String swiftMessageText = ""
+                + BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID
+                + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY
+                + BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID
+                + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY;
+
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
+        // When
+        List<SwiftMessage> messageList = TestUtils.collectUntilNull(() -> classUnderTest.readMessage());
+        // Then
+        assertThat(messageList).hasSize(2);
     }
 
 

@@ -20,7 +20,7 @@ import java.util.Optional;
  * <p>
  * <b>Field Tag</b> :61:
  * <p>
- * <b>Format</b> 6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][34x]
+ * <b>Format</b> 6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][BR34x]
  * <p>
  * <b>SubFields</b>
  * <pre>
@@ -33,7 +33,7 @@ import java.util.Optional;
  *  7: 3!c         belongs to Transaction Type Identification Code
  *  8: 16x     - Reference for the Account Owner
  *  9: [//16x] - Reference for the Bank
- * 10: [34x]   - Transaction Description
+ * 10: [BR34x]   - Transaction Description
  * </pre>
  */
 public class StatementLine implements SwiftField {
