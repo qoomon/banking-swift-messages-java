@@ -93,7 +93,7 @@ public class SwiftBlockReader {
         }
 
         if (openingBrackets != closingBrackets) {
-            throw new BlockParseException("Parse error: unclosed '{'", lineNumber);
+            throw new BlockParseException("Unclosed '{'", lineNumber);
         }
 
         return block;

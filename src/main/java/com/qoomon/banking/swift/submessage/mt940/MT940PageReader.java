@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import com.qoomon.banking.swift.submessage.exception.SubMessageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
+import com.qoomon.banking.swift.submessage.mt942.MT942Page;
 
 import java.io.Reader;
 import java.util.LinkedList;
@@ -34,7 +35,16 @@ public class MT940PageReader {
         this.fieldReader = new SwiftFieldReader(textReader);
     }
 
-    public MT940Page readPage() throws SwiftMessageParseException {
+    public List<MT940Page> readAll() throws SwiftMessageParseException {
+        List<MT940Page> result = new LinkedList<>();
+        MT940Page page;
+        while ((page = read()) != null) {
+            result.add(page);
+        }
+        return result;
+    }
+
+    public MT940Page read() throws SwiftMessageParseException {
         try {
             if (currentField == null) {
                 nextField = fieldReader.readField();

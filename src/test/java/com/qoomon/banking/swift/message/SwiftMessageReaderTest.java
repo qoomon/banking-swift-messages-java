@@ -40,7 +40,7 @@ public class SwiftMessageReaderTest {
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.readMessage());
+        Throwable exception = catchThrowable(() -> classUnderTest.read());
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
@@ -61,7 +61,7 @@ public class SwiftMessageReaderTest {
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        List<SwiftMessage> messageList = TestUtils.collectUntilNull(() -> classUnderTest.readMessage());
+        List<SwiftMessage> messageList = TestUtils.collectUntilNull(() -> classUnderTest.read());
         // Then
         assertThat(messageList).hasSize(2);
     }
@@ -77,7 +77,7 @@ public class SwiftMessageReaderTest {
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::readMessage);
+        Throwable exception = catchThrowable(classUnderTest::read);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -97,7 +97,7 @@ public class SwiftMessageReaderTest {
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::readMessage);
+        Throwable exception = catchThrowable(classUnderTest::read);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -116,7 +116,7 @@ public class SwiftMessageReaderTest {
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::readMessage);
+        Throwable exception = catchThrowable(classUnderTest::read);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -137,7 +137,7 @@ public class SwiftMessageReaderTest {
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::readMessage);
+        Throwable exception = catchThrowable(classUnderTest::read);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -157,7 +157,7 @@ public class SwiftMessageReaderTest {
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::readMessage);
+        Throwable exception = catchThrowable(classUnderTest::read);
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -180,7 +180,7 @@ public class SwiftMessageReaderTest {
             try {
                 System.out.println(filePath);
                 SwiftMessageReader classUnderTest = new SwiftMessageReader(new FileReader(filePath.toFile()));
-                classUnderTest.readMessage();
+                classUnderTest.read();
             } catch (Exception e) {
                 System.out.println(Throwables.getStackTraceAsString(e));
                 errors[0]++;

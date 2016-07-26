@@ -6,6 +6,8 @@ import com.qoomon.banking.swift.message.block.*;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 
 import java.io.Reader;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -28,7 +30,16 @@ public class SwiftMessageReader {
         this.blockReader = new SwiftBlockReader(textReader);
     }
 
-    public SwiftMessage readMessage() throws SwiftMessageParseException {
+    public List<SwiftMessage> readAll() throws SwiftMessageParseException {
+        List<SwiftMessage> result = new LinkedList<>();
+        SwiftMessage message;
+        while ((message = read()) != null) {
+            result.add(message);
+        }
+        return result;
+    }
+
+    public SwiftMessage read() throws SwiftMessageParseException {
         try {
             if (currentBlock == null) {
                 nextBlock = blockReader.readBlock();

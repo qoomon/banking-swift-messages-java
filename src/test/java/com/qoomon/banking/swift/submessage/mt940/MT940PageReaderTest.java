@@ -48,7 +48,7 @@ public class MT940PageReaderTest {
         MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
 
         // When
-        List<MT940Page> pageList = TestUtils.collectUntilNull(classUnderTest::readPage);
+        List<MT940Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
 
         // Then
         assertThat(pageList).hasSize(1);
@@ -67,7 +67,7 @@ public class MT940PageReaderTest {
         MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::readPage);
+        Throwable exception = catchThrowable(classUnderTest::read);
 
         // Then
         assertThat(exception).isInstanceOf(SwiftMessageParseException.class);
@@ -86,7 +86,7 @@ public class MT940PageReaderTest {
         files.forEach(filePath -> {
             try {
                 MT940PageReader classUnderTest = new MT940PageReader(new FileReader(filePath.toFile()));
-                List<MT940Page> messageList = TestUtils.collectUntilNull(classUnderTest::readPage);
+                List<MT940Page> messageList = TestUtils.collectUntilNull(classUnderTest::read);
                 assertThat(messageList).isNotEmpty();
             } catch (Exception e) {
                 System.out.println(filePath);

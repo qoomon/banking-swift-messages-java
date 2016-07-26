@@ -34,7 +34,16 @@ public class MT942PageReader {
         this.fieldReader = new SwiftFieldReader(textReader);
     }
 
-    public MT942Page readPage() throws SwiftMessageParseException {
+    public List<MT942Page> readAll() throws SwiftMessageParseException {
+        List<MT942Page> result = new LinkedList<>();
+        MT942Page page;
+        while ((page = read()) != null) {
+            result.add(page);
+        }
+        return result;
+    }
+
+    public MT942Page read() throws SwiftMessageParseException {
         try {
             if (currentField == null) {
                 nextField = fieldReader.readField();
