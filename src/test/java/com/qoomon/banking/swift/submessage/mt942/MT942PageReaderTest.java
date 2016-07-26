@@ -3,7 +3,9 @@ package com.qoomon.banking.swift.submessage.mt942;
 
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
-import com.qoomon.banking.swift.TestUtils;
+import com.qoomon.banking.TestUtils;
+import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
+import com.qoomon.banking.swift.submessage.mt940.MT940PageReader;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -56,6 +58,22 @@ public class MT942PageReaderTest {
         assertThat(MT942Page.getTransactionGroupList()).hasSize(3);
         assertThat(MT942Page.getStatementNumber().getStatementNumber()).isEqualTo("1");
         assertThat(MT942Page.getStatementNumber().getSequenceNumber()).contains("1");
+    }
+
+    @Test
+    public void parse_WHEN_unfinished_page_detected_THROW_exception() throws Exception {
+
+        // Given
+        String mt940MessageText = ":20:02618\n";
+
+        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
+
+        // When
+        Throwable exception = catchThrowable(classUnderTest::readPage);
+
+        // Then
+        assertThat(exception).isInstanceOf(SwiftMessageParseException.class);
+
     }
 
 

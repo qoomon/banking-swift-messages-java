@@ -2,7 +2,8 @@ package com.qoomon.banking.swift.submessage.mt940;
 
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
-import com.qoomon.banking.swift.TestUtils;
+import com.qoomon.banking.TestUtils;
+import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
@@ -55,6 +56,22 @@ public class MT940PageReaderTest {
         SoftAssertions softly = new SoftAssertions();
         softly.assertThat(MT940Page.getTransactionGroupList()).hasSize(3);
         softly.assertThat(MT940Page.getTransactionGroupList()).hasSize(3);
+    }
+
+    @Test
+    public void parse_WHEN_unfinished_page_detected_THROW_exception() throws Exception {
+
+        // Given
+        String mt940MessageText = ":20:02618\n";
+
+        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
+
+        // When
+        Throwable exception = catchThrowable(classUnderTest::readPage);
+
+        // Then
+        assertThat(exception).isInstanceOf(SwiftMessageParseException.class);
+
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.qoomon.banking.swift;
+package com.qoomon.banking;
 
 import java.util.LinkedList;
 import java.util.List;

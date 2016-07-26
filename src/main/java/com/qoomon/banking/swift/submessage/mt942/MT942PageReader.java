@@ -178,6 +178,8 @@ public class MT942PageReader {
                             transactionSummaryCredit,
                             informationToAccountOwner
                     );
+                } else if (nextField == null) {
+                    throw new SubMessageParserException("Unfinished page. Missing page delimiter " + MESSAGE_END_FIELD_TAG_SET, fieldReader.getFieldLineNumber());
                 }
             }
 

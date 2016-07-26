@@ -2,7 +2,7 @@ package com.qoomon.banking.swift.message;
 
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
-import com.qoomon.banking.swift.TestUtils;
+import com.qoomon.banking.TestUtils;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import org.junit.Test;
 

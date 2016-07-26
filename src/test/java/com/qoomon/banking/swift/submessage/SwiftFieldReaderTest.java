@@ -1,6 +1,6 @@
 package com.qoomon.banking.swift.submessage;
 
-import com.qoomon.banking.swift.TestUtils;
+import com.qoomon.banking.TestUtils;
 import com.qoomon.banking.swift.submessage.field.GeneralField;
 import com.qoomon.banking.swift.submessage.field.SwiftFieldReader;
 import com.qoomon.banking.swift.submessage.field.exception.FieldParseException;

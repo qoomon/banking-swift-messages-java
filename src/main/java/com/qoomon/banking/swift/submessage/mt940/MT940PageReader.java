@@ -162,7 +162,7 @@ public class MT940PageReader {
                         break;
                     }
                     default:
-                        throw new SubMessageParserException("Parse error: unexpected field '" + currentField.getTag() + "'", fieldReader.getFieldLineNumber());
+                        throw new SubMessageParserException("Unexpected field '" + currentField.getTag() + "'", fieldReader.getFieldLineNumber());
                 }
 
                 // finish message
@@ -179,8 +179,11 @@ public class MT940PageReader {
                             forwardAvailableBalanceList,
                             informationToAccountOwner
                     );
+                } else if (nextField == null) {
+                    throw new SubMessageParserException("Unfinished page. Missing page delimiter " + MESSAGE_END_FIELD_TAG_SET, fieldReader.getFieldLineNumber());
                 }
             }
+
 
             return page;
         } catch (SwiftMessageParseException e) {
