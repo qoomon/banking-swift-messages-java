@@ -3,7 +3,7 @@ package com.qoomon.banking.swift.submessage.mt942;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
-import com.qoomon.banking.swift.submessage.exception.SubMessageParserException;
+import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
 
 import java.io.Reader;
@@ -168,7 +168,7 @@ public class MT942PageReader {
                         break;
                     }
                     default:
-                        throw new SubMessageParserException("Parse error: unexpected field '" + currentField.getTag() + "'", fieldReader.getFieldLineNumber());
+                        throw new PageParserException("Parse error: unexpected field '" + currentField.getTag() + "'", fieldReader.getFieldLineNumber());
 
                 }
 
@@ -188,7 +188,7 @@ public class MT942PageReader {
                             informationToAccountOwner
                     );
                 } else if (nextField == null) {
-                    throw new SubMessageParserException("Unfinished page. Missing page delimiter " + MESSAGE_END_FIELD_TAG_SET, fieldReader.getFieldLineNumber());
+                    throw new PageParserException("Unfinished page. Missing page delimiter " + MESSAGE_END_FIELD_TAG_SET, fieldReader.getFieldLineNumber());
                 }
             }
 
@@ -203,7 +203,7 @@ public class MT942PageReader {
     private void ensureValidNextField(GeneralField field, Set<String> expectedFieldTagSet, SwiftFieldReader fieldReader) throws SwiftMessageParseException {
         String fieldTag = field != null ? field.getTag() : null;
         if (!expectedFieldTagSet.contains(fieldTag)) {
-            throw new SubMessageParserException("Expected Field '" + expectedFieldTagSet + "', but was '" + fieldTag + "'", fieldReader.getFieldLineNumber());
+            throw new PageParserException("Expected Field '" + expectedFieldTagSet + "', but was '" + fieldTag + "'", fieldReader.getFieldLineNumber());
         }
     }
 }

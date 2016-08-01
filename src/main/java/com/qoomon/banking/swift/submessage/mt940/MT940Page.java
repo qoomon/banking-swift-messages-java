@@ -2,6 +2,7 @@ package com.qoomon.banking.swift.submessage.mt940;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.submessage.field.*;
+import org.joda.money.CurrencyUnit;
 
 import java.util.List;
 import java.util.Optional;
@@ -202,6 +203,23 @@ public class MT940Page {
         Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
         Preconditions.checkArgument(closingBalance != null, "closingBalance can't be null");
         Preconditions.checkArgument(forwardAvailableBalanceList != null, "forwardAvailableBalanceList can't be null");
+
+        CurrencyUnit statementCurrency = openingBalance.getAmount().getCurrencyUnit();
+        String statementFundsCode = statementCurrency.getCode().substring(2, 3);
+        // ensure matching currency
+        transactionGroupList.stream().map(it -> it.getStatementLine().getFundsCode()).filter(Optional::isPresent).map(Optional::get)
+                .forEach(fundsCode ->
+                        Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'"));
+        Optional.of(closingBalance).map(it -> it.getAmount().getCurrencyUnit())
+                .ifPresent(currency ->
+                        Preconditions.checkArgument(currency.equals(statementCurrency), "closingBalanceCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
+        Optional.ofNullable(closingAvailableBalance).map(it -> it.getAmount().getCurrencyUnit())
+                .ifPresent(currency ->
+                        Preconditions.checkArgument(currency.equals(statementCurrency), "closingAvailableBalanceCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
+        forwardAvailableBalanceList.stream().map(it -> it.getAmount().getCurrencyUnit())
+                .forEach(currency ->
+                        Preconditions.checkArgument(currency.equals(statementCurrency), "forwardAvailableBalance '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
+
 
         this.transactionReferenceNumber = transactionReferenceNumber;
         this.relatedReference = Optional.ofNullable(relatedReference);

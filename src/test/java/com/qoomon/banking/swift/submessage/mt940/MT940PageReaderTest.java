@@ -59,6 +59,28 @@ public class MT940PageReaderTest {
     }
 
     @Test
+    public void parse_WHEN_funds_code_does_not_match_statement_currency_THROW_exception() throws Exception {
+
+        // Given
+        String mt940MessageText = ":20:02618\n" +
+                ":21:123456/DEV\n" +
+                ":25:6-9412771\n" +
+                ":28C:00102\n" +
+                ":60F:C000103USD672,\n" + // currency USD
+                ":61:0312091209DX880,FTRFBPHP/081203/0003//59512092915002\n" + // wrong funds code X expect usD
+                ":62F:C000103USD987,\n" +
+                "-";
+
+        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
+
+        // When
+        Throwable exception = catchThrowable(classUnderTest::read);
+
+        // Then
+        assertThat(exception).isInstanceOf(SwiftMessageParseException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     public void parse_WHEN_unfinished_page_detected_THROW_exception() throws Exception {
 
         // Given

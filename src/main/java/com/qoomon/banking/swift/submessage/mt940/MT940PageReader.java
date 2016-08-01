@@ -3,9 +3,9 @@ package com.qoomon.banking.swift.submessage.mt940;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
-import com.qoomon.banking.swift.submessage.exception.SubMessageParserException;
+import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
-import com.qoomon.banking.swift.submessage.mt942.MT942Page;
+import org.joda.money.CurrencyUnit;
 
 import java.io.Reader;
 import java.util.LinkedList;
@@ -172,7 +172,7 @@ public class MT940PageReader {
                         break;
                     }
                     default:
-                        throw new SubMessageParserException("Unexpected field '" + currentField.getTag() + "'", fieldReader.getFieldLineNumber());
+                        throw new PageParserException("Unexpected field '" + currentField.getTag() + "'", fieldReader.getFieldLineNumber());
                 }
 
                 // finish message
@@ -190,7 +190,7 @@ public class MT940PageReader {
                             informationToAccountOwner
                     );
                 } else if (nextField == null) {
-                    throw new SubMessageParserException("Unfinished page. Missing page delimiter " + MESSAGE_END_FIELD_TAG_SET, fieldReader.getFieldLineNumber());
+                    throw new PageParserException("Unfinished page. Missing page delimiter " + MESSAGE_END_FIELD_TAG_SET, fieldReader.getFieldLineNumber());
                 }
             }
 
@@ -206,7 +206,7 @@ public class MT940PageReader {
     private void ensureValidNextField(GeneralField field, Set<String> expectedFieldTagSet, SwiftFieldReader fieldReader) throws SwiftMessageParseException {
         String fieldTag = field != null ? field.getTag() : null;
         if (!expectedFieldTagSet.contains(fieldTag)) {
-            throw new SubMessageParserException("Expected Field '" + expectedFieldTagSet + "', but was '" + fieldTag + "'", fieldReader.getFieldLineNumber());
+            throw new PageParserException("Expected Field '" + expectedFieldTagSet + "', but was '" + fieldTag + "'", fieldReader.getFieldLineNumber());
         }
     }
 }

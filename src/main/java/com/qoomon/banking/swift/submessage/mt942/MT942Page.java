@@ -2,6 +2,7 @@ package com.qoomon.banking.swift.submessage.mt942;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.submessage.field.*;
+import org.joda.money.CurrencyUnit;
 
 import java.util.List;
 import java.util.Optional;
@@ -89,6 +90,23 @@ public class MT942Page {
         Preconditions.checkArgument(floorLimitIndicatorDebit != null, "floorLimitIndicatorDebit can't be null");
         Preconditions.checkArgument(dateTimeIndicator != null, "dateTimeIndicator can't be null");
         Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
+
+        CurrencyUnit statementCurrency = floorLimitIndicatorDebit.getAmount().getCurrencyUnit();
+        String statementFundsCode = statementCurrency.getCode().substring(2, 3);
+        // ensure matching currency
+        Optional.ofNullable(floorLimitIndicatorCredit).map(it -> it.getAmount().getCurrencyUnit())
+                .ifPresent(currency ->
+                        Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
+        transactionGroupList.stream().map(it -> it.getStatementLine().getFundsCode()).filter(Optional::isPresent).map(Optional::get)
+                .forEach(fundsCode ->
+                        Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'"));
+        Optional.ofNullable(transactionSummaryDebit).map(it -> it.getAmount().getCurrencyUnit())
+                .ifPresent(currency ->
+                        Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryDebitCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
+        Optional.ofNullable(transactionSummaryCredit).map(it -> it.getAmount().getCurrencyUnit())
+                .ifPresent(currency ->
+                        Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
+
 
         this.transactionReferenceNumber = transactionReferenceNumber;
         this.relatedReference = Optional.ofNullable(relatedReference);
