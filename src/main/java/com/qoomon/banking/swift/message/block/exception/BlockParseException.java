@@ -7,6 +7,11 @@ public class BlockParseException extends Exception {
 
     private final int lineNumber;
 
+    public BlockParseException(Throwable cause) {
+        super(cause);
+        this.lineNumber = 0;
+    }
+
     public BlockParseException(String message) {
         super(message);
         this.lineNumber = 0;

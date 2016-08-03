@@ -8,8 +8,6 @@ import java.io.Reader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.regex.Pattern.*;
-
 /**
  * Created by qoomon on 07/07/16.
  */
@@ -17,7 +15,7 @@ public class SwiftBlockReader {
 
     private static final char END_OF_STREAM = (char) -1;
 
-    private static final Pattern BLOCK_PATTERN = Pattern.compile("^\\{(?<id>[^:]+):(?<content>.*)}", DOTALL);
+    private static final Pattern BLOCK_PATTERN = Pattern.compile("^\\{(?<id>[^:]+):(?<content>.*)}", Pattern.DOTALL);
 
     private final Reader textReader;
 
@@ -89,7 +87,7 @@ public class SwiftBlockReader {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new BlockParseException(e);
         }
 
         if (openingBrackets != closingBrackets) {

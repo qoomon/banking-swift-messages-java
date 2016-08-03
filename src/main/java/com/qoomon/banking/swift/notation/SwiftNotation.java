@@ -114,7 +114,7 @@ public class SwiftNotation {
 
             if (fieldValue == null) {
                 if (!fieldNotation.isOptional()) {
-                    throw new FieldNotationParseException("Mandatory field '" + fieldIndex + "' value can't be null", resultBuilder.toString().length());
+                    throw new FieldNotationParseException("Mandatory field '" + fieldIndex + "' value can't be null", resultBuilder.length());
                 }
             } else {
                 String renderedFieldValue = fieldNotation.getPrefix().map(SEPARATOR_MAP::get).orElse("") + fieldValue;
@@ -286,7 +286,7 @@ public class SwiftNotation {
         int parseIndex = 0;
         while (fieldNotationMatcher.find(parseIndex)) {
             if (fieldNotationMatcher.start() != parseIndex) {
-                throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
+                throw new SwiftNotationParseException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
             }
             parseIndex = fieldNotationMatcher.end();
 
@@ -295,7 +295,7 @@ public class SwiftNotation {
             String trimmedFieldNotation = fieldNotation.replaceFirst("^\\[(.*)\\]$", "$1");
             Matcher fieldPropertiesMatcher = FIELD_NOTATION_PATTERN.matcher(trimmedFieldNotation);
             if (!fieldPropertiesMatcher.matches()) {
-                throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
+                throw new SwiftNotationParseException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
             }
 
             boolean fieldOptional = fieldNotation.startsWith("[");
@@ -317,14 +317,12 @@ public class SwiftNotation {
             result.add(fieldNotationModel);
         }
         if (parseIndex != swiftNotation.length()) {
-            throw new RuntimeException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
+            throw new SwiftNotationParseException("Parse error: Unexpected sign(s) near index " + parseIndex + " '" + swiftNotation + "'");
         }
 
         return ImmutableList.copyOf(result);
     }
-
-
-
+    
 
     public String getNotation() {
         return notation;

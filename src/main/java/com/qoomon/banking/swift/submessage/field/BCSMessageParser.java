@@ -22,8 +22,8 @@ public class BCSMessageParser {
 
     public BCSMessage parseMessage(String messageText) {
         // join multiline to one line
-        messageText = messageText.replaceAll("\\n", "");
-        Matcher matcher = BUSINESS_TRANSACTION_CODE_PATTERN.matcher(messageText);
+        String oneLineMessageText = messageText.replaceAll("\\n", "");
+        Matcher matcher = BUSINESS_TRANSACTION_CODE_PATTERN.matcher(oneLineMessageText);
         if (!matcher.matches()) {
             throw new RuntimeException("messageText " + messageText + " didn't match " + matcher.pattern());
         }
