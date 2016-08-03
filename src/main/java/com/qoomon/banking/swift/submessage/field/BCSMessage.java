@@ -11,8 +11,6 @@ import java.util.Map;
  * Banking Communication Standard Format Message
  * https://de.wikipedia.org/wiki/Banking_Communication_Standard
  * https://www.bayernlb.de/internet/media/de/internet_4/de_1/downloads_5/0800_financial_office_it_operations_5/4200_1/formate/MT940_942.pdf
- *
- * https://www.bayernlb.de/internet/media/de/internet_4/de_1/downloads_5/0800_financial_office_it_operations_5/4200_1/formate/MT940_942.pdf
  */
 
 public class BCSMessage {

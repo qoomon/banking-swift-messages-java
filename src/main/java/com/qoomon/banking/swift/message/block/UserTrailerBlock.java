@@ -96,6 +96,7 @@ public class UserTrailerBlock {
                         break;
                     default:
                         additionalSubblocks.put(subblock.getId(), subblock);
+                        break;
                 }
             }
         } catch (BlockParseException e) {

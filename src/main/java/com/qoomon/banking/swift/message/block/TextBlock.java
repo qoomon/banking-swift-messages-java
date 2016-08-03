@@ -11,6 +11,7 @@ public class TextBlock {
 
     public static final String BLOCK_ID_4 = "4";
 
+    // TODO
     public static final Pattern FIELD_PATTERN = Pattern.compile("([^\\n]+)?\\n((:?.*\\n)*-)");
 
     private final Optional<String> infoLine;

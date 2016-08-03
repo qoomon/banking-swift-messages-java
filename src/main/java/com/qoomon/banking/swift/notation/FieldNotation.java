@@ -47,6 +47,7 @@ public class FieldNotation {
                 break;
             default:
                 Preconditions.checkArgument(false, "Unknown length sign : '" + this.toString() + "'");
+                break;
         }
     }
 

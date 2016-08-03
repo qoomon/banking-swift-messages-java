@@ -64,4 +64,6 @@ public class ApplicationHeaderBlock {
     public Optional<ApplicationHeaderOutputBlock> getOutput() {
         return output;
     }
+
+    // TODO input output idicator mehtod
 }

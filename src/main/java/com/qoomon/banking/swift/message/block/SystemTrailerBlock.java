@@ -102,6 +102,7 @@ public class SystemTrailerBlock {
                         break;
                     default:
                         additionalSubblocks.put(subblock.getId(), subblock);
+                        break;
                 }
             }
         } catch (BlockParseException e) {
