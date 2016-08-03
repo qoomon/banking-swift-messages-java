@@ -23,17 +23,21 @@ public class ApplicationHeaderBlock {
 
     public static final String BLOCK_ID_2 = "2";
 
+    public final Type type;
+
     private final Optional<ApplicationHeaderInputBlock> input;
 
     private final Optional<ApplicationHeaderOutputBlock> output;
 
 
     public ApplicationHeaderBlock(ApplicationHeaderInputBlock input) {
+        type = Type.INPUT;
         this.input = Optional.of(input);
         this.output = Optional.empty();
     }
 
     public ApplicationHeaderBlock(ApplicationHeaderOutputBlock output) {
+        type = Type.OUTPUT;
         this.input = Optional.empty();
         this.output = Optional.of(output);
     }
@@ -65,5 +69,12 @@ public class ApplicationHeaderBlock {
         return output;
     }
 
-    // TODO input output idicator mehtod
+    public Type getType() {
+        return type;
+    }
+
+    enum Type {
+        INPUT,
+        OUTPUT
+    }
 }
