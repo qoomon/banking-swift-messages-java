@@ -1,4 +1,4 @@
-package com.qoomon.banking.swift.submessage.field;
+package com.qoomon.banking.swift.bcsmessage;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;

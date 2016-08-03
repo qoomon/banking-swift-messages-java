@@ -1,4 +1,4 @@
-package com.qoomon.banking.swift.submessage.field;
+package com.qoomon.banking.swift.bcsmessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,12 +20,12 @@ public class BCSMessageParser {
     private final static Pattern FIELD_PATTERN = Pattern.compile("^(.)([0-9]{2})((?:(?!\\1).)*)");
 
 
-    public BCSMessage parseMessage(String messageText) {
+    public BCSMessage parseMessage(String messageText) throws BCSMessageParseException {
         // join multiline to one line
         String oneLineMessageText = messageText.replaceAll("\\n", "");
         Matcher matcher = BUSINESS_TRANSACTION_CODE_PATTERN.matcher(oneLineMessageText);
         if (!matcher.matches()) {
-            throw new RuntimeException("messageText " + messageText + " didn't match " + matcher.pattern());
+            throw new BCSMessageParseException("messageText " + messageText + " didn't match " + matcher.pattern());
         }
         String messageBTC = matcher.group(1);
         String messageContent = matcher.group(2);
@@ -36,14 +36,13 @@ public class BCSMessageParser {
         Matcher messageFieldMatcher = FIELD_PATTERN.matcher(messageContent);
         while (messageFieldMatcher.region(parseIndex, messageContent.length()).find()) {
             parseIndex = messageFieldMatcher.end();
-//            String delimiter = messageFieldMatcher.group(1);
             String fieldId = messageFieldMatcher.group(2);
             String fieldContent = messageFieldMatcher.group(3);
             messageFieldMap.put(fieldId, fieldContent);
         }
 
         if (parseIndex != messageContent.length()) {
-            throw new RuntimeException("unparsed message part");
+            throw new BCSMessageParseException("unparsed message part " + messageContent.substring(parseIndex));
         }
 
         return new BCSMessage(messageBTC, messageFieldMap);

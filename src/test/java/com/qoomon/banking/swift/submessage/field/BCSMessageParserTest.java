@@ -1,5 +1,7 @@
 package com.qoomon.banking.swift.submessage.field;
 
+import com.qoomon.banking.swift.bcsmessage.BCSMessage;
+import com.qoomon.banking.swift.bcsmessage.BCSMessageParser;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
