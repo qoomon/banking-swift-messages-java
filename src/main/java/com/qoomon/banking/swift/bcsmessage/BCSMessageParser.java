@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
  * Created by qoomon on 25/07/16.
  * http://www.kontopruef.de/mt940s.shtml
  * <p>
- * additio
  */
 public class BCSMessageParser {
 
