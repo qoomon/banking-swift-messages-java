@@ -172,6 +172,13 @@ public class StatementLine implements SwiftField {
         return amount;
     }
 
+    public BigDecimal getSignedAmount() {
+        if(getDebitCreditMark().sign() < -1) {
+            return amount.negate();
+        }
+        return amount;
+    }
+
     public TransactionTypeIdentificationCode getTransactionTypeIdentificationCode() {
         return transactionTypeIdentificationCode;
     }

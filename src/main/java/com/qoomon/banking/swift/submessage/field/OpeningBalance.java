@@ -92,6 +92,13 @@ public class OpeningBalance implements SwiftField {
         return amount;
     }
 
+    public BigMoney getSignedAmount() {
+        if(getDebitCreditMark().sign() < -1) {
+            return amount.negated();
+        }
+        return amount;
+    }
+
     @Override
     public String getTag() {
         return type == Type.OPENING ? FIELD_TAG_60F : FIELD_TAG_60M;

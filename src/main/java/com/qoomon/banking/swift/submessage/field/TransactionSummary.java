@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
 import com.qoomon.banking.swift.notation.SwiftNotation;
+import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
 import org.joda.money.CurrencyUnit;
 
@@ -38,14 +39,14 @@ public class TransactionSummary implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("5n3!a15d");
 
-    private final Type type;
+    private final com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark type;
 
     private final int transactionCount;
 
     private final BigMoney amount;
 
 
-    public TransactionSummary(Type type, int transactionCount, BigMoney amount) {
+    public TransactionSummary(DebitCreditMark type, int transactionCount, BigMoney amount) {
 
         Preconditions.checkArgument(type != null, "type can't be null");
         Preconditions.checkArgument(transactionCount >= 0, "transaction count can't be negative. was: %s", transactionCount);
@@ -58,7 +59,7 @@ public class TransactionSummary implements SwiftField {
 
     public static TransactionSummary of(GeneralField field) throws FieldNotationParseException {
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_90D) || field.getTag().equals(FIELD_TAG_90C), "unexpected field tag '%s'", field.getTag());
-        Type type = field.getTag().equals(FIELD_TAG_90D) ? Type.DEBIT : Type.CREDIT;
+        DebitCreditMark type = field.getTag().equals(FIELD_TAG_90D) ? DebitCreditMark.DEBIT : DebitCreditMark.CREDIT;
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
@@ -70,7 +71,7 @@ public class TransactionSummary implements SwiftField {
         return new TransactionSummary(type, transactionCount, amount);
     }
 
-    public Type getType() {
+    public DebitCreditMark getType() {
         return type;
     }
 
@@ -82,9 +83,16 @@ public class TransactionSummary implements SwiftField {
         return amount;
     }
 
+    public BigMoney getSignedAmount() {
+        if(getType().sign() < -1) {
+            return amount.negated();
+        }
+        return amount;
+    }
+
     @Override
     public String getTag() {
-        return type == Type.DEBIT ? FIELD_TAG_90D : FIELD_TAG_90C;
+        return type == DebitCreditMark.DEBIT ? FIELD_TAG_90D : FIELD_TAG_90C;
     }
 
     @Override
@@ -100,8 +108,5 @@ public class TransactionSummary implements SwiftField {
         }
     }
 
-    public enum Type {
-        CREDIT,
-        DEBIT
-    }
+
 }

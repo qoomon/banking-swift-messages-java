@@ -39,4 +39,21 @@ public enum DebitCreditMark {
                 throw new IllegalStateException("No field value mapping for " + this.name());
         }
     }
+
+    /**
+     * Return sign factor for mark.
+     * @return -1 for negative sign or +1 for positive sign
+     */
+    public int sign() {
+        if (this == DebitCreditMark.DEBIT || this == DebitCreditMark.REVERSAL_CREDIT) {
+            return -1;
+        }
+
+        if (this == DebitCreditMark.DEBIT || this == DebitCreditMark.REVERSAL_CREDIT) {
+            return 1;
+        }
+
+        throw new IllegalAccessError("Unmapped sign for mark: " + this.name());
+    }
+
 }

@@ -81,6 +81,13 @@ public class ClosingAvailableBalance implements SwiftField {
         return amount;
     }
 
+    public BigMoney getSignedAmount() {
+        if(getDebitCreditMark().sign() < -1) {
+            return amount.negated();
+        }
+        return amount;
+    }
+
     @Override
     public String getTag() {
         return FIELD_TAG_64;
