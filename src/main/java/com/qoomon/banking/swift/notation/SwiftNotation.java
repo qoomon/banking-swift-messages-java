@@ -152,7 +152,7 @@ public class SwiftNotation {
 
             Matcher fieldMatcher = fieldPattern.matcher(fieldText).region(parseIndex, fieldText.length());
             if (!fieldMatcher.find()) {
-                throw new FieldNotationParseException(fieldNotation + " did not found matching characters."
+                throw new FieldNotationParseException("Field does not match notation " + fieldNotation + ". "
                         + "'" + fieldText.substring(parseIndex) + "'", parseIndex);
             }
             String fieldValue = fieldMatcher.group(1);
@@ -163,7 +163,7 @@ public class SwiftNotation {
             if (fieldNotation.getCharSet().equals("d")) {
                 Matcher decimalCharsetMatcher = DECIMAL_NUMBER_PATTERN.matcher(fieldValue);
                 if (!decimalCharsetMatcher.matches()) {
-                    throw new FieldNotationParseException(fieldNotation + " did not found matching characters."
+                    throw new FieldNotationParseException("Field does not match notation " + fieldNotation + ". "
                             + "'" + fieldText.substring(parseIndex) + "'", parseIndex);
                 }
             }
