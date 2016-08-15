@@ -49,7 +49,7 @@ public enum DebitCreditMark {
             return -1;
         }
 
-        if (this == DebitCreditMark.DEBIT || this == DebitCreditMark.REVERSAL_CREDIT) {
+        if (this == DebitCreditMark.CREDIT || this == DebitCreditMark.REVERSAL_DEBIT) {
             return 1;
         }
 
