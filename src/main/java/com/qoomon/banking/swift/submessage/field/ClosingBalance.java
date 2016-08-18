@@ -48,12 +48,13 @@ public class ClosingBalance implements SwiftField {
     private final BigMoney amount;
 
 
-    public ClosingBalance(Type type, DebitCreditMark debitCreditMark, LocalDate date, BigMoney amount) {
+    public ClosingBalance(Type type, LocalDate date, DebitCreditMark debitCreditMark, BigMoney amount) {
 
         Preconditions.checkArgument(type != null, "type can't be null");
         Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
         Preconditions.checkArgument(date != null, "date can't be null");
         Preconditions.checkArgument(amount != null, "amount can't be null");
+        Preconditions.checkArgument(amount.isPositiveOrZero(), "amount can't be negative");
 
         this.type = type;
         this.debitCreditMark = debitCreditMark;
@@ -73,7 +74,7 @@ public class ClosingBalance implements SwiftField {
         BigDecimal amountValue = SwiftDecimalFormatter.parse(subFields.get(3));
         BigMoney amount = BigMoney.of(amountCurrency, amountValue);
 
-        return new ClosingBalance(type, debitCreditMark, date, amount);
+        return new ClosingBalance(type, date, debitCreditMark, amount);
     }
 
     public Type getType() {

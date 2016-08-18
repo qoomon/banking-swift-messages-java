@@ -51,6 +51,7 @@ public class TransactionSummary implements SwiftField {
         Preconditions.checkArgument(type != null, "type can't be null");
         Preconditions.checkArgument(transactionCount >= 0, "transaction count can't be negative. was: %s", transactionCount);
         Preconditions.checkArgument(amount != null, "amount can't be null");
+        Preconditions.checkArgument(amount.isPositiveOrZero(), "amount can't be negative");
 
         this.type = type;
         this.transactionCount = transactionCount;

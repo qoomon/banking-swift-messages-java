@@ -2,11 +2,11 @@ package com.qoomon.banking.swift.submessage.field;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
-import com.qoomon.banking.swift.submessage.field.subfield.TransactionTypeIdentificationCode;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
 import com.qoomon.banking.swift.notation.SwiftNotation;
+import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
+import com.qoomon.banking.swift.submessage.field.subfield.TransactionTypeIdentificationCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -68,8 +68,8 @@ public class StatementLine implements SwiftField {
     public StatementLine(LocalDate valueDate,
                          LocalDate entryDate,
                          DebitCreditMark debitCreditMark,
-                         String fundsCode,
                          BigDecimal amount,
+                         String fundsCode,
                          TransactionTypeIdentificationCode transactionTypeIdentificationCode,
                          String referenceForAccountOwner,
                          String referenceForBank,
@@ -78,6 +78,7 @@ public class StatementLine implements SwiftField {
         Preconditions.checkArgument(valueDate != null, "valueDate can't be null");
         Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
         Preconditions.checkArgument(amount != null, "amount can't be null");
+        Preconditions.checkArgument(amount.compareTo(BigDecimal.ZERO) >= 0, "amount can't be negative");
         Preconditions.checkArgument(transactionTypeIdentificationCode != null, "transactionTypeIdentificationCode can't be null");
         Preconditions.checkArgument(referenceForAccountOwner != null, "referenceForAccountOwner can't be null");
 
@@ -144,8 +145,8 @@ public class StatementLine implements SwiftField {
                 valueDate,
                 entryDate,
                 debitCreditMark,
-                foundsCode,
                 amount,
+                foundsCode,
                 transactionTypeIdentificationCode,
                 referenceForAccountOwner,
                 referenceForBank,
@@ -173,7 +174,7 @@ public class StatementLine implements SwiftField {
     }
 
     public BigDecimal getSignedAmount() {
-        if(getDebitCreditMark().sign() < -1) {
+        if (getDebitCreditMark().sign() < -1) {
             return amount.negate();
         }
         return amount;

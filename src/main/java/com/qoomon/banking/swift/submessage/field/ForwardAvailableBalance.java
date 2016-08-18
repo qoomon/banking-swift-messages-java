@@ -44,11 +44,12 @@ public class ForwardAvailableBalance implements SwiftField {
     private final BigMoney amount;
 
 
-    public ForwardAvailableBalance(DebitCreditMark debitCreditMark, LocalDate entryDate, BigMoney amount) {
+    public ForwardAvailableBalance( LocalDate entryDate, DebitCreditMark debitCreditMark, BigMoney amount) {
 
         Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
         Preconditions.checkArgument(entryDate != null, "entryDate can't be null");
         Preconditions.checkArgument(amount != null, "amount can't be null");
+        Preconditions.checkArgument(amount.isPositiveOrZero(), "amount can't be negative");
 
         this.debitCreditMark = debitCreditMark;
         this.entryDate = entryDate;
@@ -67,7 +68,7 @@ public class ForwardAvailableBalance implements SwiftField {
 
         BigMoney amount = BigMoney.of(amountCurrency, amountValue);
 
-        return new ForwardAvailableBalance(debitCreditMark, entryDate, amount);
+        return new ForwardAvailableBalance(entryDate, debitCreditMark, amount);
     }
 
     public DebitCreditMark getDebitCreditMark() {

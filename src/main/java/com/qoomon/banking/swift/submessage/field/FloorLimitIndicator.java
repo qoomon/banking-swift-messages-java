@@ -41,6 +41,7 @@ public class FloorLimitIndicator implements SwiftField {
     public FloorLimitIndicator(DebitCreditMark debitCreditMark, BigMoney amount) {
 
         Preconditions.checkArgument(amount != null, "amount can't be null");
+        Preconditions.checkArgument(amount.isPositiveOrZero(), "amount can't be negative");
 
         this.debitCreditMark = Optional.ofNullable(debitCreditMark);
         this.amount = amount;

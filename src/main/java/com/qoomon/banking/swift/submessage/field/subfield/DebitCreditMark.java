@@ -56,4 +56,6 @@ public enum DebitCreditMark {
         throw new IllegalAccessError("Unmapped sign for mark: " + this.name());
     }
 
+
+
 }
