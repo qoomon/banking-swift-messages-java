@@ -6,6 +6,7 @@ import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
 import com.qoomon.banking.swift.notation.SwiftNotation;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
+import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditType;
 import com.qoomon.banking.swift.submessage.field.subfield.TransactionTypeIdentificationCode;
 
 import java.math.BigDecimal;
@@ -50,6 +51,8 @@ public class StatementLine implements SwiftField {
 
     private final LocalDate entryDate;
 
+    private final DebitCreditType debitCreditType;
+
     private final DebitCreditMark debitCreditMark;
 
     private final Optional<String> fundsCode;
@@ -67,6 +70,7 @@ public class StatementLine implements SwiftField {
 
     public StatementLine(LocalDate valueDate,
                          LocalDate entryDate,
+                         DebitCreditType debitCreditType,
                          DebitCreditMark debitCreditMark,
                          BigDecimal amount,
                          String fundsCode,
@@ -76,6 +80,7 @@ public class StatementLine implements SwiftField {
                          String supplementaryDetails) {
 
         Preconditions.checkArgument(valueDate != null, "valueDate can't be null");
+        Preconditions.checkArgument(debitCreditType != null, "debitCreditType can't be null");
         Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
         Preconditions.checkArgument(amount != null, "amount can't be null");
         Preconditions.checkArgument(amount.compareTo(BigDecimal.ZERO) >= 0, "amount can't be negative");
@@ -84,6 +89,7 @@ public class StatementLine implements SwiftField {
 
         this.valueDate = valueDate;
         this.entryDate = entryDate != null ? entryDate : valueDate;
+        this.debitCreditType = debitCreditType;
         this.debitCreditMark = debitCreditMark;
         this.fundsCode = Optional.ofNullable(fundsCode);
         this.amount = amount;
@@ -110,29 +116,27 @@ public class StatementLine implements SwiftField {
                     : valueDate.getYear() + 1;
             entryDate = entryMonthDay.atYear(entryYear);
         }
+        DebitCreditType debitCreditType;
         DebitCreditMark debitCreditMark;
         String foundsCode;
         //// due to ambiguous format notation fo field 3 & 4 (2a[1!a]) it need some extra logic
         // if field 3 starts with 'R' it is a two letter mark 'RC' or 'RD' and everything is fine
-        if (subFields.get(2).startsWith("R")) {
-            debitCreditMark = DebitCreditMark.ofFieldValue(subFields.get(2));
+        String capitalCode = subFields.get(2);
+        if (capitalCode.startsWith("R")) {
+            debitCreditType = DebitCreditType.REVERSAL;
+            debitCreditMark = DebitCreditMark.ofFieldValue(capitalCode.substring(1, 2));
             foundsCode = subFields.get(3);
         }
         // if field 3 does not start with 'R' it is a one letter mark 'C' or 'D'
         // in this case optional field 4 can be part of field 3
         else {
-
-            String firstLetterOfField3 = subFields.get(2).substring(0, 1);
-            String secondLetterOfField3 = subFields.get(2).length() > 1 ? subFields.get(2).substring(1, 2) : null;
-
-            debitCreditMark = DebitCreditMark.ofFieldValue(firstLetterOfField3);
-            foundsCode = secondLetterOfField3;
-
-            // ensure field 4 is not set also
+            debitCreditType = DebitCreditType.REGULAR;
+            debitCreditMark = DebitCreditMark.ofFieldValue(capitalCode.substring(0, 1));
+            foundsCode = capitalCode.length() > 1 ? capitalCode.substring(1, 2) : null;
+            // ensure 'Funds Code' field is unset
             if (subFields.get(3) != null) {
                 throw new IllegalStateException("Field " + FIELD_TAG_61 + ": Founds Code already set");
             }
-
         }
 
         BigDecimal amount = SwiftDecimalFormatter.parse(subFields.get(4));
@@ -144,6 +148,7 @@ public class StatementLine implements SwiftField {
         return new StatementLine(
                 valueDate,
                 entryDate,
+                debitCreditType,
                 debitCreditMark,
                 amount,
                 foundsCode,
@@ -161,6 +166,10 @@ public class StatementLine implements SwiftField {
         return entryDate;
     }
 
+    public DebitCreditType getDebitCreditType() {
+        return debitCreditType;
+    }
+
     public DebitCreditMark getDebitCreditMark() {
         return debitCreditMark;
     }
@@ -174,10 +183,14 @@ public class StatementLine implements SwiftField {
     }
 
     public BigDecimal getSignedAmount() {
-        if (getDebitCreditMark().sign() < -1) {
-            return amount.negate();
+        BigDecimal signedAmount = amount;
+        if (getDebitCreditMark().sign() < 0) {
+            signedAmount = signedAmount.negate();
         }
-        return amount;
+        if (getDebitCreditType() == DebitCreditType.REVERSAL) {
+            signedAmount = signedAmount.negate();
+        }
+        return signedAmount;
     }
 
     public TransactionTypeIdentificationCode getTransactionTypeIdentificationCode() {
