@@ -39,21 +39,21 @@ public class TransactionSummary implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("5n3!a15d");
 
-    private final com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark type;
+    private final DebitCreditMark debitCreditMark;
 
     private final int transactionCount;
 
     private final BigMoney amount;
 
 
-    public TransactionSummary(DebitCreditMark type, int transactionCount, BigMoney amount) {
+    public TransactionSummary(DebitCreditMark debitCreditMark, int transactionCount, BigMoney amount) {
 
-        Preconditions.checkArgument(type != null, "type can't be null");
+        Preconditions.checkArgument(debitCreditMark != null, "debitCreditMark can't be null");
         Preconditions.checkArgument(transactionCount >= 0, "transaction count can't be negative. was: %s", transactionCount);
         Preconditions.checkArgument(amount != null, "amount can't be null");
         Preconditions.checkArgument(amount.isPositiveOrZero(), "amount can't be negative");
 
-        this.type = type;
+        this.debitCreditMark = debitCreditMark;
         this.transactionCount = transactionCount;
         this.amount = amount;
     }
@@ -72,8 +72,8 @@ public class TransactionSummary implements SwiftField {
         return new TransactionSummary(type, transactionCount, amount);
     }
 
-    public DebitCreditMark getType() {
-        return type;
+    public DebitCreditMark getDebitCreditMark() {
+        return debitCreditMark;
     }
 
     public int getTransactionCount() {
@@ -85,7 +85,7 @@ public class TransactionSummary implements SwiftField {
     }
 
     public BigMoney getSignedAmount() {
-        if(getType().sign() < -1) {
+        if(getDebitCreditMark().sign() < 0) {
             return amount.negated();
         }
         return amount;
@@ -93,7 +93,7 @@ public class TransactionSummary implements SwiftField {
 
     @Override
     public String getTag() {
-        return type == DebitCreditMark.DEBIT ? FIELD_TAG_90D : FIELD_TAG_90C;
+        return debitCreditMark == DebitCreditMark.DEBIT ? FIELD_TAG_90D : FIELD_TAG_90C;
     }
 
     @Override

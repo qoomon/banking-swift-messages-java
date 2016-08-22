@@ -94,7 +94,7 @@ public class ClosingBalance implements SwiftField {
     }
 
     public BigMoney getSignedAmount() {
-        if(getDebitCreditMark().sign() < -1) {
+        if(getDebitCreditMark().sign() < 0) {
             return amount.negated();
         }
         return amount;

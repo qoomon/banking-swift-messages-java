@@ -71,8 +71,8 @@ public class FloorLimitIndicator implements SwiftField {
 
     public Optional<BigMoney> getSignedAmount() {
         return getDebitCreditMark().map(
-                mark -> {
-                    if (mark.sign() < -1) {
+                debitCreditMark -> {
+                    if (debitCreditMark.sign() < 0) {
                         return amount.negated();
                     }
                     return amount;
