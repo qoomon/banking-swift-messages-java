@@ -6,7 +6,7 @@
 
     <groupId>com.qoomon.banking.swift</groupId>
     <artifactId>banking-swift-messages</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>1.1.4-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
