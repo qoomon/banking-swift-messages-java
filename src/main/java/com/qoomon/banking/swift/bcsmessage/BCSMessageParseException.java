@@ -5,6 +5,15 @@ package com.qoomon.banking.swift.bcsmessage;
  */
 public class BCSMessageParseException extends Exception {
 
-    public BCSMessageParseException(String s) {
+    public BCSMessageParseException(String message) {
+        super(message);
+    }
+
+    public BCSMessageParseException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public BCSMessageParseException(Throwable cause) {
+        super(cause);
     }
 }
