@@ -5,6 +5,8 @@ import com.qoomon.banking.swift.message.block.*;
 
 import java.util.Optional;
 
+import static com.qoomon.banking.swift.message.block.BlockUtils.*;
+
 /**
  * Created by qoomon on 24/06/16.
  * <p>If you’re looking at a <a href="http://www.sepaforcorporates.com/swift-for-corporates/swift-message-types-know-mts-mxs/" target="_blank">SWIFT message</a> for the first time, it can be a bit daunting. To the untrained eye the whole <a  href="http://www.sepaforcorporates.com/swift-for-corporates/swift-message-types-know-mts-mxs/" target="_blank">SWIFT message</a> structure can look like gobbledygook. But actually, there is a bit of a method to the madness. Whether you are receiving, processing or constructing an MT101 or an MT940 message it is important to what you’re dealing with, and what needs to go where. Let me explain…..</p>
@@ -165,5 +167,22 @@ public class SwiftMessage {
 
     public Optional<SystemTrailerBlock> getSystemTrailerBlock() {
         return systemTrailerBlock;
+    }
+
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append(swiftTextOf(basicHeaderBlock));
+        contentBuilder.append(swiftTextOf(applicationHeaderBlock));
+        if (userHeaderBlock.isPresent()) {
+            contentBuilder.append(swiftTextOf(userHeaderBlock.get()));
+        }
+        contentBuilder.append(swiftTextOf(textBlock));
+        if (userTrailerBlock.isPresent()) {
+            contentBuilder.append(swiftTextOf(userTrailerBlock.get()));
+        }
+        if (systemTrailerBlock.isPresent()) {
+            contentBuilder.append(swiftTextOf(systemTrailerBlock.get()));
+        }
+        return contentBuilder.toString();
     }
 }

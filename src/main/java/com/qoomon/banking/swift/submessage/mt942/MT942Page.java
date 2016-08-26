@@ -2,10 +2,13 @@ package com.qoomon.banking.swift.submessage.mt942;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.submessage.field.*;
+import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.CurrencyUnit;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.qoomon.banking.swift.submessage.field.FieldUtils.*;
 
 /**
  *
@@ -56,11 +59,6 @@ public class MT942Page {
     private final List<TransactionGroup> transactionGroupList;
 
     /**
-     * @see InformationToAccountOwner#FIELD_TAG_86
-     */
-    private final Optional<InformationToAccountOwner> informationToAccountOwner;
-
-    /**
      * @see TransactionSummary#FIELD_TAG_90D
      */
     private final Optional<TransactionSummary> transactionSummaryDebit;
@@ -69,6 +67,11 @@ public class MT942Page {
      * @see TransactionSummary#FIELD_TAG_90C
      */
     private final Optional<TransactionSummary> transactionSummaryCredit;
+
+    /**
+     * @see InformationToAccountOwner#FIELD_TAG_86
+     */
+    private final Optional<InformationToAccountOwner> informationToAccountOwner;
 
 
     public MT942Page(
@@ -88,8 +91,17 @@ public class MT942Page {
         Preconditions.checkArgument(accountIdentification != null, "accountIdentification can't be null");
         Preconditions.checkArgument(statementNumber != null, "statementNumber can't be null");
         Preconditions.checkArgument(floorLimitIndicatorDebit != null, "floorLimitIndicatorDebit can't be null");
+        if (floorLimitIndicatorDebit != null && floorLimitIndicatorDebit.getDebitCreditMark().isPresent()) {
+            DebitCreditMark debitCreditMark = floorLimitIndicatorDebit.getDebitCreditMark().get();
+            Preconditions.checkArgument(debitCreditMark == DebitCreditMark.DEBIT, "floorLimitIndicatorDebit type can't " + debitCreditMark);
+        }
+        if (floorLimitIndicatorCredit != null && floorLimitIndicatorCredit.getDebitCreditMark().isPresent()) {
+            DebitCreditMark debitCreditMark = floorLimitIndicatorCredit.getDebitCreditMark().get();
+            Preconditions.checkArgument(debitCreditMark == DebitCreditMark.CREDIT, "floorLimitIndicatorCredit type can't " + debitCreditMark);
+        }
         Preconditions.checkArgument(dateTimeIndicator != null, "dateTimeIndicator can't be null");
         Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
+
 
         CurrencyUnit statementCurrency = floorLimitIndicatorDebit.getAmount().getCurrencyUnit();
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
@@ -163,5 +175,37 @@ public class MT942Page {
 
     public Optional<TransactionSummary> getTransactionSummaryCredit() {
         return transactionSummaryCredit;
+    }
+
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append(swiftTextOf(transactionReferenceNumber)).append("\n");
+        if (relatedReference.isPresent()) {
+            contentBuilder.append(swiftTextOf(relatedReference.get())).append("\n");
+        }
+        contentBuilder.append(swiftTextOf(accountIdentification)).append("\n");
+        contentBuilder.append(swiftTextOf(statementNumber)).append("\n");
+        contentBuilder.append(swiftTextOf(floorLimitIndicatorDebit)).append("\n");
+        if (!floorLimitIndicatorDebit.getAmount().equals(floorLimitIndicatorCredit.getAmount())) {
+            contentBuilder.append(swiftTextOf(floorLimitIndicatorCredit)).append("\n");
+        }
+        contentBuilder.append(swiftTextOf(dateTimeIndicator)).append("\n");
+        for (TransactionGroup transactionGroup : transactionGroupList) {
+            contentBuilder.append(swiftTextOf(transactionGroup.getStatementLine())).append("\n");
+            if (transactionGroup.getInformationToAccountOwner().isPresent()) {
+                contentBuilder.append(swiftTextOf(transactionGroup.getInformationToAccountOwner().get())).append("\n");
+            }
+        }
+        if (transactionSummaryDebit.isPresent()) {
+            contentBuilder.append(swiftTextOf(transactionSummaryDebit.get())).append("\n");
+        }
+        if (transactionSummaryCredit.isPresent()) {
+            contentBuilder.append(swiftTextOf(transactionSummaryCredit.get())).append("\n");
+        }
+        if (informationToAccountOwner.isPresent()) {
+            contentBuilder.append(swiftTextOf(informationToAccountOwner.get())).append("\n");
+        }
+        contentBuilder.append("-");
+        return contentBuilder.toString();
     }
 }

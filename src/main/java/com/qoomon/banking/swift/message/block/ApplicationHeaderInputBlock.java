@@ -96,4 +96,19 @@ public class ApplicationHeaderInputBlock {
     public Optional<String> getObsolescencePeriod() {
         return obsolescencePeriod;
     }
+
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append(MODE_CODE);
+        contentBuilder.append(messageType);
+        contentBuilder.append(receiverAddress);
+        contentBuilder.append(messagePriority.asText());
+        if (deliveryMonitoring.isPresent()) {
+            contentBuilder.append(deliveryMonitoring.get());
+        }
+        if (obsolescencePeriod.isPresent()) {
+            contentBuilder.append(obsolescencePeriod.get());
+        }
+        return contentBuilder.toString();
+    }
 }

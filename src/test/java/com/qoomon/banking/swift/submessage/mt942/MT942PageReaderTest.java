@@ -5,6 +5,7 @@ import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.qoomon.banking.TestUtils;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
+import com.qoomon.banking.swift.submessage.mt940.MT940Page;
 import com.qoomon.banking.swift.submessage.mt940.MT940PageReader;
 import org.junit.Test;
 
@@ -35,12 +36,12 @@ public class MT942PageReaderTest {
                 ":28C:1/1\n" +
                 ":34F:USD123,\n" +
                 ":13D:0001032359+0500\n" +
-                ":61:0312091209D880,FTRFBPHP/081203/0003//59512092915002\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:multiline info\n" +
                 "info\n" +
-                ":61:0312091209D880,FTRFBPHP/081203/0003//59512092915002\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:singleline info\n" +
-                ":61:0312091209D880,FTRFBPHP/081203/0003//59512092915002\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":90D:75475USD123,\n" +
                 ":90C:75475USD123,\n" +
                 ":86:multiline summary\n" +
@@ -61,6 +62,37 @@ public class MT942PageReaderTest {
     }
 
     @Test
+    public void getContent_SHOULD_return_input_text() throws Exception {
+
+        // Given
+        String contentInput = "" +
+                ":20:02761\n" +
+                ":25:6-9412771\n" +
+                ":28C:1/1\n" +
+                ":34F:USD123,\n" +
+                ":13D:0001032359+0500\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:multiline info\n" +
+                "info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:singleline info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":90D:75475USD123,\n" +
+                ":90C:75475USD123,\n" +
+                ":86:multiline summary\n" +
+                "summary\n" +
+                "-";
+        MT942PageReader pageReader = new MT942PageReader(new StringReader(contentInput));
+        MT942Page classUnderTest = TestUtils.collectUntilNull(pageReader::read).get(0);
+
+        // When
+        String content = classUnderTest.getContent();
+
+        // Then
+        assertThat(content).isEqualTo(contentInput);
+    }
+
+    @Test
     public void parse_WHEN_funds_code_does_not_match_statement_currency_THROW_exception() throws Exception {
 
         // Given
@@ -70,7 +102,7 @@ public class MT942PageReaderTest {
                 ":28C:1/1\n" +
                 ":34F:USD123,\n" + // currency USD
                 ":13D:0001032359+0500\n" +
-                ":61:0312091209DX880,FTRFBPHP/081203/0003//59512092915002\n" +  // wrong funds code X expect usD
+                ":61:0312091211DX880,FTRFBPHP/081203/0003//59512112915002\n" +  // wrong funds code X expect usD
                 "-";
 
         MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));

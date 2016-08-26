@@ -44,4 +44,18 @@ public class BasicHeaderBlockTest {
         assertThat(exception).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    public void getContent_SHOULD_return_input_text() throws Exception {
+
+        // Given
+        String contentInput = "F01YOURCODEZABC2222777777";
+        GeneralBlock generalBlock = new GeneralBlock(BasicHeaderBlock.BLOCK_ID_1, contentInput);
+        BasicHeaderBlock classUnderTest = BasicHeaderBlock.of(generalBlock);
+        // When
+        String content = classUnderTest.getContent();
+
+        // Then
+        assertThat(content).isEqualTo(contentInput);
+    }
+
 }

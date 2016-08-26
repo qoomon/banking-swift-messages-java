@@ -68,6 +68,36 @@ public class ApplicationHeaderBlockTest {
     }
 
     @Test
+    public void getContent_output_block_SHOULD_return_input_text() throws Exception {
+
+        // Given
+        String contentInput = "O9401506110804LRLRXXXX4A1100009040831108041707N";
+        GeneralBlock generalBlock = new GeneralBlock(ApplicationHeaderBlock.BLOCK_ID_2, contentInput);
+        ApplicationHeaderBlock classUnderTest = ApplicationHeaderBlock.of(generalBlock);
+
+        // When
+        String content = classUnderTest.getContent();
+
+        // Then
+        assertThat(content).isEqualTo(contentInput);
+    }
+
+    @Test
+    public void getContent_input_block_SHOULD_return_input_text() throws Exception {
+
+        // Given
+        String contentInput = "I101YOURBANKXJKLU3003";
+        GeneralBlock generalBlock = new GeneralBlock(ApplicationHeaderBlock.BLOCK_ID_2, contentInput);
+        ApplicationHeaderBlock classUnderTest = ApplicationHeaderBlock.of(generalBlock);
+
+        // When
+        String content = classUnderTest.getContent();
+
+        // Then
+        assertThat(content).isEqualTo(contentInput);
+    }
+
+    @Test
     public void of_WHEN_block_with_invalid_id_is_passed_THROW_exception() throws Exception {
 
         // Given

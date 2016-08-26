@@ -7,6 +7,8 @@ import org.joda.money.CurrencyUnit;
 import java.util.List;
 import java.util.Optional;
 
+import static com.qoomon.banking.swift.submessage.field.FieldUtils.*;
+
 /**
  * Created by qoomon on 24/06/16.
  * <p>It is fair to say that most <a   href="http://www.sepaforcorporates.com/sepa-implementation/a-must-visit-website-for-any-sepa-implementation/" target="_blank">SEPA implementations </a>are focusing on SEPA compliance, and rightly so! This focus will ensure that corporate <a   href="http://www.sepaforcorporates.com/sepa-payments/sepa-credit-transfer-a-quick-overview/" target="_blank">payments </a>and <a   href="http://www.sepaforcorporates.com/sepa-direct-debits/sepa-direct-debit-a-quick-overview/" target="_blank">direct debit collections </a>can continue to happen uninterrupted after the <a   href="http://www.sepaforcorporates.com/sepa-implementation/sepa-deadline-by-country-a-must-read/" target="_blank">SEPA deadline</a>. The spotlight for now is very much on the corporate to bank space. Less attention is being given the other way, i.e. bank to corporate. As a bare minimum, I would recommend you to have an understanding of the <a   href="http://www.sepaforcorporates.com/sepa-implementation/reason-codes-r-transactions-r-messages/" target="_blank">SEPA Rejection Reason Codes</a>, <a   href="http://www.sepaforcorporates.com/sepa-implementation/reason-codes-r-transactions-r-messages/" target="_blank">R-Transactions </a>or <a   href="http://www.sepaforcorporates.com/sepa-implementation/reason-codes-r-transactions-r-messages/" target="_blank">R-Messages</a>.</p>
@@ -271,5 +273,35 @@ public class MT940Page {
 
     public Optional<InformationToAccountOwner> getInformationToAccountOwner() {
         return informationToAccountOwner;
+    }
+
+
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append(swiftTextOf(transactionReferenceNumber)).append("\n");
+        if (relatedReference.isPresent()) {
+            contentBuilder.append(swiftTextOf(relatedReference.get())).append("\n");
+        }
+        contentBuilder.append(swiftTextOf(accountIdentification)).append("\n");
+        contentBuilder.append(swiftTextOf(statementNumber)).append("\n");
+        contentBuilder.append(swiftTextOf(openingBalance)).append("\n");
+        for (TransactionGroup transactionGroup : transactionGroupList) {
+            contentBuilder.append(swiftTextOf(transactionGroup.getStatementLine())).append("\n");
+            if (transactionGroup.getInformationToAccountOwner().isPresent()) {
+                contentBuilder.append(swiftTextOf(transactionGroup.getInformationToAccountOwner().get())).append("\n");
+            }
+        }
+        contentBuilder.append(swiftTextOf(closingBalance)).append("\n");
+        if (closingAvailableBalance.isPresent()) {
+            contentBuilder.append(swiftTextOf(closingAvailableBalance.get())).append("\n");
+        }
+        for (ForwardAvailableBalance forwardAvailableBalance : forwardAvailableBalanceList) {
+            contentBuilder.append(swiftTextOf(forwardAvailableBalance)).append("\n");
+        }
+        if (informationToAccountOwner.isPresent()) {
+            contentBuilder.append(swiftTextOf(informationToAccountOwner.get())).append("\n");
+        }
+        contentBuilder.append("-");
+        return contentBuilder.toString();
     }
 }

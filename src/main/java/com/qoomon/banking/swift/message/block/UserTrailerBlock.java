@@ -27,7 +27,7 @@ import java.util.Optional;
  *
  * @see <a href="https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm">https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm</a>
  */
-public class UserTrailerBlock {
+public class UserTrailerBlock implements SwiftBlock {
 
     public static final String BLOCK_ID_5 = "5";
 
@@ -132,5 +132,38 @@ public class UserTrailerBlock {
 
     public Optional<String> getProprietaryAuthenticationCode() {
         return proprietaryAuthenticationCode;
+    }
+
+    @Override
+    public String getId() {
+        return BLOCK_ID_5;
+    }
+
+    @Override
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        if(messageAuthenticationCode.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("MAC", messageAuthenticationCode.get()));
+        }
+        if(proprietaryAuthenticationCode.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("PAC", proprietaryAuthenticationCode.get()));
+        }
+        if(checksum.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("CHK", checksum.get()));
+        }
+        if(training.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("TNG", training.get()));
+        }
+        if(possibleDuplicateEmission.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("PDE", possibleDuplicateEmission.get()));
+        }
+        if(deliveryDelay.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("DLM", deliveryDelay.get()));
+        }
+
+        for (GeneralBlock subblock : additionalSubblocks.values()) {
+            contentBuilder.append(BlockUtils.swiftTextOf(subblock.getId(), subblock.getContent()));
+        }
+        return contentBuilder.toString();
     }
 }

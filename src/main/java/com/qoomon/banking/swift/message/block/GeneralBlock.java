@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by qoomon on 07/07/16.
  */
-public class GeneralBlock {
+public class GeneralBlock implements SwiftBlock {
 
     private final String id;
     private final String content;
@@ -19,10 +19,12 @@ public class GeneralBlock {
         this.content = content;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public String getContent() {
         return content;
     }

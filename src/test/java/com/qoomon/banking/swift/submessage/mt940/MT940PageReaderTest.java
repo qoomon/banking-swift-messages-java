@@ -34,12 +34,12 @@ public class MT940PageReaderTest {
                 ":25:6-9412771\n" +
                 ":28C:00102\n" +
                 ":60F:C000103USD672,\n" +
-                ":61:0312091209D880,FTRFBPHP/081203/0003//59512092915002\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:multiline info\n" +
                 "info\n" +
-                ":61:0312091209D880,FTRFBPHP/081203/0003//59512092915002\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:singleline info\n" +
-                ":61:0312091209D880,FTRFBPHP/081203/0003//59512092915002\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":62F:C000103USD987,\n" +
                 ":86:multiline summary\n" +
                 "summary\n" +
@@ -59,6 +59,35 @@ public class MT940PageReaderTest {
     }
 
     @Test
+    public void getContent_SHOULD_return_input_text() throws Exception {
+
+        // Given
+        String contentInput = ":20:02618\n" +
+                ":21:123456/DEV\n" +
+                ":25:6-9412771\n" +
+                ":28C:00102\n" +
+                ":60F:C000103USD672,\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:multiline info\n" +
+                "info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:singleline info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":62F:C000103USD987,\n" +
+                ":86:multiline summary\n" +
+                "summary\n" +
+                "-";
+        MT940PageReader pageReader = new MT940PageReader(new StringReader(contentInput));
+        MT940Page classUnderTest = TestUtils.collectUntilNull(pageReader::read).get(0);
+
+        // When
+        String content = classUnderTest.getContent();
+
+        // Then
+        assertThat(content).isEqualTo(contentInput);
+    }
+
+    @Test
     public void parse_WHEN_funds_code_does_not_match_statement_currency_THROW_exception() throws Exception {
 
         // Given
@@ -67,7 +96,7 @@ public class MT940PageReaderTest {
                 ":25:6-9412771\n" +
                 ":28C:00102\n" +
                 ":60F:C000103USD672,\n" + // currency USD
-                ":61:0312091209DX880,FTRFBPHP/081203/0003//59512092915002\n" + // wrong funds code X expect usD
+                ":61:0312091211DX880,FTRFBPHP/081203/0003//59512112915002\n" + // wrong funds code X expect usD
                 ":62F:C000103USD987,\n" +
                 "-";
 

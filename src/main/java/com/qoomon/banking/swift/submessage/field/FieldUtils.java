@@ -33,4 +33,14 @@ public final class FieldUtils {
                 Joiner.on("\n")
         );
     }
+
+    /**
+     * Convert to Swift Text Format.
+     *
+     * @param field to convert
+     * @return swift text
+     */
+    public static String swiftTextOf(SwiftField field) {
+        return ":" + field.getTag() + ":" + field.getContent();
+    }
 }

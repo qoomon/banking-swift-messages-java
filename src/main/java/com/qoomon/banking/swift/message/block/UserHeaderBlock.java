@@ -23,7 +23,7 @@ import java.util.Optional;
  *
  * @see <a href="https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm">https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm</a>
  */
-public class UserHeaderBlock {
+public class UserHeaderBlock implements SwiftBlock {
 
     public static final String BLOCK_ID_3 = "3";
 
@@ -81,5 +81,23 @@ public class UserHeaderBlock {
 
     public String getMessageUserReference() {
         return messageUserReference;
+    }
+
+    @Override
+    public String getId() {
+        return BLOCK_ID_3;
+    }
+
+    @Override
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        if(bankingPriorityCode.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("113", bankingPriorityCode.get()));
+        }
+        contentBuilder.append(BlockUtils.swiftTextOf("108", messageUserReference));
+        for (GeneralBlock subblock : additionalSubblocks.values()) {
+            contentBuilder.append(BlockUtils.swiftTextOf(subblock.getId(), subblock.getContent()));
+        }
+        return contentBuilder.toString();
     }
 }

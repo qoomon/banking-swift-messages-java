@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  *
  * @see <a href="https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm">https://www.ibm.com/support/knowledgecenter/SSBTEG_4.3.0/com.ibm.wbia_adapters.doc/doc/swift/swift72.htm</a>
  */
-public class BasicHeaderBlock {
+public class BasicHeaderBlock implements SwiftBlock {
 
     public static final String BLOCK_ID_1 = "1";
 
@@ -89,5 +89,15 @@ public class BasicHeaderBlock {
 
     public String getSequenceNumber() {
         return sequenceNumber;
+    }
+
+    @Override
+    public String getId() {
+        return BLOCK_ID_1;
+    }
+
+    @Override
+    public String getContent() {
+        return applicationId + serviceId + logicalTerminalAddress + sessionNumber + sequenceNumber;
     }
 }

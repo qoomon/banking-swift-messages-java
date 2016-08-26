@@ -61,7 +61,8 @@ public class SwiftMessageReaderTest {
         SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        List<SwiftMessage> messageList = TestUtils.collectUntilNull(() -> classUnderTest.read());
+        List<SwiftMessage> messageList = TestUtils.collectUntilNull(classUnderTest::read);
+
         // Then
         assertThat(messageList).hasSize(2);
     }
@@ -189,6 +190,23 @@ public class SwiftMessageReaderTest {
 
         // Then
         assertThat(errors[0]).isEqualTo(0);
+    }
+
+    @Test
+    public void getContent_SHOULD_return_input_text() throws Exception {
+
+        // Given
+        String contentInput = ""
+                + BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID
+                + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY;
+        SwiftMessageReader messageReader = new SwiftMessageReader(new StringReader(contentInput));
+        SwiftMessage classUnderTest = TestUtils.collectUntilNull(messageReader::read).get(0);
+
+        // When
+        String content = classUnderTest.getContent();
+
+        // Then
+        assertThat(content).isEqualTo(contentInput);
     }
 
 }

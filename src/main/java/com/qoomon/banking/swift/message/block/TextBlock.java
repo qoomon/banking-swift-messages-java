@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TextBlock {
+public class TextBlock implements SwiftBlock {
 
     public static final String BLOCK_ID_4 = "4";
 
@@ -15,14 +15,14 @@ public class TextBlock {
 
     private final Optional<String> infoLine;
 
-    private final String content;
+    private final String text;
 
 
-    public TextBlock(String infoLine, String content) {
-        Preconditions.checkArgument(content != null, "content can't be null");
+    public TextBlock(String infoLine, String text) {
+        Preconditions.checkArgument(text != null, "content can't be null");
 
         this.infoLine = Optional.ofNullable(infoLine);
-        this.content = content;
+        this.text = text;
     }
 
     public static TextBlock of(GeneralBlock block) throws BlockFieldParseException {
@@ -34,16 +34,32 @@ public class TextBlock {
         }
         // remove first empty line
         String infoLine = blockMatcher.group(1);
-        String content = blockMatcher.group(2);
+        String text = blockMatcher.group(2);
 
-        return new TextBlock(infoLine, content);
-    }
-
-    public String getContent() {
-        return content;
+        return new TextBlock(infoLine, text);
     }
 
     public Optional<String> getInfoLine() {
         return infoLine;
     }
+
+    @Override
+    public String getId() {
+        return BLOCK_ID_4;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    @Override
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        if (infoLine.isPresent()) {
+            contentBuilder.append(infoLine.get());
+        }
+        contentBuilder.append("\n").append(text);
+        return contentBuilder.toString();
+    }
+
 }

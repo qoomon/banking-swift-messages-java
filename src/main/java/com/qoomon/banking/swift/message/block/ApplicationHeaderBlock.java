@@ -19,7 +19,7 @@ import java.util.Optional;
  * @see ApplicationHeaderInputBlock
  * @see ApplicationHeaderOutputBlock
  */
-public class ApplicationHeaderBlock {
+public class ApplicationHeaderBlock implements SwiftBlock {
 
     public static final String BLOCK_ID_2 = "2";
 
@@ -69,6 +69,20 @@ public class ApplicationHeaderBlock {
 
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public String getId() {
+        return BLOCK_ID_2;
+    }
+
+    @Override
+    public String getContent() {
+        if (getInput().isPresent()){
+            return getInput().get().getContent();
+        } else {
+            return getOutput().get().getContent();
+        }
     }
 
     enum Type {

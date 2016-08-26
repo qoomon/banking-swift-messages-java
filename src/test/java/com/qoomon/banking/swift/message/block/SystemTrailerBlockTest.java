@@ -42,4 +42,19 @@ public class SystemTrailerBlockTest {
         assertThat(exception).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    public void getContent_SHOULD_return_input_text() throws Exception {
+
+        // Given
+        String contentInput = "{CHK:F7C4F89AF66D}{TNG:}{SAC:}{COP:P}";
+        GeneralBlock generalBlock = new GeneralBlock(SystemTrailerBlock.BLOCK_ID_S, contentInput);
+        SystemTrailerBlock classUnderTest = SystemTrailerBlock.of(generalBlock);
+
+        // When
+        String content = classUnderTest.getContent();
+
+        // Then
+        assertThat(content).isEqualTo(contentInput);
+    }
+
 }

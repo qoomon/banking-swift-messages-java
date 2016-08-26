@@ -26,7 +26,7 @@ import java.util.Optional;
  *
  * @see <a href="https://msdn.microsoft.com/en-us/library/ee350615.aspx">https://msdn.microsoft.com/en-us/library/ee350615.aspx</a>
  */
-public class SystemTrailerBlock {
+public class SystemTrailerBlock implements SwiftBlock {
 
     public static final String BLOCK_ID_S = "S";
 
@@ -146,6 +146,38 @@ public class SystemTrailerBlock {
 
     public GeneralBlock getAdditionalSubblocks(String id) {
         return additionalSubblocks.get(id);
+    }
+
+    @Override
+    public String getId() {
+        return BLOCK_ID_S;
+    }
+
+    @Override
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        if(checksum.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("CHK", checksum.get()));
+        }
+        if(systemOriginatedMessage.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("SYS", systemOriginatedMessage.get()));
+        }
+        if(training.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("TNG", training.get()));
+        }
+        if(possibleDuplicateMessage.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("PDM", possibleDuplicateMessage.get()));
+        }
+        if(delayedMessage.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("DLM", delayedMessage.get()));
+        }
+        if(messageReference.isPresent()) {
+            contentBuilder.append(BlockUtils.swiftTextOf("MRF", messageReference.get()));
+        }
+        for (GeneralBlock subblock : additionalSubblocks.values()) {
+            contentBuilder.append(BlockUtils.swiftTextOf(subblock.getId(), subblock.getContent()));
+        }
+        return contentBuilder.toString();
     }
 }
 

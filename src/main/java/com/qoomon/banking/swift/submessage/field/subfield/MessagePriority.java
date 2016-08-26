@@ -24,4 +24,17 @@ public enum MessagePriority {
                 throw new IllegalArgumentException("No mapping found for value '" + value + "'");
         }
     }
+
+    public String asText(){
+        switch (this) {
+            case URGENT:
+                return "U";
+            case NORMAL:
+                return "N";
+            case SYSTEM:
+                return "S";
+            default:
+                throw new IllegalArgumentException("No mapping found for value '" + this + "'");
+        }
+    }
 }

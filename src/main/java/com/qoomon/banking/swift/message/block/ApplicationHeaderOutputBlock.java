@@ -36,7 +36,9 @@ public class ApplicationHeaderOutputBlock {
 
     public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(O)(.{3})(.{4})(.{6})(.{12})(.{4})(.{6})(.{6})(.{4})(.{1})");
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmm");
+    private static final DateTimeFormatter INPUT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HHmmyyMMdd");
+
+    private static final DateTimeFormatter OUTPUT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmm");
 
     private final String sessionNumber;
 
@@ -86,11 +88,11 @@ public class ApplicationHeaderOutputBlock {
         }
 
         String messageType = blockContentMatcher.group(2);
-        LocalDateTime inputDateTime = LocalDateTime.parse(blockContentMatcher.group(4) + blockContentMatcher.group(3), DATE_TIME_FORMATTER);
+        LocalDateTime inputDateTime = LocalDateTime.parse(blockContentMatcher.group(3) + blockContentMatcher.group(4), INPUT_DATE_TIME_FORMATTER);
         String inputReference = blockContentMatcher.group(5);
         String sessionNumber = blockContentMatcher.group(6);
         String sequenceNumber = blockContentMatcher.group(7);
-        LocalDateTime outputDateTime = LocalDateTime.parse(blockContentMatcher.group(8) + blockContentMatcher.group(9), DATE_TIME_FORMATTER);
+        LocalDateTime outputDateTime = LocalDateTime.parse(blockContentMatcher.group(8) + blockContentMatcher.group(9), OUTPUT_DATE_TIME_FORMATTER);
         MessagePriority messagePriority = MessagePriority.of(blockContentMatcher.group(10));
 
         return new ApplicationHeaderOutputBlock(sessionNumber, sequenceNumber, messageType, inputDateTime, inputReference, outputDateTime, messagePriority);
@@ -123,5 +125,18 @@ public class ApplicationHeaderOutputBlock {
 
     public String getSequenceNumber() {
         return sequenceNumber;
+    }
+
+    public String getContent() {
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append(MODE_CODE);
+        contentBuilder.append(messageType);
+        contentBuilder.append(INPUT_DATE_TIME_FORMATTER.format(inputDateTime));
+        contentBuilder.append(inputReference);
+        contentBuilder.append(sessionNumber);
+        contentBuilder.append(sequenceNumber);
+        contentBuilder.append(OUTPUT_DATE_TIME_FORMATTER.format(outputDateTime));
+        contentBuilder.append(messagePriority.asText());
+        return contentBuilder.toString();
     }
 }
