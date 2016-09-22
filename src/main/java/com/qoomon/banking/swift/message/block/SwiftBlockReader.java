@@ -40,6 +40,10 @@ public class SwiftBlockReader {
             char messageCharacter;
             while (block == null && (messageCharacter = (char) textReader.read()) != END_OF_STREAM) {
 
+                if (messageCharacter == '\r') {
+                    continue;
+                }
+
                 // increment line index
                 if (messageCharacter == '\n') {
                     lineNumber++;
@@ -48,18 +52,18 @@ public class SwiftBlockReader {
 
                 lineCharIndex++;
 
-                if (blockBuilder.length() == 0 && messageCharacter != "{".charAt(0)) {
-                    if (messageCharacter == "}".charAt(0)) {
+                if (blockBuilder.length() == 0 && messageCharacter != '{') {
+                    if (messageCharacter == '}') {
                         throw new BlockParseException("Found closing bracket without preceding opening bracket", lineNumber);
                     } else {
                         throw new BlockParseException("No characters are allowed outside of blocks, but was: '" + messageCharacter + "'", lineNumber);
                     }
                 }
 
-                if (messageCharacter != "{".charAt(0)) {
+                if (messageCharacter == '{') {
                     openingBrackets++;
                 }
-                if (messageCharacter != "}".charAt(0)) {
+                if (messageCharacter == '}') {
                     closingBrackets++;
                 }
 
