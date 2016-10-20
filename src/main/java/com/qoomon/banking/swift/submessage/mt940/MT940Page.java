@@ -206,22 +206,31 @@ public class MT940Page {
         Preconditions.checkArgument(closingBalance != null, "closingBalance can't be null");
         Preconditions.checkArgument(forwardAvailableBalanceList != null, "forwardAvailableBalanceList can't be null");
 
+        // ensure matching currency
         CurrencyUnit statementCurrency = openingBalance.getAmount().getCurrencyUnit();
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
-        // ensure matching currency
-        transactionGroupList.stream().map(it -> it.getStatementLine().getFundsCode()).filter(Optional::isPresent).map(Optional::get)
-                .forEach(fundsCode ->
-                        Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'"));
-        Optional.of(closingBalance).map(it -> it.getAmount().getCurrencyUnit())
-                .ifPresent(currency ->
-                        Preconditions.checkArgument(currency.equals(statementCurrency), "closingBalanceCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
-        Optional.ofNullable(closingAvailableBalance).map(it -> it.getAmount().getCurrencyUnit())
-                .ifPresent(currency ->
-                        Preconditions.checkArgument(currency.equals(statementCurrency), "closingAvailableBalanceCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
-        forwardAvailableBalanceList.stream().map(it -> it.getAmount().getCurrencyUnit())
-                .forEach(currency ->
-                        Preconditions.checkArgument(currency.equals(statementCurrency), "forwardAvailableBalance '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
 
+        for (TransactionGroup transactionGroup : transactionGroupList) {
+            if (transactionGroup.getStatementLine().getFundsCode().isPresent()){
+                String fundsCode = transactionGroup.getStatementLine().getFundsCode().get();
+                Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'");
+            }
+        }
+
+        if(closingBalance != null){
+            CurrencyUnit currency = closingBalance.getAmount().getCurrencyUnit();
+            Preconditions.checkArgument(currency.equals(statementCurrency), "closingBalanceCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
+        }
+
+        if(closingAvailableBalance != null){
+            CurrencyUnit currency = closingAvailableBalance.getAmount().getCurrencyUnit();
+            Preconditions.checkArgument(currency.equals(statementCurrency), "closingAvailableBalanceCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
+        }
+
+        for (ForwardAvailableBalance forwardAvailableBalance : forwardAvailableBalanceList) {
+            CurrencyUnit currency = forwardAvailableBalance.getAmount().getCurrencyUnit();
+            Preconditions.checkArgument(currency.equals(statementCurrency), "forwardAvailableBalance '" + currency + "' does not match statement currency'" + statementCurrency + "'");
+        }
 
         this.transactionReferenceNumber = transactionReferenceNumber;
         this.relatedReference = Optional.ofNullable(relatedReference);

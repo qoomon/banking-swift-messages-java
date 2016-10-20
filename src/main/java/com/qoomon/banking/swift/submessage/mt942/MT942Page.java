@@ -103,22 +103,31 @@ public class MT942Page {
         Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
 
 
+        // ensure matching currency
         CurrencyUnit statementCurrency = floorLimitIndicatorDebit.getAmount().getCurrencyUnit();
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
-        // ensure matching currency
-        Optional.ofNullable(floorLimitIndicatorCredit).map(it -> it.getAmount().getCurrencyUnit())
-                .ifPresent(currency ->
-                        Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
-        transactionGroupList.stream().map(it -> it.getStatementLine().getFundsCode()).filter(Optional::isPresent).map(Optional::get)
-                .forEach(fundsCode ->
-                        Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'"));
-        Optional.ofNullable(transactionSummaryDebit).map(it -> it.getAmount().getCurrencyUnit())
-                .ifPresent(currency ->
-                        Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryDebitCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
-        Optional.ofNullable(transactionSummaryCredit).map(it -> it.getAmount().getCurrencyUnit())
-                .ifPresent(currency ->
-                        Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'"));
 
+        if(floorLimitIndicatorCredit != null){
+            CurrencyUnit currency = floorLimitIndicatorCredit.getAmount().getCurrencyUnit();
+            Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
+        }
+
+        for (TransactionGroup transactionGroup : transactionGroupList) {
+            if (transactionGroup.getStatementLine().getFundsCode().isPresent()){
+                String fundsCode = transactionGroup.getStatementLine().getFundsCode().get();
+                Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'");
+            }
+        }
+
+        if(transactionSummaryDebit != null){
+            CurrencyUnit currency = transactionSummaryDebit.getAmount().getCurrencyUnit();
+            Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryDebitCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
+        }
+
+        if(transactionSummaryCredit != null){
+            CurrencyUnit currency = transactionSummaryCredit.getAmount().getCurrencyUnit();
+            Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
+        }
 
         this.transactionReferenceNumber = transactionReferenceNumber;
         this.relatedReference = Optional.ofNullable(relatedReference);
