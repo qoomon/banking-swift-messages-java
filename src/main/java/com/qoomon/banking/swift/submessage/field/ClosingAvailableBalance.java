@@ -99,7 +99,7 @@ public class ClosingAvailableBalance implements SwiftField {
         try {
             return SWIFT_NOTATION.render(Lists.newArrayList(
                     debitCreditMark.toFieldValue(),
-                    entryDate.format(ENTRY_DATE_FORMATTER),
+                    ENTRY_DATE_FORMATTER.format(entryDate),
                     amount.getCurrencyUnit().getCode(),
                     SwiftDecimalFormatter.format(amount.getAmount())
             ));

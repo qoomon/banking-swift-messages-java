@@ -110,7 +110,7 @@ public class ClosingBalance implements SwiftField {
         try {
             return SWIFT_NOTATION.render(Lists.newArrayList(
                     debitCreditMark.toFieldValue(),
-                    date.format(DATE_FORMATTER),
+                    DATE_FORMATTER.format(date),
                     amount.getCurrencyUnit().getCode(),
                     SwiftDecimalFormatter.format(amount.getAmount())));
         } catch (FieldNotationParseException e) {

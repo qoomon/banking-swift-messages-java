@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.submessage.field;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftNotation;
@@ -51,7 +52,7 @@ public class DateTimeIndicator implements SwiftField {
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        OffsetDateTime value = OffsetDateTime.parse(subFields.stream().collect(Collectors.joining()), DATE_TIME_FORMATTER);
+        OffsetDateTime value = OffsetDateTime.parse(Joiner.on("").join(subFields), DATE_TIME_FORMATTER);
 
         return new DateTimeIndicator(value);
     }
