@@ -1,12 +1,10 @@
 package com.qoomon.banking.swift.submessage.field;
 
+import com.google.common.base.Optional;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
-import org.assertj.core.api.Assertions;
 import org.joda.money.BigMoney;
 import org.joda.money.CurrencyUnit;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -41,7 +39,7 @@ public class FloorLimitIndicatorTest {
         Optional<BigMoney> signedAmount = classUnderTest.getSignedAmount();
 
         // Then
-        assertThat(signedAmount).isNotPresent();
+        assertThat(signedAmount.isPresent()).isFalse();
     }
 
     @Test
@@ -56,7 +54,7 @@ public class FloorLimitIndicatorTest {
         Optional<BigMoney> signedAmount = classUnderTest.getSignedAmount();
 
         // Then
-        assertThat(signedAmount).contains(amount.negated());
+        assertThat(signedAmount.get()).isEqualTo(amount.negated());
     }
 
     @Test
@@ -71,7 +69,7 @@ public class FloorLimitIndicatorTest {
         Optional<BigMoney> signedAmount = classUnderTest.getSignedAmount();
 
         // Then
-        assertThat(signedAmount).contains(amount);
+        assertThat(signedAmount.get()).isEqualTo(amount);
     }
 
 }

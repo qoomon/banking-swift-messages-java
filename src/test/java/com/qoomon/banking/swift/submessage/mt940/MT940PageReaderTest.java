@@ -5,16 +5,17 @@ import com.google.common.io.Resources;
 import com.qoomon.banking.TestUtils;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.concurrent.Callable;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -45,10 +46,15 @@ public class MT940PageReaderTest {
                 "summary\n" +
                 "-";
 
-        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
+        final MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
 
         // When
-        List<MT940Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
+        List<MT940Page> pageList = TestUtils.collectUntilNull(new Callable<MT940Page>() {
+            @Override
+            public MT940Page call() throws Exception {
+                return classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(pageList).hasSize(1);
@@ -77,8 +83,13 @@ public class MT940PageReaderTest {
                 ":86:multiline summary\n" +
                 "summary\n" +
                 "-";
-        MT940PageReader pageReader = new MT940PageReader(new StringReader(contentInput));
-        MT940Page classUnderTest = TestUtils.collectUntilNull(pageReader::read).get(0);
+        final MT940PageReader pageReader = new MT940PageReader(new StringReader(contentInput));
+        MT940Page classUnderTest = TestUtils.collectUntilNull(new Callable<MT940Page>() {
+            @Override
+            public MT940Page call() throws Exception {
+                return pageReader.read();
+            }
+        }).get(0);
 
         // When
         String content = classUnderTest.getContent();
@@ -100,10 +111,15 @@ public class MT940PageReaderTest {
                 ":62F:C000103USD987,\n" +
                 "-";
 
-        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
+        final MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Exception {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(SwiftMessageParseException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
@@ -115,10 +131,15 @@ public class MT940PageReaderTest {
         // Given
         String mt940MessageText = ":20:02618\n";
 
-        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
+        final MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Exception {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(SwiftMessageParseException.class);
@@ -129,21 +150,34 @@ public class MT940PageReaderTest {
     public void parse_WHEN_parse_many_valid_file_RETURN_message() throws Exception {
 
         // Given
-        URL mt940_valid_folder = Resources.getResource("submessage/mt940_valid");
-        Stream<Path> files = Files.walk(Paths.get(mt940_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
+        URL mt940_valid_folder = Resources.getResource("submessage/mt940_valid");;
 
         // When
         final int[] errors = {0};
-        files.forEach(filePath -> {
-            try {
-                MT940PageReader classUnderTest = new MT940PageReader(new FileReader(filePath.toFile()));
-                List<MT940Page> messageList = TestUtils.collectUntilNull(classUnderTest::read);
-                assertThat(messageList).isNotEmpty();
-            } catch (Exception e) {
-                System.out.println(filePath);
-                System.out.println(Throwables.getStackTraceAsString(e));
-                System.out.println();
-                errors[0]++;
+        Files.walkFileTree(Paths.get(mt940_valid_folder.toURI()), new SimpleFileVisitor<Path>(){
+            @Override
+            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+
+                if( !attrs.isRegularFile() ){
+                    return FileVisitResult.CONTINUE;
+                }
+
+                try {
+                    final MT940PageReader classUnderTest = new MT940PageReader(new FileReader(filePath.toFile()));
+                    List<MT940Page> messageList = TestUtils.collectUntilNull(new Callable<MT940Page>() {
+                        @Override
+                        public MT940Page call() throws Exception {
+                            return classUnderTest.read();
+                        }
+                    });
+                    assertThat(messageList).isNotEmpty();
+                } catch (Exception e) {
+                    System.out.println(filePath);
+                    System.out.println(Throwables.getStackTraceAsString(e));
+                    System.out.println();
+                    errors[0]++;
+                }
+                return FileVisitResult.CONTINUE;
             }
         });
 

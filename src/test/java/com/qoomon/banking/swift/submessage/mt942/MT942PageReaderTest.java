@@ -5,18 +5,18 @@ import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.qoomon.banking.TestUtils;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
-import com.qoomon.banking.swift.submessage.mt940.MT940Page;
 import com.qoomon.banking.swift.submessage.mt940.MT940PageReader;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.concurrent.Callable;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -48,17 +48,22 @@ public class MT942PageReaderTest {
                 "summary\n" +
                 "-";
 
-        MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));
+        final MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));
 
         // When
-        List<MT942Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
+        List<MT942Page> pageList = TestUtils.collectUntilNull(new Callable<MT942Page>() {
+            @Override
+            public MT942Page call() throws Exception {
+                return classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(pageList).hasSize(1);
         MT942Page MT942Page = pageList.get(0);
         assertThat(MT942Page.getTransactionGroupList()).hasSize(3);
         assertThat(MT942Page.getStatementNumber().getStatementNumber()).isEqualTo("1");
-        assertThat(MT942Page.getStatementNumber().getSequenceNumber()).contains("1");
+        assertThat(MT942Page.getStatementNumber().getSequenceNumber().get()).isEqualTo("1");
     }
 
     @Test
@@ -82,8 +87,13 @@ public class MT942PageReaderTest {
                 ":86:multiline summary\n" +
                 "summary\n" +
                 "-";
-        MT942PageReader pageReader = new MT942PageReader(new StringReader(contentInput));
-        MT942Page classUnderTest = TestUtils.collectUntilNull(pageReader::read).get(0);
+        final MT942PageReader pageReader = new MT942PageReader(new StringReader(contentInput));
+        MT942Page classUnderTest = TestUtils.collectUntilNull(new Callable<MT942Page>() {
+            @Override
+            public MT942Page call() throws Exception {
+                return pageReader.read();
+            }
+        }).get(0);
 
         // When
         String content = classUnderTest.getContent();
@@ -105,10 +115,15 @@ public class MT942PageReaderTest {
                 ":61:0312091211DX880,FTRFBPHP/081203/0003//59512112915002\n" +  // wrong funds code X expect usD
                 "-";
 
-        MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));
+        final MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(SwiftMessageParseException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
@@ -120,10 +135,15 @@ public class MT942PageReaderTest {
         // Given
         String mt942MessageText = ":20:02618\n";
 
-        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt942MessageText));
+        final MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt942MessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(SwiftMessageParseException.class);
@@ -136,20 +156,33 @@ public class MT942PageReaderTest {
 
         // Given
         URL mt942_valid_folder = Resources.getResource("submessage/mt942_valid");
-        Stream<Path> files = Files.walk(Paths.get(mt942_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
 
         // When
         final int[] errors = {0};
-        files.forEach(filePath -> {
-            try {
-                MT942PageReader classUnderTest = new MT942PageReader(new FileReader(filePath.toFile()));
-                List<MT942Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
-                assertThat(pageList).isNotEmpty();
-            } catch (Exception e) {
-                System.out.println(filePath);
-                System.out.println(Throwables.getStackTraceAsString(e));
-                System.out.println();
-                errors[0]++;
+        Files.walkFileTree(Paths.get(mt942_valid_folder.toURI()), new SimpleFileVisitor<Path>(){
+            @Override
+            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+
+                if( !attrs.isRegularFile() ){
+                    return FileVisitResult.CONTINUE;
+                }
+
+                try {
+                    final MT942PageReader classUnderTest = new MT942PageReader(new FileReader(filePath.toFile()));
+                    List<MT942Page> pageList = TestUtils.collectUntilNull(new Callable<MT942Page>() {
+                        @Override
+                        public MT942Page call() throws Exception {
+                            return classUnderTest.read();
+                        }
+                    });
+                    assertThat(pageList).isNotEmpty();
+                } catch (Exception e) {
+                    System.out.println(filePath);
+                    System.out.println(Throwables.getStackTraceAsString(e));
+                    System.out.println();
+                    errors[0]++;
+                }
+                return FileVisitResult.CONTINUE;
             }
         });
 

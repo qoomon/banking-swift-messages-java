@@ -2,11 +2,12 @@ package com.qoomon.banking.swift.message.block;
 
 import com.qoomon.banking.TestUtils;
 import com.qoomon.banking.swift.message.block.exception.BlockParseException;
-import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import java.io.StringReader;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -21,10 +22,15 @@ public class SwiftBlockReaderTest {
 
         String blockText = "{1:a}{2:b}{3:c}";
 
-        SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
+        final SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
 
         // When
-        List<GeneralBlock> blockList = TestUtils.collectUntilNull(subjectUnderTest::readBlock);
+        List<GeneralBlock> blockList = TestUtils.collectUntilNull(new Callable<GeneralBlock>() {
+            @Override
+            public GeneralBlock call() throws Exception {
+                return subjectUnderTest.readBlock();
+            }
+        });
 
         // Then
 
@@ -44,10 +50,20 @@ public class SwiftBlockReaderTest {
 
         String blockText = "{1:a}{2:b}{3:c";
 
-        SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
+        final SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
 
         // When
-        Throwable exception = catchThrowable(() -> TestUtils.collectUntilNull(subjectUnderTest::readBlock));
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                TestUtils.collectUntilNull(new Callable<GeneralBlock>() {
+                    @Override
+                    public GeneralBlock call() throws Exception {
+                        return subjectUnderTest.readBlock();
+                    }
+                });
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(BlockParseException.class);
@@ -59,10 +75,15 @@ public class SwiftBlockReaderTest {
 
         String blockText = "{1:a}{2:b}{3:c}{4:\r\n-}";
 
-        SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
+        final SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
 
         // When
-        List<GeneralBlock> blockList = TestUtils.collectUntilNull(subjectUnderTest::readBlock);
+        List<GeneralBlock> blockList = TestUtils.collectUntilNull(new Callable<GeneralBlock>() {
+            @Override
+            public GeneralBlock call() throws Exception {
+                return subjectUnderTest.readBlock();
+            }
+        });
 
         // Then
 
@@ -83,10 +104,15 @@ public class SwiftBlockReaderTest {
 
         String blockText = "{1:a}{2:b}{3:c}{4:\n-}";
 
-        SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
+        final SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
 
         // When
-        List<GeneralBlock> blockList = TestUtils.collectUntilNull(subjectUnderTest::readBlock);
+        List<GeneralBlock> blockList = TestUtils.collectUntilNull(new Callable<GeneralBlock>() {
+            @Override
+            public GeneralBlock call() throws Exception {
+                return subjectUnderTest.readBlock();
+            }
+        });
 
         // Then
 

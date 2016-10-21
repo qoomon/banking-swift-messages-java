@@ -1,9 +1,8 @@
 package com.qoomon.banking.swift.message;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.*;
-
-import java.util.Optional;
 
 import static com.qoomon.banking.swift.message.block.BlockUtils.*;
 
@@ -139,10 +138,10 @@ public class SwiftMessage {
 
         this.basicHeaderBlock = basicHeaderBlock;
         this.applicationHeaderBlock = applicationHeaderBlock;
-        this.userHeaderBlock = Optional.ofNullable(userHeaderBlock);
+        this.userHeaderBlock = Optional.fromNullable(userHeaderBlock);
         this.textBlock = textBlock;
-        this.userTrailerBlock = Optional.ofNullable(userTrailerBlock);
-        this.systemTrailerBlock = Optional.ofNullable(systemTrailerBlock);
+        this.userTrailerBlock = Optional.fromNullable(userTrailerBlock);
+        this.systemTrailerBlock = Optional.fromNullable(systemTrailerBlock);
     }
 
     public BasicHeaderBlock getBasicHeaderBlock() {

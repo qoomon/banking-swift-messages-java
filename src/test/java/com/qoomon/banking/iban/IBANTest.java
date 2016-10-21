@@ -1,6 +1,7 @@
 package com.qoomon.banking.iban;
 
 import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -196,10 +197,15 @@ public class IBANTest {
     public void of_WHEN_check_digits_are_wrong_THROW_exception() throws Exception {
 
         // Given
-        String ibanText = "DE11 5001 0517 5407 3249 31";
+        final String ibanText = "DE11 5001 0517 5407 3249 31";
 
         // When
-        Throwable exception = catchThrowable(() -> IBAN.of(ibanText));
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                IBAN.of(ibanText);
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(IllegalArgumentException.class);
@@ -210,10 +216,15 @@ public class IBANTest {
     public void of_WHEN_iban_is_too_long_THROW_exception() throws Exception {
 
         // Given
-        String ibanText = "DE11 000000000000000000000000000000 0";
+        final String ibanText = "DE11 000000000000000000000000000000 0";
 
         // When
-        Throwable exception = catchThrowable(() -> IBAN.of(ibanText));
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                IBAN.of(ibanText);
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(IllegalArgumentException.class);

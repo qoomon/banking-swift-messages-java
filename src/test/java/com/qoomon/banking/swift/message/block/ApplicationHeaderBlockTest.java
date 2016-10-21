@@ -2,9 +2,9 @@ package com.qoomon.banking.swift.message.block;
 
 import com.qoomon.banking.swift.submessage.field.subfield.MessagePriority;
 import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.ThrowableAssert;
+import org.joda.time.LocalDateTime;
 import org.junit.Test;
-
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -23,21 +23,21 @@ public class ApplicationHeaderBlockTest {
 
         // Then
         assertThat(block).isNotNull();
-        assertThat(block.getOutput()).isPresent();
+        assertThat(block.getOutput().isPresent()).isTrue();
         if (block.getOutput().isPresent()) {
             SoftAssertions softly = new SoftAssertions();
             ApplicationHeaderOutputBlock outputBlock = block.getOutput().get();
             softly.assertThat(outputBlock.getMessageType()).isEqualTo("940");
-            softly.assertThat(outputBlock.getInputDateTime()).isEqualTo(LocalDateTime.of(2011, 8, 4, 15, 6));
+            softly.assertThat(outputBlock.getInputDateTime()).isEqualTo(LocalDateTime.parse("2011-08-04T15:06"));
             softly.assertThat(outputBlock.getInputReference()).isEqualTo("LRLRXXXX4A11");
             softly.assertThat(outputBlock.getSessionNumber()).isEqualTo("0000");
             softly.assertThat(outputBlock.getSequenceNumber()).isEqualTo("904083");
-            softly.assertThat(outputBlock.getOutputDateTime()).isEqualTo(LocalDateTime.of(2011, 8, 4, 17, 7));
+            softly.assertThat(outputBlock.getOutputDateTime()).isEqualTo(LocalDateTime.parse("2011-08-04T17:07"));
             softly.assertThat(outputBlock.getMessagePriority()).isEqualTo(MessagePriority.NORMAL);
             softly.assertAll();
         }
 
-        assertThat(block.getInput()).isNotPresent();
+        assertThat(block.getInput().isPresent()).isFalse();
     }
 
 
@@ -52,19 +52,19 @@ public class ApplicationHeaderBlockTest {
 
         // Then
         assertThat(block).isNotNull();
-        assertThat(block.getInput()).isPresent();
+        assertThat(block.getInput().isPresent()).isTrue();
         if (block.getInput().isPresent()) {
             SoftAssertions softly = new SoftAssertions();
             ApplicationHeaderInputBlock inputBlock = block.getInput().get();
             softly.assertThat(inputBlock.getMessageType()).isEqualTo("101");
             softly.assertThat(inputBlock.getReceiverAddress()).isEqualTo("YOURBANKXJKL");
             softly.assertThat(inputBlock.getMessagePriority()).isEqualTo(MessagePriority.URGENT);
-            softly.assertThat(inputBlock.getDeliveryMonitoring()).contains("3");
-            softly.assertThat(inputBlock.getObsolescencePeriod()).contains("003");
+            softly.assertThat(inputBlock.getDeliveryMonitoring().get()).isEqualTo("3");
+            softly.assertThat(inputBlock.getObsolescencePeriod().get()).isEqualTo("003");
             softly.assertAll();
         }
 
-        assertThat(block.getOutput()).isNotPresent();
+        assertThat(block.getOutput().isPresent()).isFalse();;
     }
 
     @Test
@@ -101,10 +101,15 @@ public class ApplicationHeaderBlockTest {
     public void of_WHEN_block_with_invalid_id_is_passed_THROW_exception() throws Exception {
 
         // Given
-        GeneralBlock generalBlock = new GeneralBlock("0", "\nabc\n-");
+        final GeneralBlock generalBlock = new GeneralBlock("0", "\nabc\n-");
 
         // When
-        Throwable exception = catchThrowable(() -> ApplicationHeaderBlock.of(generalBlock));
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                ApplicationHeaderBlock.of(generalBlock);
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(IllegalArgumentException.class);

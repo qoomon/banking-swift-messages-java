@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.block;
 
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
@@ -22,7 +23,7 @@ public class TextBlockTest {
 
         // Then
         assertThat(block).isNotNull();
-        assertThat(block.getInfoLine()).isNotPresent();
+        assertThat(block.getInfoLine().isPresent()).isFalse();
         assertThat(block.getText()).isEqualTo("abc\n-");
     }
 
@@ -30,10 +31,15 @@ public class TextBlockTest {
     public <T> void of_WHEN_block_with_invalid_id_is_passed_THROW_exception() throws Exception {
 
         // Given
-        GeneralBlock generalBlock = new GeneralBlock("0", "\nabc\n-");
+        final GeneralBlock generalBlock = new GeneralBlock("0", "\nabc\n-");
 
         // When
-        Throwable exception = catchThrowable(() -> TextBlock.of(generalBlock));
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                TextBlock.of(generalBlock);
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(IllegalArgumentException.class);
@@ -43,10 +49,15 @@ public class TextBlockTest {
     public <T> void of_WHEN_block_with_invalid_ending_is_passed_THROW_exception() throws Exception {
 
         // Given
-        GeneralBlock generalBlock = new GeneralBlock(TextBlock.BLOCK_ID_4, "\nabc");
+        final GeneralBlock generalBlock = new GeneralBlock(TextBlock.BLOCK_ID_4, "\nabc");
 
         // When
-        Throwable exception = catchThrowable(() -> TextBlock.of(generalBlock));
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                TextBlock.of(generalBlock);
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(BlockFieldParseException.class);

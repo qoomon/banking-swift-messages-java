@@ -4,11 +4,11 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftNotation;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <b>Date Time Indicator</b>
@@ -35,12 +35,12 @@ public class DateTimeIndicator implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("6!n4!n1x4!n");
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmmZ");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmmZ").withOffsetParsed();
 
-    private final OffsetDateTime dateTime;
+    private final DateTime dateTime;
 
 
-    public DateTimeIndicator(OffsetDateTime dateTime) {
+    public DateTimeIndicator(DateTime dateTime) {
 
         Preconditions.checkArgument(dateTime != null, "dateTime can't be null");
 
@@ -52,12 +52,12 @@ public class DateTimeIndicator implements SwiftField {
 
         List<String> subFields = SWIFT_NOTATION.parse(field.getContent());
 
-        OffsetDateTime value = OffsetDateTime.parse(Joiner.on("").join(subFields), DATE_TIME_FORMATTER);
+        DateTime value = DateTime.parse(Joiner.on("").join(subFields), DATE_TIME_FORMATTER);
 
         return new DateTimeIndicator(value);
     }
 
-    public OffsetDateTime getDateTime() {
+    public DateTime getDateTime() {
         return dateTime;
     }
 
@@ -69,7 +69,7 @@ public class DateTimeIndicator implements SwiftField {
     @Override
     public String getContent() {
         try {
-            return SWIFT_NOTATION.render(SWIFT_NOTATION.parse(DATE_TIME_FORMATTER.format(dateTime)));
+            return SWIFT_NOTATION.render(SWIFT_NOTATION.parse(DATE_TIME_FORMATTER.print(dateTime)));
         } catch (FieldNotationParseException e) {
             throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
         }

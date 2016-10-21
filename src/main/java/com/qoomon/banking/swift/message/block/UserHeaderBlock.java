@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.message.block;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
@@ -8,7 +9,6 @@ import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * <b>User Header Block</b>
@@ -39,7 +39,7 @@ public class UserHeaderBlock implements SwiftBlock {
         Preconditions.checkArgument(messageUserReference != null, "messageUserReference can't be null");
         Preconditions.checkArgument(additionalSubblocks != null, "additionalSubblocks can't be null");
 
-        this.bankingPriorityCode = Optional.ofNullable(bankingPriorityCode);
+        this.bankingPriorityCode = Optional.fromNullable(bankingPriorityCode);
         this.messageUserReference = messageUserReference;
         this.additionalSubblocks = ImmutableMap.copyOf(additionalSubblocks);
     }

@@ -1,9 +1,8 @@
 package com.qoomon.banking.swift.message.block;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
-
-import java.util.Optional;
 
 /**
  * <b>Input Application Header Block</b>
@@ -33,12 +32,12 @@ public class ApplicationHeaderBlock implements SwiftBlock {
     public ApplicationHeaderBlock(ApplicationHeaderInputBlock input) {
         type = Type.INPUT;
         this.input = Optional.of(input);
-        this.output = Optional.empty();
+        this.output = Optional.absent();
     }
 
     public ApplicationHeaderBlock(ApplicationHeaderOutputBlock output) {
         type = Type.OUTPUT;
-        this.input = Optional.empty();
+        this.input = Optional.absent();
         this.output = Optional.of(output);
     }
 

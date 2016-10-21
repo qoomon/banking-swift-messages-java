@@ -8,10 +8,11 @@ import com.qoomon.banking.swift.notation.SwiftNotation;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
 import org.joda.money.CurrencyUnit;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public class ClosingBalance implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("1!a6!n3!a15d");
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyMMdd");
 
     private final Type type;
 
@@ -110,7 +111,7 @@ public class ClosingBalance implements SwiftField {
         try {
             return SWIFT_NOTATION.render(Lists.newArrayList(
                     debitCreditMark.toFieldValue(),
-                    DATE_FORMATTER.format(date),
+                    DATE_FORMATTER.print(date),
                     amount.getCurrencyUnit().getCode(),
                     SwiftDecimalFormatter.format(amount.getAmount())));
         } catch (FieldNotationParseException e) {

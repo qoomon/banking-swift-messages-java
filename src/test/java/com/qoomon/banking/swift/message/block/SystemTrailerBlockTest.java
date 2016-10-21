@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.message.block;
 
 import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
@@ -23,8 +24,8 @@ public class SystemTrailerBlockTest {
         // Then
         assertThat(block).isNotNull();
         SoftAssertions softly = new SoftAssertions();
-        softly.assertThat(block.getChecksum()).contains("F7C4F89AF66D");
-        softly.assertThat(block.getTraining()).contains("");
+        softly.assertThat(block.getChecksum().get()).isEqualTo("F7C4F89AF66D");
+        softly.assertThat(block.getTraining().get()).isEqualTo("");
         softly.assertThat(block.getAdditionalSubblocks("COP").getContent()).isEqualTo("P");
         softly.assertAll();
     }
@@ -33,10 +34,15 @@ public class SystemTrailerBlockTest {
     public <T> void of_WHEN_block_with_invalid_id_is_passed_THROW_exception() throws Exception {
 
         // Given
-        GeneralBlock generalBlock = new GeneralBlock("0", "\nabc\n-");
+        final GeneralBlock generalBlock = new GeneralBlock("0", "\nabc\n-");
 
         // When
-        Throwable exception = catchThrowable(() -> SystemTrailerBlock.of(generalBlock));
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                SystemTrailerBlock.of(generalBlock);
+            }
+        });
 
         // Then
         assertThat(exception).isInstanceOf(IllegalArgumentException.class);

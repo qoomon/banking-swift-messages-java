@@ -5,7 +5,7 @@ import org.joda.money.BigMoney;
 import org.joda.money.CurrencyUnit;
 import org.junit.Test;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by qoomon on 22/07/16.

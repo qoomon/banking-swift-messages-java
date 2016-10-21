@@ -1,12 +1,12 @@
 package com.qoomon.banking.swift.submessage.mt942;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.submessage.field.*;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.CurrencyUnit;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.qoomon.banking.swift.submessage.field.FieldUtils.*;
 
@@ -130,16 +130,16 @@ public class MT942Page {
         }
 
         this.transactionReferenceNumber = transactionReferenceNumber;
-        this.relatedReference = Optional.ofNullable(relatedReference);
+        this.relatedReference = Optional.fromNullable(relatedReference);
         this.accountIdentification = accountIdentification;
         this.statementNumber = statementNumber;
         this.floorLimitIndicatorDebit = floorLimitIndicatorDebit;
-        this.floorLimitIndicatorCredit = Optional.ofNullable(floorLimitIndicatorCredit).orElse(floorLimitIndicatorDebit);
+        this.floorLimitIndicatorCredit = Optional.fromNullable(floorLimitIndicatorCredit).or(floorLimitIndicatorDebit);
         this.dateTimeIndicator = dateTimeIndicator;
         this.transactionGroupList = transactionGroupList;
-        this.transactionSummaryDebit = Optional.ofNullable(transactionSummaryDebit);
-        this.transactionSummaryCredit = Optional.ofNullable(transactionSummaryCredit);
-        this.informationToAccountOwner = Optional.ofNullable(informationToAccountOwner);
+        this.transactionSummaryDebit = Optional.fromNullable(transactionSummaryDebit);
+        this.transactionSummaryCredit = Optional.fromNullable(transactionSummaryCredit);
+        this.informationToAccountOwner = Optional.fromNullable(informationToAccountOwner);
     }
 
     public TransactionReferenceNumber getTransactionReferenceNumber() {

@@ -1,5 +1,7 @@
 package com.qoomon.banking.swift.submessage.field;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
@@ -11,7 +13,6 @@ import org.joda.money.CurrencyUnit;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * <b>Floor Limit Indicator Debit/Credit</b>
@@ -43,7 +44,7 @@ public class FloorLimitIndicator implements SwiftField {
         Preconditions.checkArgument(amount != null, "amount can't be null");
         Preconditions.checkArgument(amount.isPositiveOrZero(), "amount can't be negative");
 
-        this.debitCreditMark = Optional.ofNullable(debitCreditMark);
+        this.debitCreditMark = Optional.fromNullable(debitCreditMark);
         this.amount = amount;
     }
 
@@ -70,13 +71,15 @@ public class FloorLimitIndicator implements SwiftField {
     }
 
     public Optional<BigMoney> getSignedAmount() {
-        return getDebitCreditMark().map(
-                debitCreditMark -> {
-                    if (debitCreditMark.sign() < 0) {
-                        return amount.negated();
-                    }
-                    return amount;
-                });
+        return getDebitCreditMark().transform(new Function<DebitCreditMark, BigMoney>() {
+            @Override
+            public BigMoney apply(DebitCreditMark debitCreditMark) {
+                if (debitCreditMark.sign() < 0) {
+                    return amount.negated();
+                }
+                return amount;
+            }
+        });
     }
 
     @Override
@@ -89,7 +92,12 @@ public class FloorLimitIndicator implements SwiftField {
         try {
             return SWIFT_NOTATION.render(Lists.newArrayList(
                     amount.getCurrencyUnit().getCode(),
-                    debitCreditMark.map(DebitCreditMark::toFieldValue).orElse(null),
+                    debitCreditMark.transform(new Function<DebitCreditMark, String>() {
+                        @Override
+                        public String apply(DebitCreditMark debitCreditMark) {
+                            return debitCreditMark.toFieldValue();
+                        }
+                    }).orNull(),
                     SwiftDecimalFormatter.format(amount.getAmount())
             ));
         } catch (FieldNotationParseException e) {

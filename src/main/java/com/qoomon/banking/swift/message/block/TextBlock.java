@@ -1,9 +1,9 @@
 package com.qoomon.banking.swift.message.block;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +21,7 @@ public class TextBlock implements SwiftBlock {
     public TextBlock(String infoLine, String text) {
         Preconditions.checkArgument(text != null, "content can't be null");
 
-        this.infoLine = Optional.ofNullable(infoLine);
+        this.infoLine = Optional.fromNullable(infoLine);
         this.text = text;
     }
 

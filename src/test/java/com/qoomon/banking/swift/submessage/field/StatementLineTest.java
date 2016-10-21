@@ -4,12 +4,12 @@ import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditType;
 import com.qoomon.banking.swift.submessage.field.subfield.TransactionTypeIdentificationCode;
 import org.assertj.core.api.Assertions;
+import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by qoomon on 18/07/2016.

@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.submessage.field;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
@@ -8,13 +9,13 @@ import com.qoomon.banking.swift.notation.SwiftNotation;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditType;
 import com.qoomon.banking.swift.submessage.field.subfield.TransactionTypeIdentificationCode;
+import org.joda.time.LocalDate;
+import org.joda.time.MonthDay;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.MonthDay;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * <b>Statement Line</b>
@@ -43,9 +44,9 @@ public class StatementLine implements SwiftField {
 
     public static final SwiftNotation SWIFT_NOTATION = new SwiftNotation("6!n[4!n]2a[1!a]15d1!a3!c16x[//16x][BR34x]");
 
-    private static final DateTimeFormatter VALUE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
+    private static final DateTimeFormatter VALUE_DATE_FORMATTER = DateTimeFormat.forPattern("yyMMdd");
 
-    private static final DateTimeFormatter ENTRY_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMdd");
+    private static final DateTimeFormatter ENTRY_DATE_FORMATTER = DateTimeFormat.forPattern("MMdd");
 
     private final LocalDate valueDate;
 
@@ -91,12 +92,12 @@ public class StatementLine implements SwiftField {
         this.entryDate = entryDate != null ? entryDate : valueDate;
         this.debitCreditType = debitCreditType;
         this.debitCreditMark = debitCreditMark;
-        this.fundsCode = Optional.ofNullable(fundsCode);
+        this.fundsCode = Optional.fromNullable(fundsCode);
         this.amount = amount;
         this.transactionTypeIdentificationCode = transactionTypeIdentificationCode;
         this.referenceForAccountOwner = referenceForAccountOwner;
-        this.referenceForBank = Optional.ofNullable(referenceForBank);
-        this.supplementaryDetails = Optional.ofNullable(supplementaryDetails);
+        this.referenceForBank = Optional.fromNullable(referenceForBank);
+        this.supplementaryDetails = Optional.fromNullable(supplementaryDetails);
     }
 
     public static StatementLine of(GeneralField field) throws FieldNotationParseException {
@@ -111,10 +112,11 @@ public class StatementLine implements SwiftField {
         if (subFields.get(1) != null) {
             MonthDay entryMonthDay = MonthDay.parse(subFields.get(1), ENTRY_DATE_FORMATTER);
             // calculate entry year
-            int entryYear = entryMonthDay.getMonthValue() >= valueDate.getMonthValue()
+            int entryYear = entryMonthDay.getMonthOfYear() >= valueDate.getMonthOfYear()
                     ? valueDate.getYear()
                     : valueDate.getYear() + 1;
-            entryDate = entryMonthDay.atYear(entryYear);
+            entryDate = entryMonthDay.toLocalDate(entryYear);
+
         }
         DebitCreditType debitCreditType;
         DebitCreditMark debitCreditMark;
@@ -218,16 +220,16 @@ public class StatementLine implements SwiftField {
     public String getContent() {
         try {
             return SWIFT_NOTATION.render(Lists.newArrayList(
-                    VALUE_DATE_FORMATTER.format(valueDate),
-                    valueDate.equals(entryDate) ? null : ENTRY_DATE_FORMATTER.format(entryDate),
+                    VALUE_DATE_FORMATTER.print(valueDate),
+                    valueDate.equals(entryDate) ? null : ENTRY_DATE_FORMATTER.print(entryDate),
                     debitCreditMark.toFieldValue(),
-                    fundsCode.orElse(null),
+                    fundsCode.orNull(),
                     SwiftDecimalFormatter.format(amount),
                     transactionTypeIdentificationCode.getType().name(),
                     transactionTypeIdentificationCode.getCode(),
                     referenceForAccountOwner,
-                    referenceForBank.orElse(null),
-                    supplementaryDetails.orElse(null)
+                    referenceForBank.orNull(),
+                    supplementaryDetails.orNull()
             ));
         } catch (FieldNotationParseException e) {
             throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);

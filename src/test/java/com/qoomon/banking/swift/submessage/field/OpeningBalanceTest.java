@@ -3,9 +3,8 @@ package com.qoomon.banking.swift.submessage.field;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.BigMoney;
 import org.joda.money.CurrencyUnit;
+import org.joda.time.LocalDate;
 import org.junit.Test;
-
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.*;
 

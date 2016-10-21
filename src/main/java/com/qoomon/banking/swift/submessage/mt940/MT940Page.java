@@ -1,11 +1,11 @@
 package com.qoomon.banking.swift.submessage.mt940;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.submessage.field.*;
 import org.joda.money.CurrencyUnit;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.qoomon.banking.swift.submessage.field.FieldUtils.*;
 
@@ -233,15 +233,15 @@ public class MT940Page {
         }
 
         this.transactionReferenceNumber = transactionReferenceNumber;
-        this.relatedReference = Optional.ofNullable(relatedReference);
+        this.relatedReference = Optional.fromNullable(relatedReference);
         this.accountIdentification = accountIdentification;
         this.statementNumber = statementNumber;
         this.openingBalance = openingBalance;
         this.transactionGroupList = transactionGroupList;
         this.closingBalance = closingBalance;
-        this.closingAvailableBalance = Optional.ofNullable(closingAvailableBalance);
+        this.closingAvailableBalance = Optional.fromNullable(closingAvailableBalance);
         this.forwardAvailableBalanceList = forwardAvailableBalanceList;
-        this.informationToAccountOwner = Optional.ofNullable(informationToAccountOwner);
+        this.informationToAccountOwner = Optional.fromNullable(informationToAccountOwner);
     }
 
     public TransactionReferenceNumber getTransactionReferenceNumber() {

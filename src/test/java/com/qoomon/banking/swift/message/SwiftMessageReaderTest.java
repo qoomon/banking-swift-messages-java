@@ -4,16 +4,17 @@ import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.qoomon.banking.TestUtils;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.concurrent.Callable;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -37,10 +38,15 @@ public class SwiftMessageReaderTest {
                 + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY;
 
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+        final SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(() -> classUnderTest.read());
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                classUnderTest.read();
+            }
+        });
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
 
@@ -58,10 +64,15 @@ public class SwiftMessageReaderTest {
                 + BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID
                 + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY;
 
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+        final SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        List<SwiftMessage> messageList = TestUtils.collectUntilNull(classUnderTest::read);
+        List<SwiftMessage> messageList = TestUtils.collectUntilNull(new Callable<SwiftMessage>() {
+            @Override
+            public SwiftMessage call() throws Exception {
+                return classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(messageList).hasSize(2);
@@ -75,10 +86,15 @@ public class SwiftMessageReaderTest {
         String swiftMessageText = "1:}" + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY;
 
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+        final SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -95,10 +111,15 @@ public class SwiftMessageReaderTest {
         String swiftMessageText = "{:1:}" + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY;
 
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+        final SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -114,10 +135,15 @@ public class SwiftMessageReaderTest {
         // Given
         String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID;
 
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+        final SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -135,10 +161,15 @@ public class SwiftMessageReaderTest {
         String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + BLOCK_5_DUMMY_EMPTY + "{6:}";
 
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+        final SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -155,10 +186,15 @@ public class SwiftMessageReaderTest {
         String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + BLOCK_4_DUMMY_EMPTY
                 + "{5:";
 
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+        final SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
 
         // When
-        Throwable exception = catchThrowable(classUnderTest::read);
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                classUnderTest.read();
+            }
+        });
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
@@ -173,20 +209,29 @@ public class SwiftMessageReaderTest {
 
         // Given
         URL mt940_valid_folder = Resources.getResource("swiftmessage");
-        Stream<Path> files = Files.walk(Paths.get(mt940_valid_folder.toURI())).filter(path -> Files.isRegularFile(path));
 
         // When
         final int[] errors = {0};
-        files.forEach(filePath -> {
-            try {
-                System.out.println(filePath);
-                SwiftMessageReader classUnderTest = new SwiftMessageReader(new FileReader(filePath.toFile()));
-                classUnderTest.read();
-            } catch (Exception e) {
-                System.out.println(Throwables.getStackTraceAsString(e));
-                errors[0]++;
+        Files.walkFileTree(Paths.get(mt940_valid_folder.toURI()), new SimpleFileVisitor<Path>(){
+            @Override
+            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+
+                if( !attrs.isRegularFile() ){
+                    return FileVisitResult.CONTINUE;
+                }
+
+                try {
+                    System.out.println(filePath);
+                    SwiftMessageReader classUnderTest = new SwiftMessageReader(new FileReader(filePath.toFile()));
+                    classUnderTest.read();
+                } catch (Exception e) {
+                    System.out.println(Throwables.getStackTraceAsString(e));
+                    errors[0]++;
+                }
+                return FileVisitResult.CONTINUE;
             }
         });
+
 
         // Then
         assertThat(errors[0]).isEqualTo(0);
@@ -199,8 +244,13 @@ public class SwiftMessageReaderTest {
         String contentInput = ""
                 + BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID
                 + BLOCK_4_DUMMY_EMPTY + BLOCK_5_DUMMY_EMPTY;
-        SwiftMessageReader messageReader = new SwiftMessageReader(new StringReader(contentInput));
-        SwiftMessage classUnderTest = TestUtils.collectUntilNull(messageReader::read).get(0);
+        final SwiftMessageReader messageReader = new SwiftMessageReader(new StringReader(contentInput));
+        SwiftMessage classUnderTest = TestUtils.collectUntilNull(new Callable<SwiftMessage>() {
+            @Override
+            public SwiftMessage call() throws Exception {
+                return messageReader.read();
+            }
+        }).get(0);
 
         // When
         String content = classUnderTest.getContent();

@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.message.block;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 import com.qoomon.banking.swift.message.block.exception.BlockParseException;
@@ -7,7 +8,6 @@ import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * <b>System Trail Block</b>
@@ -55,12 +55,12 @@ public class SystemTrailerBlock implements SwiftBlock {
 
         Preconditions.checkArgument(additionalSubblocks != null, "additionalSubblocks can't be null");
 
-        this.checksum = Optional.ofNullable(checksum);
-        this.systemOriginatedMessage = Optional.ofNullable(systemOriginatedMessage);
-        this.training = Optional.ofNullable(training);
-        this.possibleDuplicateMessage = Optional.ofNullable(possibleDuplicateMessage);
-        this.delayedMessage = Optional.ofNullable(delayedMessage);
-        this.messageReference = Optional.ofNullable(messageReference);
+        this.checksum = Optional.fromNullable(checksum);
+        this.systemOriginatedMessage = Optional.fromNullable(systemOriginatedMessage);
+        this.training = Optional.fromNullable(training);
+        this.possibleDuplicateMessage = Optional.fromNullable(possibleDuplicateMessage);
+        this.delayedMessage = Optional.fromNullable(delayedMessage);
+        this.messageReference = Optional.fromNullable(messageReference);
         this.additionalSubblocks = additionalSubblocks;
     }
 

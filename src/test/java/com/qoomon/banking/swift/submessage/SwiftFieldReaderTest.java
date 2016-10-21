@@ -5,10 +5,12 @@ import com.qoomon.banking.swift.submessage.field.GeneralField;
 import com.qoomon.banking.swift.submessage.field.SwiftFieldReader;
 import com.qoomon.banking.swift.submessage.field.exception.FieldParseException;
 import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import java.io.StringReader;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -24,10 +26,15 @@ public class SwiftFieldReaderTest {
 
         // Given
         String swiftMessage = ":1:fizz\n:2:buzz";
-        SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
+        final SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        List<GeneralField> fieldList = TestUtils.collectUntilNull(classUnderTest::readField);
+        List<GeneralField> fieldList =  TestUtils.collectUntilNull(new Callable<GeneralField>() {
+            @Override
+            public GeneralField call() throws Exception {
+                return classUnderTest.readField();
+            }
+        });
 
         // Then
         assertThat(fieldList).hasSize(2);
@@ -45,10 +52,15 @@ public class SwiftFieldReaderTest {
 
         // Given
         String swiftMessage = ":1:fizz\n:2:multi\r\nline";
-        SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
+        final SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        List<GeneralField> fieldList = TestUtils.collectUntilNull(classUnderTest::readField);
+        List<GeneralField> fieldList =  TestUtils.collectUntilNull(new Callable<GeneralField>() {
+            @Override
+            public GeneralField call() throws Exception {
+                return classUnderTest.readField();
+            }
+        });
 
         // Then
         assertThat(fieldList).hasSize(2);
@@ -65,10 +77,20 @@ public class SwiftFieldReaderTest {
 
         // Given
         String swiftMessage = "fizz\n:2:buzz";
-        SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
+        final SwiftFieldReader classUnderTest = new SwiftFieldReader(new StringReader(swiftMessage));
 
         // When
-        Throwable exception = catchThrowable(() -> TestUtils.collectUntilNull(classUnderTest::readField));
+        Throwable exception = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                TestUtils.collectUntilNull(new Callable<GeneralField>() {
+                    @Override
+                    public GeneralField call() throws Exception {
+                        return classUnderTest.readField();
+                    }
+                });
+            }
+        });
 
         // Then
         assertThat(exception).as("Exception").isInstanceOf(FieldParseException.class);

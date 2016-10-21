@@ -3,9 +3,10 @@ package com.qoomon.banking.swift.message.block;
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
 import com.qoomon.banking.swift.submessage.field.subfield.MessagePriority;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,9 +37,9 @@ public class ApplicationHeaderOutputBlock {
 
     public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(O)(.{3})(.{4})(.{6})(.{12})(.{4})(.{6})(.{6})(.{4})(.{1})");
 
-    private static final DateTimeFormatter INPUT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HHmmyyMMdd");
+    private static final DateTimeFormatter INPUT_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("HHmmyyMMdd");
 
-    private static final DateTimeFormatter OUTPUT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyMMddHHmm");
+    private static final DateTimeFormatter OUTPUT_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyMMddHHmm");
 
     private final String sessionNumber;
 
@@ -131,11 +132,11 @@ public class ApplicationHeaderOutputBlock {
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append(MODE_CODE);
         contentBuilder.append(messageType);
-        contentBuilder.append(INPUT_DATE_TIME_FORMATTER.format(inputDateTime));
+        contentBuilder.append(INPUT_DATE_TIME_FORMATTER.print(inputDateTime));
         contentBuilder.append(inputReference);
         contentBuilder.append(sessionNumber);
         contentBuilder.append(sequenceNumber);
-        contentBuilder.append(OUTPUT_DATE_TIME_FORMATTER.format(outputDateTime));
+        contentBuilder.append(OUTPUT_DATE_TIME_FORMATTER.print(outputDateTime));
         contentBuilder.append(messagePriority.asText());
         return contentBuilder.toString();
     }

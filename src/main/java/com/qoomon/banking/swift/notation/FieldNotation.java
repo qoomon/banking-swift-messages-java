@@ -1,8 +1,7 @@
 package com.qoomon.banking.swift.notation;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
-import java.util.Optional;
 
 /**
  * Created by qoomon on 29/07/16.
@@ -27,11 +26,11 @@ public class FieldNotation {
         Preconditions.checkArgument(length0 != null, "length0 can't be null");
 
         this.optional = optional;
-        this.prefix = Optional.ofNullable(prefix);
+        this.prefix = Optional.fromNullable(prefix);
         this.charSet = charSet;
         this.length0 = length0;
-        this.length1 = Optional.ofNullable(length1);
-        this.lengthSign = Optional.ofNullable(lengthSign);
+        this.length1 = Optional.fromNullable(length1);
+        this.lengthSign = Optional.fromNullable(lengthSign);
 
         if (!this.lengthSign.isPresent()) {
             Preconditions.checkArgument(!this.length1.isPresent(), "Missing field length sign between field lengths : '%s'", this);

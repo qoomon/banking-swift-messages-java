@@ -1,5 +1,8 @@
 package com.qoomon.banking.swift.notation;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
@@ -75,7 +78,7 @@ public class SwiftNotation {
      * Group 4: Field length1
      * Group 5: Field charset
      */
-    private static final Pattern FIELD_NOTATION_PATTERN = Pattern.compile("(" + String.join("|", SEPARATOR_MAP.keySet()) + ")?([0-9]{1,2})([!-*])?([0-9]{1,2})?([" + String.join("", CHARSET_REGEX_MAP.keySet()) + "])");
+    private static final Pattern FIELD_NOTATION_PATTERN = Pattern.compile("(" + Joiner.on("|").join(SEPARATOR_MAP.keySet()) + ")?([0-9]{1,2})([!-*])?([0-9]{1,2})?([" + Joiner.on("").join(CHARSET_REGEX_MAP.keySet()) + "])");
 
 
     private final String notation;
@@ -117,7 +120,12 @@ public class SwiftNotation {
                     throw new FieldNotationParseException("Mandatory field '" + fieldIndex + "' value can't be null", resultBuilder.length());
                 }
             } else {
-                String renderedFieldValue = fieldNotation.getPrefix().map(SEPARATOR_MAP::get).orElse("") + fieldValue;
+                String renderedFieldValue = fieldNotation.getPrefix().transform(new Function<String, String>() {
+                    @Override
+                    public String apply(String prefix) {
+                        return SEPARATOR_MAP.get(prefix);
+                    }
+                }).or("") + fieldValue;
                 Matcher fieldMatcher = fieldPattern.matcher(renderedFieldValue);
                 if (!fieldMatcher.find() || fieldMatcher.end() != renderedFieldValue.length()) {
                     throw new FieldNotationParseException("Field value '" + renderedFieldValue + "' didn't match " + fieldNotation, resultBuilder.toString().length());
@@ -218,7 +226,7 @@ public class SwiftNotation {
                 }
             }
             if (!fieldDelimiterList.isEmpty()) {
-                delimiterLookaheadRegex = "(?!" + String.join("|", fieldDelimiterList) + ")";
+                delimiterLookaheadRegex = "(?!" + Joiner.on("|").join(fieldDelimiterList) + ")";
             }
 
             // create field regex

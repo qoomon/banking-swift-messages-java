@@ -1,12 +1,10 @@
 package com.qoomon.banking.swift.submessage.field;
 
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
-import org.assertj.core.api.Assertions;
 import org.joda.money.BigMoney;
 import org.joda.money.CurrencyUnit;
+import org.joda.time.LocalDate;
 import org.junit.Test;
-
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -26,7 +24,7 @@ public class ForwardAvailableBalanceTest {
         // Then
         assertThat(field).isNotNull();
         assertThat(field.getDebitCreditMark()).isEqualTo(DebitCreditMark.DEBIT);
-        assertThat(field.getEntryDate()).isEqualTo(LocalDate.of(2016, 1, 30));
+        assertThat(field.getEntryDate()).isEqualTo(LocalDate.parse("2016-01-30"));
         assertThat(field.getAmount()).isEqualByComparingTo(BigMoney.of(CurrencyUnit.EUR, 123.456));
 
     }

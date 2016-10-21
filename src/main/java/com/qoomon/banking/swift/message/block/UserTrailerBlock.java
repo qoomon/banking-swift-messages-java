@@ -1,5 +1,6 @@
 package com.qoomon.banking.swift.message.block;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.qoomon.banking.swift.message.block.exception.BlockFieldParseException;
@@ -8,7 +9,6 @@ import com.qoomon.banking.swift.message.block.exception.BlockParseException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * <b>User Header Block</b>
@@ -50,12 +50,12 @@ public class UserTrailerBlock implements SwiftBlock {
 
         Preconditions.checkArgument(additionalSubblocks != null, "additionalSubblocks can't be null");
 
-        this.messageAuthenticationCode = Optional.ofNullable(messageAuthenticationCode);
-        this.proprietaryAuthenticationCode = Optional.ofNullable(proprietaryAuthenticationCode);
-        this.checksum = Optional.ofNullable(checksum);
-        this.training = Optional.ofNullable(training);
-        this.possibleDuplicateEmission = Optional.ofNullable(possibleDuplicateEmission);
-        this.deliveryDelay = Optional.ofNullable(deliveryDelay);
+        this.messageAuthenticationCode = Optional.fromNullable(messageAuthenticationCode);
+        this.proprietaryAuthenticationCode = Optional.fromNullable(proprietaryAuthenticationCode);
+        this.checksum = Optional.fromNullable(checksum);
+        this.training = Optional.fromNullable(training);
+        this.possibleDuplicateEmission = Optional.fromNullable(possibleDuplicateEmission);
+        this.deliveryDelay = Optional.fromNullable(deliveryDelay);
         this.additionalSubblocks = ImmutableMap.copyOf(additionalSubblocks);
     }
 
