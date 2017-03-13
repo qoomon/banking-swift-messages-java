@@ -26,7 +26,7 @@ import java.util.List;
  * <pre>
  * 1: 1!a - Debit/Credit Mark - 'D' = Debit, 'C' Credit
  * 2: 6!n - Date - Format 'YYMMDD'
- * 3: 3!n - Currency - Three Digit Code
+ * 3: 3!a - Currency - Three Digit Code
  * 4: 15d - Amount
  * </pre>
  */

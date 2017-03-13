@@ -18,12 +18,12 @@ import java.util.Map;
  * <pre>
  * 00                                      -  Buchungstext
  * 10                                      -  Primanoten-Nr.
- * 20, 21, 22, 23, 24, 25, 26, 27, 28" 29  -  Verwendungszweck
+ * 20, 21, 22, 23, 24, 25, 26, 27, 28, 29  -  Verwendungszweck
  * 30                                      -  Bankkennung Auftraggeber / Zahlungsempf.
  * 31                                      -  Kto.Nr. Auftraggeber / Zahlungsempf.
  * 32, 33                                  -  Name Auftraggeber / Zahlungsempf.
  * 34                                      -  Textschlüsselergänzung
- * 60, 61, 62, 63)                         -  Verwendungszweck
+ * 60, 61, 62, 63                          -  Fortsetzung Verwendungszweck
  * </pre>
  */
 
