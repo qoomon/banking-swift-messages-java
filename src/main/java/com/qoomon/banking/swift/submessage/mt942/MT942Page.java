@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.submessage.mt942;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.submessage.PageSeparator;
 import com.qoomon.banking.swift.submessage.field.*;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import org.joda.money.CurrencyUnit;
@@ -214,7 +215,7 @@ public class MT942Page {
         if (informationToAccountOwner.isPresent()) {
             contentBuilder.append(swiftTextOf(informationToAccountOwner.get())).append("\n");
         }
-        contentBuilder.append("-");
+        contentBuilder.append(PageSeparator.TAG);
         return contentBuilder.toString();
     }
 }

@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.submessage.field;
 
 import com.qoomon.banking.swift.bcsmessage.BCSMessage;
+import com.qoomon.banking.swift.bcsmessage.BCSMessageParseException;
 import com.qoomon.banking.swift.bcsmessage.BCSMessageParser;
 import org.junit.Test;
 
@@ -48,6 +49,22 @@ public class BCSMessageParserTest {
                 .containsEntry("20", "foo")
                 .containsEntry("36", "bar")
                 .hasSize(2);
+    }
+
+    @Test
+    public void parse_THROW_on_duplicate_fields() throws Exception {
+        // Given
+        String messageText = "835?20foo?20bar";
+
+        BCSMessageParser subjectUnderTest = new BCSMessageParser();
+
+        // When
+
+        Throwable thrown = catchThrowable(() -> subjectUnderTest.parseMessage(messageText));
+
+        // then
+        assertThat(thrown).isInstanceOf(BCSMessageParseException.class)
+                .hasMessageContaining("duplicate field " + "20");
     }
 
 

@@ -9,7 +9,4 @@ public class SwiftNotationParseException extends RuntimeException {
         super(message);
     }
 
-    public SwiftNotationParseException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

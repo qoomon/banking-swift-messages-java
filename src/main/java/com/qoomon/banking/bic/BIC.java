@@ -1,4 +1,4 @@
-package com.qoomon.banking.swift;
+package com.qoomon.banking.bic;
 
 import com.google.common.base.Preconditions;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
@@ -10,21 +10,22 @@ import java.util.Optional;
 /**
  * <b>Business Identifier Codes</b>
  * <p>
- * <b>Format</b> 6!a2!a2!c[3!c]
+ * <b>Format</b> 4!a2!a2!c[3!c]
  * <p>
  * <b>SubFields</b>
  * <pre>
- * 1: 6!a   - Institution Code
+ * 1: 4!a   - Institution Code
  * 2: 2!a   - Country Code
  * 3: 2!c   - Location Code
  * 4: [3!c] - Branch Code
  * </pre>
  *
  * @see <a href="http://www.sepaforcorporates.com/single-euro-payments-area/sepa-iban-number-the-definitive-guide/">http://www.sepaforcorporates.com/single-euro-payments-area/sepa-iban-number-the-definitive-guide/</a>
+ * @see <a href="https://en.wikipedia.org/wiki/ISO_9362">https://en.wikipedia.org/wiki/ISO_9362</a>
  */
 public class BIC {
 
-    public static SwiftNotation NOTATION = new SwiftNotation("6!a2!a2!c[3!c]");
+    public static SwiftNotation NOTATION = new SwiftNotation("4!a2!a2!c[3!c]");
 
     private final String institutionCode;
     private final String countryCode;

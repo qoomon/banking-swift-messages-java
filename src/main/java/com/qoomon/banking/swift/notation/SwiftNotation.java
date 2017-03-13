@@ -75,7 +75,7 @@ public class SwiftNotation {
      * Group 4: Field length1
      * Group 5: Field charset
      */
-    private static final Pattern FIELD_NOTATION_PATTERN = Pattern.compile("(" + String.join("|", SEPARATOR_MAP.keySet()) + ")?([0-9]{1,2})([!-*])?([0-9]{1,2})?([" + String.join("", CHARSET_REGEX_MAP.keySet()) + "])");
+    private static final Pattern FIELD_NOTATION_PATTERN = Pattern.compile("(" + String.join("|", SEPARATOR_MAP.keySet()) + ")?([0-9]{1,2})([!\\-*])?([0-9]{1,2})?([" + String.join("", CHARSET_REGEX_MAP.keySet()) + "])");
 
 
     private final String notation;

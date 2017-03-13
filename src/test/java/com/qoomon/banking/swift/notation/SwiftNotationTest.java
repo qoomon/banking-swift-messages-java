@@ -73,4 +73,60 @@ public class SwiftNotationTest {
 
     }
 
+    @Test
+    public void parse_SHOULD_parse_range_notation() throws Exception {
+
+        // Given
+
+        String swiftFieldNotation = "2-4a";
+
+        String fieldText = "ABC";
+
+        // When
+
+        List<String> fieldValueList = new SwiftNotation(swiftFieldNotation).parse(fieldText);
+
+        // Then
+
+        assertThat(fieldValueList).hasSize(1);
+        assertThat(fieldValueList.get(0)).isEqualTo("ABC");
+
+    }
+
+
+    @Test
+    public void parse_THROW_on_notation_violation() throws Exception {
+
+        // Given
+
+        String swiftFieldNotation = "5!a";
+
+        String fieldText = "ABC";
+
+        // When
+
+        Throwable thrown = catchThrowable(() -> {new SwiftNotation(swiftFieldNotation).parse(fieldText); });
+
+        // then
+        assertThat(thrown).isInstanceOf(FieldNotationParseException.class)
+                .hasFieldOrPropertyWithValue("index", 0);
+
+    }
+
+    @Test
+    public void constructor_THROW_on_invalid_notation() throws Exception {
+
+        // Given
+
+        String swiftFieldNotation = "a!1";
+
+        // When
+
+        Throwable thrown = catchThrowable(() -> {new SwiftNotation(swiftFieldNotation); });
+
+        // then
+        assertThat(thrown).isInstanceOf(SwiftNotationParseException.class);
+
+    }
+
 }

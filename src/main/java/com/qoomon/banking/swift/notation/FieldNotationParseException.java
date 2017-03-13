@@ -12,16 +12,6 @@ public class FieldNotationParseException extends Exception {
         this.index = index;
     }
 
-    public FieldNotationParseException(String message, int index, Throwable cause) {
-        super(message + " at index" + index, cause);
-        this.index = index;
-    }
-
-    public FieldNotationParseException(Throwable cause) {
-        super(cause);
-        index = 0;
-    }
-
     public int getIndex() {
         return index;
     }
