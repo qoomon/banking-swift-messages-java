@@ -16,5 +16,21 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 
 
 
+[SEPA Verwendugszweck Fields](https://www.hettwer-beratung.de/sepa-spezialwissen/sepa-technische-anforderungen/sepa-gesch%C3%A4ftsvorfallcodes-gvc-mt-940/)
+* EREF : Ende-zu-Ende Referenz
+* KREF : Kundenreferenz
+* MREF : Mandatsreferenz
+* BREF : Bankreferenz
+* RREF : Retourenreferenz
+* CRED : Creditor-ID
+* DEBT : Debitor-ID
+* COAM : Zinskompensationsbetrag
+* OAMT : Ursprünglicher Umsatzbetrag
+* SVWZ : Verwendungszweck
+* ABWA : Abweichender Auftraggeber
+* ABWE : Abweichender Empfänger
+* IBAN : IBAN des Auftraggebers
+* BIC : BIC des Auftraggebers
+
 ###### Tags
 Banking, Reader, Decoder

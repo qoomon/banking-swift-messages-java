@@ -39,6 +39,10 @@ public class BCSMessageParser {
             parseIndex = messageFieldMatcher.end();
             String fieldId = messageFieldMatcher.group(2);
             String fieldContent = messageFieldMatcher.group(3);
+            if(messageFieldMap.containsKey(fieldId)){
+                throw new BCSMessageParseException("duplicate field " + fieldId);
+            }
+
             messageFieldMap.put(fieldId, fieldContent);
         }
 

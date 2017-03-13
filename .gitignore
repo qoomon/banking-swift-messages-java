@@ -13,3 +13,5 @@ hs_err_pid*
 *.iml
 .idea
 target
+src/test/resources/depositsolution
+src/test/java/com/depositsolution
