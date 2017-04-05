@@ -9,6 +9,7 @@ import java.util.Map;
  * Created by qoomon on 25/07/16
  * <p>
  * Banking Communication Standard Format Message
+ * http://www.ebics.de/index.php?id=77 (Anlage 3 Datenformate)
  * https://de.wikipedia.org/wiki/Banking_Communication_Standard
  * https://www.bayernlb.de/internet/media/de/internet_4/de_1/downloads_5/0800_financial_office_it_operations_5/4200_1/formate/MT940_942.pdf
  * https://www.ksk-koeln.de/uebersicht-mt940-geschaeftsvorfallcodes.pdfx
