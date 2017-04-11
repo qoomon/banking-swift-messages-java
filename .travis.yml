@@ -5,7 +5,8 @@ jdk:
   
 before_install:
   # install jpm4j
-  - curl -sL https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar >jpm.jar && java -jar jpm.jar -u init && export PATH=$PATH:~/jpm/bin
+  # curl -sL https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar >jpm.jar && java -jar jpm.jar -u init && export PATH=$PATH:~/jpm/bin
+  - curl https://www.jpm4j.org/install/script | sh
   - jpm install com.codacy:codacy-coverage-reporter:assembly
 
 install: 
