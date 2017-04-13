@@ -15,7 +15,11 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 [![Release](https://jitpack.io/v/qoomon/banking-swift-messages-java.svg)](https://jitpack.io/#qoomon/banking-swift-messages-java)
 
 
+Support for MT490 and MT942 so far.
+If you need more MT formats just let me know.
 
+
+## Dev Notes
 [SEPA Verwendugszweck Fields](https://www.hettwer-beratung.de/sepa-spezialwissen/sepa-technische-anforderungen/sepa-gesch%C3%A4ftsvorfallcodes-gvc-mt-940/)
 * EREF : Ende-zu-Ende Referenz
 * KREF : Kundenreferenz
