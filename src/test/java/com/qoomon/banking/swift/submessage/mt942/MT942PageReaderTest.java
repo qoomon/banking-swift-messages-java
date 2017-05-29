@@ -38,7 +38,7 @@ public class MT942PageReaderTest {
                 ":13D:0001032359+0500\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:multiline info\n" +
-                "info\n" +
+                "-info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:singleline info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
@@ -73,7 +73,7 @@ public class MT942PageReaderTest {
                 ":13D:0001032359+0500\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:multiline info\n" +
-                "info\n" +
+                "-info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:singleline info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +

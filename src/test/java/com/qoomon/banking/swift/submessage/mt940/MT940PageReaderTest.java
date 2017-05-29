@@ -36,7 +36,7 @@ public class MT940PageReaderTest {
                 ":60F:C000103USD672,\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:multiline info\n" +
-                "info\n" +
+                "-info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:singleline info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
@@ -69,7 +69,7 @@ public class MT940PageReaderTest {
                 ":60F:C000103USD672,\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:multiline info\n" +
-                "info\n" +
+                "-info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
                 ":86:singleline info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
