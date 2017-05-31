@@ -2,6 +2,8 @@
 Parser for Financial SWIFT Messages
 SWIFT = Society for Worldwide Interbank Financial Telecommunication
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 [![VersionEye](https://img.shields.io/versioneye/d/user/projects/57755ec268ee070047f06511.svg)](https://www.versioneye.com/user/projects/57755ec268ee070047f06511)
 
 [![Codacy grade](https://img.shields.io/codacy/grade/d4e120eafc4341aabe1a474aa17008b6.svg)](https://www.codacy.com/app/bengt-brodersen/banking-swift-messages-java)
