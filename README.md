@@ -4,11 +4,11 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[![Codacy grade](https://img.shields.io/codacy/grade/d4e120eafc4341aabe1a474aa17008b6.svg)](https://www.codacy.com/app/bengt-brodersen/banking-swift-messages-java)
-
 [![Travis](https://img.shields.io/travis/qoomon/banking-swift-messages-java.svg)](https://travis-ci.org/qoomon/banking-swift-messages-java)
 
-[![Codacy coverage](https://img.shields.io/codacy/coverage/d4e120eafc4341aabe1a474aa17008b6.svg)](https://www.codacy.com/app/bengt-brodersen/banking-swift-messages-java)
+[![Codacy Maintainability](https://img.shields.io/codeclimate/maintainability/qoomon/banking-swift-messages-java.svg)](https://codeclimate.com/github/qoomon/banking-swift-messages-java)
+
+[![Codacy Coverage](https://img.shields.io/codeclimate/coverage/qoomon/banking-swift-messages-java.svg)](https://codeclimate.com/github/qoomon/banking-swift-messages-java)
 
 [![Snyk Vulnerabilities](https://snyk.io/test/github/qoomon/banking-swift-messages-java/badge.svg)](https://snyk.io/test/github/qoomon/banking-swift-messages-java)
 
