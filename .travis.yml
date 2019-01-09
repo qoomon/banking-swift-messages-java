@@ -12,9 +12,8 @@ script:
   - mvn verify -B -V
   
 after_script: 
-  - cd src/main/java
-  - ../../../cc-test-reporter format-coverage -d -t jacoco ../../../target/site/jacoco/jacoco.xml
-  - ../../../cc-test-reporter upload-coverage -d
+  - JACOCO_SOURCE_PATH=src/main/java ./cc-test-reporter format-coverage -d -t jacoco ./target/site/jacoco/jacoco.xml
+  - ./cc-test-reporter upload-coverage -d
  
 
 
