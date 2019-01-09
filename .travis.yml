@@ -3,11 +3,18 @@ language: java
 jdk:
   - oraclejdk8
   
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
 script:
   - mvn verify -B -V
   - mvn cobertura:cobertura
   
-after_success:
+after_script: 
+  - ./cc-test-reporter format-coverage -d -t cobertura ./target/site/cobertura/index.xml
+  - ./cc-test-reporter upload-coverage -d
   - bash <(curl -s https://codecov.io/bash)
  
 
