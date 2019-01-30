@@ -12,7 +12,7 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 
 [![Build Status](https://travis-ci.com/qoomon/banking-swift-messages-java.svg?branch=master)](https://travis-ci.com/qoomon/banking-swift-messages-java)
 
-[![Dependency Monitoring](https://badgen.net/badge/Dependency%20Monitoring/enabled/green?icon=dependabot)](https://dependabot.com/)
+[![Dependency Monitoring](https://badgen.net/badge/dependency%20monitoring/enabled/green?icon=dependabot)](https://dependabot.com/)
 
 ### Releases
 
