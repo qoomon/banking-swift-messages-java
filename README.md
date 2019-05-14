@@ -39,6 +39,3 @@ If you need more MT formats just let me know and create a new [issue](https://gi
 * ABWE : Abweichender Empfänger
 * IBAN : IBAN des Auftraggebers
 * BIC : BIC des Auftraggebers
-
-###### Tags
-Banking, Reader, Decoder
