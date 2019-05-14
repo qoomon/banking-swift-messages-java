@@ -20,7 +20,7 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 
 
 Support for MT490 and MT942 so far.
-If you need more MT formats just let me know.
+If you need more MT formats just let me know and create a new [issue](https://github.com/qoomon/banking-swift-messages-java/issues)
 
 
 ## Dev Notes
