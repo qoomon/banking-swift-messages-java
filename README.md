@@ -1,4 +1,4 @@
-# Banking Swift Messages Parser
+# Banking Swift Messages Parser/Writer
 
 Parser for Financial SWIFT Messages
 SWIFT = Society for Worldwide Interbank Financial Telecommunication
