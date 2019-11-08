@@ -1,4 +1,4 @@
-# banking-swift-messages-java
+# Banking Swift Messages Parser
 
 Parser for Financial SWIFT Messages
 SWIFT = Society for Worldwide Interbank Financial Telecommunication
