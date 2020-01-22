@@ -5,15 +5,25 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+
+[![Build Workflow](https://github.com/qoomon/banking-swift-messages-java/workflows/Build/badge.svg)](https://github.com/qoomon/banking-swift-messages-java/actions)
+
+
+[![Dependency Monitoring](https://badgen.net/badge/dependency%20monitoring/enabled/green?icon=dependabot)](https://dependabot.com/)
+
+
 [![Known Vulnerabilities](https://snyk.io/test/github/qoomon/banking-swift-messages-java/badge.svg)](https://snyk.io/test/github/qoomon/banking-swift-messages-java)
+
+
+[![LGTM Grade](https://img.shields.io/lgtm/grade/java/github/qoomon/banking-swift-messages-java)](https://lgtm.com/projects/g/qoomon/banking-swift-messages-java)
+
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/e611239eea560ee9c72c/maintainability)](https://codeclimate.com/github/qoomon/banking-swift-messages-java/maintainability)
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e611239eea560ee9c72c/test_coverage)](https://codeclimate.com/github/qoomon/banking-swift-messages-java/test_coverage)
 
-[![Build Status](https://travis-ci.com/qoomon/banking-swift-messages-java.svg?branch=master)](https://travis-ci.com/qoomon/banking-swift-messages-java)
 
-[![Dependency Monitoring](https://badgen.net/badge/dependency%20monitoring/enabled/green?icon=dependabot)](https://dependabot.com/)
+
 
 ### Releases
 
