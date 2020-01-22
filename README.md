@@ -9,7 +9,7 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 [![Build Workflow](https://github.com/qoomon/banking-swift-messages-java/workflows/Build/badge.svg)](https://github.com/qoomon/banking-swift-messages-java/actions)
 
 
-[![Dependency Monitoring](https://badgen.net/badge/dependency%20monitoring/enabled/green?icon=dependabot)](https://dependabot.com/)
+[![Dependency Monitoring](https://badgen.net/badge/dependency%20monitoring/%20/green?icon=dependabot)](https://github.com/qoomon/banking-swift-messages-java/pulls/app%2Fdependabot-preview)
 
 
 [![Known Vulnerabilities](https://snyk.io/test/github/qoomon/banking-swift-messages-java/badge.svg)](https://snyk.io/test/github/qoomon/banking-swift-messages-java)
