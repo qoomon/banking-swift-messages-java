@@ -30,7 +30,10 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 [![Release](https://jitpack.io/v/qoomon/banking-swift-messages-java.svg)](https://jitpack.io/#qoomon/banking-swift-messages-java)
 
 
-Support for MT940 and MT942 so far.
+#### Supported Message Types (so far)
+* **MT940**
+* **MT942**
+
 If you need more MT formats just let me know and create a new [issue](https://github.com/qoomon/banking-swift-messages-java/issues)
 
 
