@@ -67,6 +67,22 @@ public class SwiftMessageReaderTest {
         assertThat(messageList).hasSize(2);
     }
 
+    @Test
+    public void parse_SHOULD_read_message_without_optional_blocks() throws Exception {
+
+        // Given
+        String swiftMessageText = ""
+                + BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID
+                + BLOCK_4_DUMMY_EMPTY;
+
+        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
+
+        // When
+        List<SwiftMessage> messageList = TestUtils.collectUntilNull(classUnderTest::read);
+
+        // Then
+        assertThat(messageList).hasSize(1);
+    }
 
     @Test
     public void parse_WHEN_first_bracket_is_missing_THEN_throw_exception() throws Exception {
