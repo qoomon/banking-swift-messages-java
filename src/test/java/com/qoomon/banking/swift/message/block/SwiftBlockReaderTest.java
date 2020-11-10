@@ -35,7 +35,6 @@ public class SwiftBlockReaderTest {
         assertThat(blockList.get(1).getContent()).isEqualTo("b");
         assertThat(blockList.get(2).getId()).isEqualTo("3");
         assertThat(blockList.get(2).getContent()).isEqualTo("c");
-
     }
 
     @Test
@@ -99,6 +98,28 @@ public class SwiftBlockReaderTest {
         assertThat(blockList.get(2).getContent()).isEqualTo("c");
         assertThat(blockList.get(3).getId()).isEqualTo("4");
         assertThat(blockList.get(3).getContent()).isEqualTo("\n-");
+    }
+
+    @Test
+    public void readBlock_SHOULD_ignore_whitespaces_between_blocks() throws Exception {
+        // Given
+
+        String blockText = "{1:a} \t{2:b} \n\r{3:c}";
+
+        SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
+
+        // When
+        List<GeneralBlock> blockList = TestUtils.collectUntilNull(subjectUnderTest::readBlock);
+
+        // Then
+
+        assertThat(blockList).hasSize(3);
+        assertThat(blockList.get(0).getId()).isEqualTo("1");
+        assertThat(blockList.get(0).getContent()).isEqualTo("a");
+        assertThat(blockList.get(1).getId()).isEqualTo("2");
+        assertThat(blockList.get(1).getContent()).isEqualTo("b");
+        assertThat(blockList.get(2).getId()).isEqualTo("3");
+        assertThat(blockList.get(2).getContent()).isEqualTo("c");
     }
 
 }
