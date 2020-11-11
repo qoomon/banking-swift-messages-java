@@ -28,26 +28,6 @@ public class SwiftMessageReaderTest {
     private static final String BLOCK_4_DUMMY_EMPTY = "{4:\n-}";
     private static final String BLOCK_5_DUMMY_EMPTY = "{5:}";
 
-
-    @Test
-    public void parse_WHEN_detecting_whitespaces_between_blocks_THEN_throw_exception() throws Exception {
-
-        // Given
-        String swiftMessageText = BLOCK_1_DUMMY_VALID + BLOCK_2_DUMMY_VALID + BLOCK_3_DUMMY_VALID + " "
-                + BLOCK_4_DUMMY_EMPTY
-                + BLOCK_5_DUMMY_EMPTY;
-
-        SwiftMessageReader classUnderTest = new SwiftMessageReader(new StringReader(swiftMessageText));
-
-        // When
-        Throwable exception = catchThrowable(() -> classUnderTest.read());
-        // Then
-        assertThat(exception).as("Exception").isInstanceOf(SwiftMessageParseException.class);
-
-        SwiftMessageParseException parseException = (SwiftMessageParseException) exception;
-        assertThat(parseException.getLineNumber()).isEqualTo(1);
-    }
-
     @Test
     public void parse_SHOULD_read_multiple_messages() throws Exception {
 

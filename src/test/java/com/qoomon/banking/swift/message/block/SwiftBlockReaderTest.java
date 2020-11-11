@@ -104,7 +104,7 @@ public class SwiftBlockReaderTest {
     public void readBlock_SHOULD_ignore_whitespaces_between_blocks() throws Exception {
         // Given
 
-        String blockText = "{1:a} \t{2:b} \n\r{3:c}";
+        String blockText = "{1:a} \t\n\r{2:b}{3:c}";
 
         SwiftBlockReader subjectUnderTest = new SwiftBlockReader(new StringReader(blockText));
 
