@@ -6,6 +6,7 @@ import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import com.qoomon.banking.swift.submessage.PageSeparator;
 import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
+import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 
 import java.io.Reader;
 import java.util.LinkedList;
@@ -96,13 +97,15 @@ public class MT942PageReader {
                         break;
                     }
                     case FloorLimitIndicator.FIELD_TAG_34F: {
-                        if (floorLimitIndicatorDebit == null) {
-                            floorLimitIndicatorDebit = FloorLimitIndicator.of(currentField);
+                        FloorLimitIndicator floorLimitIndicator = FloorLimitIndicator.of(currentField);
+                        if (!floorLimitIndicator.getDebitCreditMark().isPresent()
+                                || floorLimitIndicator.getDebitCreditMark().get() == DebitCreditMark.DEBIT) {
+                            floorLimitIndicatorDebit = floorLimitIndicator;
                             nextValidFieldSet = ImmutableSet.of(
                                     FloorLimitIndicator.FIELD_TAG_34F,
                                     DateTimeIndicator.FIELD_TAG_13D);
                         } else {
-                            floorLimitIndicatorCredit = FloorLimitIndicator.of(currentField);
+                            floorLimitIndicatorCredit = floorLimitIndicator;
                             nextValidFieldSet = ImmutableSet.of(DateTimeIndicator.FIELD_TAG_13D);
                         }
                         break;

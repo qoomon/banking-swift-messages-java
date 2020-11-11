@@ -91,7 +91,7 @@ public class MT942Page {
         Preconditions.checkArgument(transactionReferenceNumber != null, "transactionReferenceNumber can't be null");
         Preconditions.checkArgument(accountIdentification != null, "accountIdentification can't be null");
         Preconditions.checkArgument(statementNumber != null, "statementNumber can't be null");
-        Preconditions.checkArgument(floorLimitIndicatorDebit != null, "floorLimitIndicatorDebit can't be null");
+        Preconditions.checkArgument(floorLimitIndicatorDebit != null || floorLimitIndicatorCredit != null, "floorLimitIndicator can't be null");
         if (floorLimitIndicatorDebit != null && floorLimitIndicatorDebit.getDebitCreditMark().isPresent()) {
             DebitCreditMark debitCreditMark = floorLimitIndicatorDebit.getDebitCreditMark().get();
             Preconditions.checkArgument(debitCreditMark == DebitCreditMark.DEBIT, "floorLimitIndicatorDebit type can't " + debitCreditMark);
@@ -105,27 +105,27 @@ public class MT942Page {
 
 
         // ensure matching currency
-        CurrencyUnit statementCurrency = floorLimitIndicatorDebit.getAmount().getCurrencyUnit();
+        CurrencyUnit statementCurrency = (floorLimitIndicatorDebit != null ? floorLimitIndicatorDebit : floorLimitIndicatorCredit).getAmount().getCurrencyUnit();
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
 
-        if(floorLimitIndicatorCredit != null){
+        if (floorLimitIndicatorCredit != null) {
             CurrencyUnit currency = floorLimitIndicatorCredit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
 
         for (TransactionGroup transactionGroup : transactionGroupList) {
-            if (transactionGroup.getStatementLine().getFundsCode().isPresent()){
+            if (transactionGroup.getStatementLine().getFundsCode().isPresent()) {
                 String fundsCode = transactionGroup.getStatementLine().getFundsCode().get();
                 Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'");
             }
         }
 
-        if(transactionSummaryDebit != null){
+        if (transactionSummaryDebit != null) {
             CurrencyUnit currency = transactionSummaryDebit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryDebitCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
 
-        if(transactionSummaryCredit != null){
+        if (transactionSummaryCredit != null) {
             CurrencyUnit currency = transactionSummaryCredit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
