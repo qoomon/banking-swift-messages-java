@@ -108,24 +108,24 @@ public class MT942Page {
         CurrencyUnit statementCurrency = (floorLimitIndicatorDebit != null ? floorLimitIndicatorDebit : floorLimitIndicatorCredit).getAmount().getCurrencyUnit();
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
 
-        if (floorLimitIndicatorCredit != null) {
+        if(floorLimitIndicatorCredit != null){
             CurrencyUnit currency = floorLimitIndicatorCredit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
 
         for (TransactionGroup transactionGroup : transactionGroupList) {
-            if (transactionGroup.getStatementLine().getFundsCode().isPresent()) {
+            if (transactionGroup.getStatementLine().getFundsCode().isPresent()){
                 String fundsCode = transactionGroup.getStatementLine().getFundsCode().get();
                 Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'");
             }
         }
 
-        if (transactionSummaryDebit != null) {
+        if(transactionSummaryDebit != null){
             CurrencyUnit currency = transactionSummaryDebit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryDebitCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
 
-        if (transactionSummaryCredit != null) {
+        if(transactionSummaryCredit != null){
             CurrencyUnit currency = transactionSummaryCredit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
