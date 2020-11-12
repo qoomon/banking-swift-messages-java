@@ -8,6 +8,8 @@ import java.io.Reader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.Character.isWhitespace;
+
 /**
  * Created by qoomon on 07/07/16.
  */
@@ -53,7 +55,10 @@ public class SwiftBlockReader {
                 lineCharIndex++;
 
                 if (blockBuilder.length() == 0 && messageCharacter != '{') {
-                    if (messageCharacter == '}') {
+                    if (isWhitespace(messageCharacter)) {
+                        // ignore whitespaces between blocks
+                        continue;
+                    } else if (messageCharacter == '}') {
                         throw new BlockParseException("Found closing bracket without preceding opening bracket", lineNumber);
                     } else {
                         throw new BlockParseException("No characters are allowed outside of blocks, but was: '" + messageCharacter + "'", lineNumber);

@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Enhance GitHub Environment Variables
-      run: echo ::set-env name=GITHUB_REF_NAME::${GITHUB_REF#refs/*/}
+      run: echo "GITHUB_REF_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1

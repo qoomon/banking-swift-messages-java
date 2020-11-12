@@ -9,7 +9,9 @@ import org.joda.money.CurrencyUnit;
 import java.util.List;
 import java.util.Optional;
 
-import static com.qoomon.banking.swift.submessage.field.FieldUtils.*;
+import static com.qoomon.banking.swift.submessage.field.FieldUtils.swiftTextOf;
+import static com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark.CREDIT;
+import static com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark.DEBIT;
 
 /**
  *
@@ -91,41 +93,45 @@ public class MT942Page {
         Preconditions.checkArgument(transactionReferenceNumber != null, "transactionReferenceNumber can't be null");
         Preconditions.checkArgument(accountIdentification != null, "accountIdentification can't be null");
         Preconditions.checkArgument(statementNumber != null, "statementNumber can't be null");
-        Preconditions.checkArgument(floorLimitIndicatorDebit != null || floorLimitIndicatorCredit != null, "floorLimitIndicator can't be null");
-        if (floorLimitIndicatorDebit != null && floorLimitIndicatorDebit.getDebitCreditMark().isPresent()) {
-            DebitCreditMark debitCreditMark = floorLimitIndicatorDebit.getDebitCreditMark().get();
-            Preconditions.checkArgument(debitCreditMark == DebitCreditMark.DEBIT, "floorLimitIndicatorDebit type can't " + debitCreditMark);
-        }
-        if (floorLimitIndicatorCredit != null && floorLimitIndicatorCredit.getDebitCreditMark().isPresent()) {
-            DebitCreditMark debitCreditMark = floorLimitIndicatorCredit.getDebitCreditMark().get();
-            Preconditions.checkArgument(debitCreditMark == DebitCreditMark.CREDIT, "floorLimitIndicatorCredit type can't " + debitCreditMark);
-        }
+
+        Preconditions.checkArgument(floorLimitIndicatorDebit != null, "floorLimitIndicatorDebit can't be null");
+        Optional<DebitCreditMark> debitMark = floorLimitIndicatorDebit.getDebitCreditMark();
+        debitMark.ifPresent(mark -> Preconditions.checkArgument(mark == DEBIT,
+                "floorLimitIndicatorDebit type can't be " + mark));
+
+        Preconditions.checkArgument(floorLimitIndicatorCredit != null, "floorLimitIndicatorCredit can't be null");
+        Optional<DebitCreditMark> creditMark = floorLimitIndicatorCredit.getDebitCreditMark();
+        creditMark.ifPresent(mark -> Preconditions.checkArgument(mark == CREDIT,
+                "floorLimitIndicatorCredit type can't be " + mark));
+
+        Preconditions.checkArgument(debitMark.isPresent() == creditMark.isPresent(),
+                "floorLimitIndicatorDebit and floorLimitIndicatorCredit debit credit marks needs to be both empty or DEBIT and CREDIT");
+
         Preconditions.checkArgument(dateTimeIndicator != null, "dateTimeIndicator can't be null");
         Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
-
 
         // ensure matching currency
         CurrencyUnit statementCurrency = (floorLimitIndicatorDebit != null ? floorLimitIndicatorDebit : floorLimitIndicatorCredit).getAmount().getCurrencyUnit();
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
 
-        if(floorLimitIndicatorCredit != null){
+        if (floorLimitIndicatorCredit != null) {
             CurrencyUnit currency = floorLimitIndicatorCredit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
 
         for (TransactionGroup transactionGroup : transactionGroupList) {
-            if (transactionGroup.getStatementLine().getFundsCode().isPresent()){
+            if (transactionGroup.getStatementLine().getFundsCode().isPresent()) {
                 String fundsCode = transactionGroup.getStatementLine().getFundsCode().get();
                 Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'");
             }
         }
 
-        if(transactionSummaryDebit != null){
+        if (transactionSummaryDebit != null) {
             CurrencyUnit currency = transactionSummaryDebit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryDebitCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
 
-        if(transactionSummaryCredit != null){
+        if (transactionSummaryCredit != null) {
             CurrencyUnit currency = transactionSummaryCredit.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "transactionSummaryCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
@@ -190,13 +196,11 @@ public class MT942Page {
     public String getContent() {
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append(swiftTextOf(transactionReferenceNumber)).append("\n");
-        if (relatedReference.isPresent()) {
-            contentBuilder.append(swiftTextOf(relatedReference.get())).append("\n");
-        }
+        relatedReference.ifPresent(field -> contentBuilder.append(swiftTextOf(field)).append("\n"));
         contentBuilder.append(swiftTextOf(accountIdentification)).append("\n");
         contentBuilder.append(swiftTextOf(statementNumber)).append("\n");
         contentBuilder.append(swiftTextOf(floorLimitIndicatorDebit)).append("\n");
-        if (!floorLimitIndicatorDebit.getAmount().equals(floorLimitIndicatorCredit.getAmount())) {
+        if (floorLimitIndicatorDebit.getDebitCreditMark().isPresent()) {
             contentBuilder.append(swiftTextOf(floorLimitIndicatorCredit)).append("\n");
         }
         contentBuilder.append(swiftTextOf(dateTimeIndicator)).append("\n");
@@ -206,15 +210,9 @@ public class MT942Page {
                 contentBuilder.append(swiftTextOf(transactionGroup.getInformationToAccountOwner().get())).append("\n");
             }
         }
-        if (transactionSummaryDebit.isPresent()) {
-            contentBuilder.append(swiftTextOf(transactionSummaryDebit.get())).append("\n");
-        }
-        if (transactionSummaryCredit.isPresent()) {
-            contentBuilder.append(swiftTextOf(transactionSummaryCredit.get())).append("\n");
-        }
-        if (informationToAccountOwner.isPresent()) {
-            contentBuilder.append(swiftTextOf(informationToAccountOwner.get())).append("\n");
-        }
+        transactionSummaryDebit.ifPresent(field -> contentBuilder.append(swiftTextOf(field)).append("\n"));
+        transactionSummaryCredit.ifPresent(field -> contentBuilder.append(swiftTextOf(field)).append("\n"));
+        informationToAccountOwner.ifPresent(field -> contentBuilder.append(swiftTextOf(field)).append("\n"));
         contentBuilder.append(PageSeparator.TAG);
         return contentBuilder.toString();
     }

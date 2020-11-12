@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.18.0</version>
+            <version>3.18.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -110,7 +110,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                        <!--<additionalparam>-Xdoclint:none</additionalparam>-->
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
                 </configuration>
             </plugin>
 

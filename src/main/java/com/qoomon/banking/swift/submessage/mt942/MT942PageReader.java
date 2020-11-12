@@ -84,6 +84,12 @@ public class MT942PageReader {
                                 AccountIdentification.FIELD_TAG_25);
                         break;
                     }
+                    case RelatedReference.FIELD_TAG_21: {
+                        relatedReference = RelatedReference.of(currentField);
+                        nextValidFieldSet = ImmutableSet.of(
+                                AccountIdentification.FIELD_TAG_25);
+                        break;
+                    }
                     case AccountIdentification.FIELD_TAG_25: {
                         accountIdentification = AccountIdentification.of(currentField);
                         nextValidFieldSet = ImmutableSet.of(
@@ -98,15 +104,33 @@ public class MT942PageReader {
                     }
                     case FloorLimitIndicator.FIELD_TAG_34F: {
                         FloorLimitIndicator floorLimitIndicator = FloorLimitIndicator.of(currentField);
-                        if (!floorLimitIndicator.getDebitCreditMark().isPresent()
-                                || floorLimitIndicator.getDebitCreditMark().get() == DebitCreditMark.DEBIT) {
-                            floorLimitIndicatorDebit = floorLimitIndicator;
-                            nextValidFieldSet = ImmutableSet.of(
-                                    FloorLimitIndicator.FIELD_TAG_34F,
-                                    DateTimeIndicator.FIELD_TAG_13D);
+                        if (floorLimitIndicatorDebit == null) {
+                            if(!floorLimitIndicator.getDebitCreditMark().isPresent()
+                                    || floorLimitIndicator.getDebitCreditMark().get() == DebitCreditMark.DEBIT) {
+                                floorLimitIndicatorDebit = floorLimitIndicator;
+                                floorLimitIndicatorCredit = new FloorLimitIndicator(
+                                        floorLimitIndicator.getDebitCreditMark().isPresent()
+                                                ? DebitCreditMark.CREDIT
+                                                : null,
+                                        floorLimitIndicator.getAmount()
+                                );
+                                nextValidFieldSet = ImmutableSet.of(
+                                        FloorLimitIndicator.FIELD_TAG_34F,
+                                        DateTimeIndicator.FIELD_TAG_13D);
+                            } else {
+                                // handle missing debit floor indicator
+                                floorLimitIndicatorDebit = new FloorLimitIndicator(
+                                        DebitCreditMark.DEBIT,
+                                        floorLimitIndicator.getAmount()
+                                );
+                                floorLimitIndicatorCredit = floorLimitIndicator;
+                                nextValidFieldSet = ImmutableSet.of(
+                                        DateTimeIndicator.FIELD_TAG_13D);
+                            }
                         } else {
                             floorLimitIndicatorCredit = floorLimitIndicator;
-                            nextValidFieldSet = ImmutableSet.of(DateTimeIndicator.FIELD_TAG_13D);
+                            nextValidFieldSet = ImmutableSet.of(
+                                    DateTimeIndicator.FIELD_TAG_13D);
                         }
                         break;
                     }

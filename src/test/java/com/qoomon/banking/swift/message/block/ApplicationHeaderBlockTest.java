@@ -40,6 +40,25 @@ public class ApplicationHeaderBlockTest {
         assertThat(block.getInput()).isNotPresent();
     }
 
+    @Test
+    public void of_WHEN_valid_output_block_is_passed_without_optional_priority_RETURN_new_block() throws Exception {
+
+        // Given
+        GeneralBlock generalBlock = new GeneralBlock(ApplicationHeaderBlock.BLOCK_ID_2, "O9401506110804LRLRXXXX4A1100009040831108041707");
+
+        // When
+        ApplicationHeaderBlock block = ApplicationHeaderBlock.of(generalBlock);
+
+        // Then
+        assertThat(block).isNotNull();
+        assertThat(block.getOutput()).isPresent();
+        if (block.getOutput().isPresent()) {
+            ApplicationHeaderOutputBlock outputBlock = block.getOutput().get();
+            assertThat(outputBlock.getMessagePriority()).isEqualTo(MessagePriority.NORMAL);
+        }
+
+        assertThat(block.getInput()).isNotPresent();
+    }
 
     @Test
     public void of_WHEN_valid_input_block_is_passed_RETURN_new_block() throws Exception {

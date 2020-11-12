@@ -16,6 +16,7 @@ public enum MessagePriority {
                 return URGENT;
             case "NORMAL":
             case "N":
+            case "":
                 return NORMAL;
             case "SYSTEM":
             case "S":
