@@ -34,7 +34,7 @@ public class ApplicationHeaderOutputBlock {
 
     public static final String MODE_CODE = "O";
 
-    public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(O)(.{3})(.{4})(.{6})(.{12})(.{4})(.{6})(.{6})(.{4})(.{1})");
+    public static final Pattern BLOCK_CONTENT_PATTERN = Pattern.compile("(O)(.{3})(.{4})(.{6})(.{12})(.{4})(.{6})(.{6})(.{4})(.?)");
 
     private static final DateTimeFormatter INPUT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HHmmyyMMdd");
 
