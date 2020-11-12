@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * http://www.kontopruef.de/mt940s.shtml
  * <p>
  * <b>Format</b> '[BankTransactionCode]?[fieldId][content]?[fieldId][content]...'
- * <p>
+ * </p>
  */
 public class BCSMessageParser {
 

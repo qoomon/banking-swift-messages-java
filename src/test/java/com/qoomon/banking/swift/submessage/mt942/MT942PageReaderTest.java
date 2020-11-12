@@ -37,7 +37,6 @@ public class MT942PageReaderTest {
     public void parse_WHEN_parse_valid_file_RETURN_message() throws Exception {
 
         // Given
-
         String mt942MessageText = "" +
                 ":20:02761\n" +
                 ":25:6-9412771\n" +
