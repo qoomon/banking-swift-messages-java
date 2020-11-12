@@ -110,9 +110,15 @@ public class MT942Page {
         Preconditions.checkArgument(dateTimeIndicator != null, "dateTimeIndicator can't be null");
         Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
 
-        // ensure matching currency
-        CurrencyUnit statementCurrency = (floorLimitIndicatorDebit != null ? floorLimitIndicatorDebit : floorLimitIndicatorCredit).getAmount().getCurrencyUnit();
+        // ensure matching currencies
+        CurrencyUnit statementCurrency = floorLimitIndicatorDebit.getAmount().getCurrencyUnit();
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
+        
+        {
+            // check floorLimitIndicatorCredit currency
+            CurrencyUnit currency = floorLimitIndicatorCredit.getAmount().getCurrencyUnit();
+            Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
+        }
 
         if (floorLimitIndicatorCredit != null) {
             CurrencyUnit currency = floorLimitIndicatorCredit.getAmount().getCurrencyUnit();
