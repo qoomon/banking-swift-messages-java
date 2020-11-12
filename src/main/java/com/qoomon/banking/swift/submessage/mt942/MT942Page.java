@@ -120,11 +120,6 @@ public class MT942Page {
             Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
 
-        if (floorLimitIndicatorCredit != null) {
-            CurrencyUnit currency = floorLimitIndicatorCredit.getAmount().getCurrencyUnit();
-            Preconditions.checkArgument(currency.equals(statementCurrency), "floorLimitCreditCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
-        }
-
         for (TransactionGroup transactionGroup : transactionGroupList) {
             if (transactionGroup.getStatementLine().getFundsCode().isPresent()) {
                 String fundsCode = transactionGroup.getStatementLine().getFundsCode().get();
