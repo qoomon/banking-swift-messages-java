@@ -165,7 +165,137 @@ public class MT942PageReaderTest {
     }
 
     @Test
-    public void parse_WHEN_parse_file_with_credit_floor_RETURN_message() throws Exception {
+    public void parse_WHEN_parse_without_specific_floor_mark_RETURN_message() throws Exception {
+
+        // Given
+        String mt942MessageText = "" +
+                ":20:02761\n" +
+                ":25:6-9412771\n" +
+                ":28C:1/1\n" +
+                ":34F:USD123,\n" +
+                ":13D:0001032359+0500\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:multiline info\n" +
+                "-info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:singleline info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":90D:75475USD123,\n" +
+                ":90C:75475USD123,\n" +
+                ":86:multiline summary\n" +
+                "summary\n" +
+                "-";
+
+        MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));
+
+        // When
+        List<MT942Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
+
+        // Then
+        assertThat(pageList).hasSize(1);
+        MT942Page MT942Page = pageList.get(0);
+        assertThat(MT942Page.getTransactionGroupList()).hasSize(3);
+        assertThat(MT942Page.getStatementNumber().getStatementNumber()).isEqualTo("1");
+        assertThat(MT942Page.getStatementNumber().getSequenceNumber()).contains("1");
+
+        FloorLimitIndicator debitFloorLimitIndicator = MT942Page.getFloorLimitIndicatorDebit();
+        assertThat(debitFloorLimitIndicator.getDebitCreditMark()).isEmpty();
+        assertThat(debitFloorLimitIndicator.getAmount()).isEqualTo(BigMoney.of(USD, new BigDecimal("123")));
+
+        FloorLimitIndicator creditFloorLimitIndicator = MT942Page.getFloorLimitIndicatorCredit();
+        assertThat(creditFloorLimitIndicator.getDebitCreditMark()).isEmpty();
+        assertThat(creditFloorLimitIndicator.getAmount()).isEqualTo(BigMoney.of(USD, new BigDecimal("123")));
+    }
+
+    @Test
+    public void parse_WHEN_parse_with_debit_floor_but_not_credit_floor_RETURN_message() throws Exception {
+
+        // Given
+        String mt942MessageText = "" +
+                ":20:02761\n" +
+                ":25:6-9412771\n" +
+                ":28C:1/1\n" +
+                ":34F:USDD123,\n" +
+                ":13D:0001032359+0500\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:multiline info\n" +
+                "-info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:singleline info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":90D:75475USD123,\n" +
+                ":90C:75475USD123,\n" +
+                ":86:multiline summary\n" +
+                "summary\n" +
+                "-";
+
+        MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));
+
+        // When
+        List<MT942Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
+
+        // Then
+        assertThat(pageList).hasSize(1);
+        MT942Page MT942Page = pageList.get(0);
+        assertThat(MT942Page.getTransactionGroupList()).hasSize(3);
+        assertThat(MT942Page.getStatementNumber().getStatementNumber()).isEqualTo("1");
+        assertThat(MT942Page.getStatementNumber().getSequenceNumber()).contains("1");
+
+        FloorLimitIndicator debitFloorLimitIndicator = MT942Page.getFloorLimitIndicatorDebit();
+        assertThat(debitFloorLimitIndicator.getDebitCreditMark()).hasValue(DEBIT);
+        assertThat(debitFloorLimitIndicator.getAmount()).isEqualTo(BigMoney.of(USD, new BigDecimal("123")));
+
+        FloorLimitIndicator creditFloorLimitIndicator = MT942Page.getFloorLimitIndicatorCredit();
+        assertThat(creditFloorLimitIndicator.getDebitCreditMark()).hasValue(CREDIT);
+        assertThat(creditFloorLimitIndicator.getAmount()).isEqualTo(BigMoney.zero(USD));
+    }
+
+    @Test
+    public void parse_WHEN_parse_with_debit_floor_snd_credit_floor_RETURN_message() throws Exception {
+
+        // Given
+        String mt942MessageText = "" +
+                ":20:02761\n" +
+                ":25:6-9412771\n" +
+                ":28C:1/1\n" +
+                ":34F:USDD123,\n" +
+                ":34F:USDC789,\n" +
+                ":13D:0001032359+0500\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:multiline info\n" +
+                "-info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:singleline info\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":90D:75475USD123,\n" +
+                ":90C:75475USD123,\n" +
+                ":86:multiline summary\n" +
+                "summary\n" +
+                "-";
+
+        MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));
+
+        // When
+        List<MT942Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
+
+        // Then
+        assertThat(pageList).hasSize(1);
+        MT942Page MT942Page = pageList.get(0);
+        assertThat(MT942Page.getTransactionGroupList()).hasSize(3);
+        assertThat(MT942Page.getStatementNumber().getStatementNumber()).isEqualTo("1");
+        assertThat(MT942Page.getStatementNumber().getSequenceNumber()).contains("1");
+
+        FloorLimitIndicator debitFloorLimitIndicator = MT942Page.getFloorLimitIndicatorDebit();
+        assertThat(debitFloorLimitIndicator.getDebitCreditMark()).hasValue(DEBIT);
+        assertThat(debitFloorLimitIndicator.getAmount()).isEqualTo(BigMoney.of(USD, new BigDecimal("123")));
+
+        FloorLimitIndicator creditFloorLimitIndicator = MT942Page.getFloorLimitIndicatorCredit();
+        assertThat(creditFloorLimitIndicator.getDebitCreditMark()).hasValue(CREDIT);
+        assertThat(creditFloorLimitIndicator.getAmount()).isEqualTo(BigMoney.of(USD, new BigDecimal("789")));
+    }
+
+    @Test
+    public void parse_WHEN_parse_with_missing_debit_floor_but_credit_floor_RETURN_message() throws Exception {
 
         // Given
         String mt942MessageText = "" +
@@ -200,7 +330,7 @@ public class MT942PageReaderTest {
 
         FloorLimitIndicator debitFloorLimitIndicator = MT942Page.getFloorLimitIndicatorDebit();
         assertThat(debitFloorLimitIndicator.getDebitCreditMark()).hasValue(DEBIT);
-        assertThat(debitFloorLimitIndicator.getAmount()).isEqualTo(BigMoney.of(USD, new BigDecimal("123")));
+        assertThat(debitFloorLimitIndicator.getAmount()).isEqualTo(BigMoney.zero(USD));
 
         FloorLimitIndicator creditFloorLimitIndicator = MT942Page.getFloorLimitIndicatorCredit();
         assertThat(creditFloorLimitIndicator.getDebitCreditMark()).hasValue(CREDIT);

@@ -7,11 +7,16 @@ import com.qoomon.banking.swift.submessage.PageSeparator;
 import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
+import org.joda.money.BigMoney;
+import org.joda.money.CurrencyUnit;
 
 import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import static com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark.CREDIT;
+import static com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark.DEBIT;
 
 /**
  * Parser for {@link MT942Page}
@@ -104,30 +109,46 @@ public class MT942PageReader {
                     }
                     case FloorLimitIndicator.FIELD_TAG_34F: {
                         FloorLimitIndicator floorLimitIndicator = FloorLimitIndicator.of(currentField);
-                        if (floorLimitIndicatorDebit == null) {
-                            if(!floorLimitIndicator.getDebitCreditMark().isPresent()
-                                    || floorLimitIndicator.getDebitCreditMark().get() == DebitCreditMark.DEBIT) {
-                                floorLimitIndicatorDebit = floorLimitIndicator;
-                                floorLimitIndicatorCredit = new FloorLimitIndicator(
-                                        floorLimitIndicator.getDebitCreditMark().isPresent()
-                                                ? DebitCreditMark.CREDIT
-                                                : null,
-                                        floorLimitIndicator.getAmount()
-                                );
-                                nextValidFieldSet = ImmutableSet.of(
-                                        FloorLimitIndicator.FIELD_TAG_34F,
-                                        DateTimeIndicator.FIELD_TAG_13D);
-                            } else {
-                                // handle missing debit floor indicator
-                                floorLimitIndicatorDebit = new FloorLimitIndicator(
-                                        DebitCreditMark.DEBIT,
-                                        floorLimitIndicator.getAmount()
-                                );
-                                floorLimitIndicatorCredit = floorLimitIndicator;
-                                nextValidFieldSet = ImmutableSet.of(
-                                        DateTimeIndicator.FIELD_TAG_13D);
+                        DebitCreditMark debitCreditMark = floorLimitIndicator.getDebitCreditMark().orElse(null);
+
+                        // second occurrence of field 34F
+                        if (floorLimitIndicatorDebit != null) {
+                            if (debitCreditMark != CREDIT) {
+                                throw new PageParserException(
+                                        "Expected Field '" + DateTimeIndicator.FIELD_TAG_13D + " (second occurrence) with CREDIT mark'," +
+                                                " but mark was '" + (debitCreditMark) + "'", fieldReader.getFieldLineNumber());
+                            }
+                        }
+
+                        if (debitCreditMark != null) {
+                            CurrencyUnit currencyUnit = floorLimitIndicator.getAmount().getCurrencyUnit();
+                            switch (debitCreditMark) {
+                                case DEBIT: {
+                                    floorLimitIndicatorDebit = floorLimitIndicator;
+                                    // preset optional credit floor indicator
+                                    floorLimitIndicatorCredit = new FloorLimitIndicator(CREDIT,
+                                            BigMoney.zero(currencyUnit));
+                                    nextValidFieldSet = ImmutableSet.of(
+                                            FloorLimitIndicator.FIELD_TAG_34F,
+                                            DateTimeIndicator.FIELD_TAG_13D);
+                                    break;
+                                }
+                                case CREDIT: {
+                                    floorLimitIndicatorCredit = floorLimitIndicator;
+                                    // handle missing debit floor indicator
+                                    if (floorLimitIndicatorDebit == null) {
+                                        floorLimitIndicatorDebit = new FloorLimitIndicator(DEBIT,
+                                                BigMoney.zero(currencyUnit));
+                                    }
+                                    nextValidFieldSet = ImmutableSet.of(
+                                            DateTimeIndicator.FIELD_TAG_13D);
+                                    break;
+                                }
+                                default:
+                                    throw new IllegalStateException("Unexpected value: " + debitCreditMark);
                             }
                         } else {
+                            floorLimitIndicatorDebit = floorLimitIndicator;
                             floorLimitIndicatorCredit = floorLimitIndicator;
                             nextValidFieldSet = ImmutableSet.of(
                                     DateTimeIndicator.FIELD_TAG_13D);

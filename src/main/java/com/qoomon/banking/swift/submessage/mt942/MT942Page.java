@@ -94,18 +94,25 @@ public class MT942Page {
         Preconditions.checkArgument(accountIdentification != null, "accountIdentification can't be null");
         Preconditions.checkArgument(statementNumber != null, "statementNumber can't be null");
 
-        Preconditions.checkArgument(floorLimitIndicatorDebit != null, "floorLimitIndicatorDebit can't be null");
-        Optional<DebitCreditMark> debitMark = floorLimitIndicatorDebit.getDebitCreditMark();
-        debitMark.ifPresent(mark -> Preconditions.checkArgument(mark == DEBIT,
-                "floorLimitIndicatorDebit type can't be " + mark));
+        {
+            Preconditions.checkArgument(floorLimitIndicatorDebit != null, "floorLimitIndicatorDebit can't be null");
+            DebitCreditMark debitMark = floorLimitIndicatorDebit.getDebitCreditMark().orElse(null);
+            Preconditions.checkArgument(debitMark == null || debitMark == DEBIT,
+                    "floorLimitIndicatorDebit mark can't be " + debitMark);
 
-        Preconditions.checkArgument(floorLimitIndicatorCredit != null, "floorLimitIndicatorCredit can't be null");
-        Optional<DebitCreditMark> creditMark = floorLimitIndicatorCredit.getDebitCreditMark();
-        creditMark.ifPresent(mark -> Preconditions.checkArgument(mark == CREDIT,
-                "floorLimitIndicatorCredit type can't be " + mark));
+            Preconditions.checkArgument(floorLimitIndicatorCredit != null, "floorLimitIndicatorCredit can't be null");
+            DebitCreditMark creditMark = floorLimitIndicatorCredit.getDebitCreditMark().orElse(null);
+            Preconditions.checkArgument(creditMark == null || creditMark == CREDIT,
+                    "floorLimitIndicatorCredit mark can't be " + creditMark);
 
-        Preconditions.checkArgument(debitMark.isPresent() == creditMark.isPresent(),
-                "floorLimitIndicatorDebit and floorLimitIndicatorCredit debit credit marks needs to be both empty or DEBIT and CREDIT");
+            Preconditions.checkArgument((debitMark == null) == (creditMark == null),
+                        "floorLimitIndicatorDebit and floorLimitIndicatorCredit marks need to be both blank or DEBIT and CREDIT");
+
+            if (debitMark == null) {
+                Preconditions.checkArgument(floorLimitIndicatorDebit.getAmount().equals(floorLimitIndicatorCredit.getAmount()),
+                        "floorLimitIndicatorDebit and floorLimitIndicatorCredit amounts needs to be equal, if marks are blank");
+            }
+        }
 
         Preconditions.checkArgument(dateTimeIndicator != null, "dateTimeIndicator can't be null");
         Preconditions.checkArgument(transactionGroupList != null, "transactionGroupList can't be null");
@@ -113,7 +120,7 @@ public class MT942Page {
         // ensure matching currencies
         CurrencyUnit statementCurrency = floorLimitIndicatorDebit.getAmount().getCurrencyUnit();
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
-        
+
         {
             // check floorLimitIndicatorCredit currency
             CurrencyUnit currency = floorLimitIndicatorCredit.getAmount().getCurrencyUnit();
@@ -142,7 +149,7 @@ public class MT942Page {
         this.accountIdentification = accountIdentification;
         this.statementNumber = statementNumber;
         this.floorLimitIndicatorDebit = floorLimitIndicatorDebit;
-        this.floorLimitIndicatorCredit = Optional.ofNullable(floorLimitIndicatorCredit).orElse(floorLimitIndicatorDebit);
+        this.floorLimitIndicatorCredit = floorLimitIndicatorCredit;
         this.dateTimeIndicator = dateTimeIndicator;
         this.transactionGroupList = transactionGroupList;
         this.transactionSummaryDebit = Optional.ofNullable(transactionSummaryDebit);
@@ -201,7 +208,7 @@ public class MT942Page {
         contentBuilder.append(swiftTextOf(accountIdentification)).append("\n");
         contentBuilder.append(swiftTextOf(statementNumber)).append("\n");
         contentBuilder.append(swiftTextOf(floorLimitIndicatorDebit)).append("\n");
-        if (floorLimitIndicatorDebit.getDebitCreditMark().isPresent()) {
+        if (!floorLimitIndicatorCredit.equals(floorLimitIndicatorDebit)) {
             contentBuilder.append(swiftTextOf(floorLimitIndicatorCredit)).append("\n");
         }
         contentBuilder.append(swiftTextOf(dateTimeIndicator)).append("\n");
