@@ -8,7 +8,7 @@ import org.joda.money.CurrencyUnit;
 import java.util.List;
 import java.util.Optional;
 
-import static com.qoomon.banking.swift.submessage.field.FieldUtils.*;
+import static com.qoomon.banking.swift.submessage.field.FieldUtils.swiftTextOf;
 
 /**
  * Created by qoomon on 24/06/16.
@@ -212,18 +212,18 @@ public class MT940Page {
         String statementFundsCode = statementCurrency.getCode().substring(2, 3);
 
         for (TransactionGroup transactionGroup : transactionGroupList) {
-            if (transactionGroup.getStatementLine().getFundsCode().isPresent()){
+            if (transactionGroup.getStatementLine().getFundsCode().isPresent()) {
                 String fundsCode = transactionGroup.getStatementLine().getFundsCode().get();
                 Preconditions.checkArgument(fundsCode.equals(statementFundsCode), "statementLineFundsCode '" + fundsCode + "' does not match statement currency'" + statementCurrency + "'");
             }
         }
 
-        if(closingBalance != null){
+        {
             CurrencyUnit currency = closingBalance.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "closingBalanceCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
 
-        if(closingAvailableBalance != null){
+        if (closingAvailableBalance != null) {
             CurrencyUnit currency = closingAvailableBalance.getAmount().getCurrencyUnit();
             Preconditions.checkArgument(currency.equals(statementCurrency), "closingAvailableBalanceCurrency '" + currency + "' does not match statement currency'" + statementCurrency + "'");
         }
