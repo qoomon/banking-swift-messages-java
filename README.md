@@ -15,9 +15,6 @@ SWIFT = Society for Worldwide Interbank Financial Telecommunication
 [![Known Vulnerabilities](https://snyk.io/test/github/qoomon/banking-swift-messages-java/badge.svg)](https://snyk.io/test/github/qoomon/banking-swift-messages-java)
 
 
-[![LGTM Grade](https://img.shields.io/lgtm/grade/java/github/qoomon/banking-swift-messages-java)](https://lgtm.com/projects/g/qoomon/banking-swift-messages-java)
-
-
 [![Maintainability](https://api.codeclimate.com/v1/badges/e611239eea560ee9c72c/maintainability)](https://codeclimate.com/github/qoomon/banking-swift-messages-java/maintainability)
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e611239eea560ee9c72c/test_coverage)](https://codeclimate.com/github/qoomon/banking-swift-messages-java/test_coverage)
