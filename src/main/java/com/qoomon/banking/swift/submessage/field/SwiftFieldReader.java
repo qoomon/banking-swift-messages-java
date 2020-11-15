@@ -22,13 +22,9 @@ public class SwiftFieldReader {
 
     private final static Set<FieldLineType> FIELD_START_LINE_TYPE_SET = ImmutableSet.of(FieldLineType.FIELD, FieldLineType.SEPARATOR);
 
-    private int currentFieldLineNumber = 0;
-
     private final LineNumberReader lineReader;
 
     private FieldLine currentFieldLine = null;
-
-    private FieldLine nextFieldLine = null;
 
 
     public SwiftFieldReader(Reader textReader) {
@@ -36,40 +32,34 @@ public class SwiftFieldReader {
     }
 
     public int getFieldLineNumber() {
-        return currentFieldLineNumber;
+        return lineReader.getLineNumber() - 1;
     }
 
     public GeneralField readField() throws FieldParseException {
+        // field fields
+        String tag = null;
+        StringBuilder contentBuilder = new StringBuilder();
+
         try {
             if (currentFieldLine == null) {
-                nextFieldLine = readFieldLine(lineReader);
+                currentFieldLine = readFieldLine(lineReader);
+            }
+            if (currentFieldLine == null) {
+                return null;
             }
 
-            GeneralField field = null;
-
-            // field fields
-            String tag = null;
-            StringBuilder contentBuilder = new StringBuilder();
-
             Set<FieldLineType> nextValidFieldLineTypeSet = FIELD_START_LINE_TYPE_SET;
-
-            while (field == null && nextFieldLine != null) {
-
-                ensureValidNextLine(nextFieldLine, nextValidFieldLineTypeSet, lineReader);
-
-                currentFieldLine = nextFieldLine;
-                currentFieldLineNumber = lineReader.getLineNumber() - 1;
-                nextFieldLine = readFieldLine(lineReader);
+            while (currentFieldLine != null) {
+                ensureValidNextLine(currentFieldLine, nextValidFieldLineTypeSet, lineReader);
 
                 switch (currentFieldLine.getType()) {
                     case FIELD: {
                         Matcher fieldMatcher = FIELD_STRUCTURE_PATTERN.matcher(currentFieldLine.getContent());
                         if (!fieldMatcher.matches()) {
-                            throw new FieldParseException("Parse error: " + currentFieldLine.getType().name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), currentFieldLineNumber);
+                            throw new FieldParseException("Parse error: " + currentFieldLine.getType().name() + " did not match " + FIELD_STRUCTURE_PATTERN.pattern(), getFieldLineNumber());
                         }
 
                         // start of a new field
-                        currentFieldLineNumber = lineReader.getLineNumber();
                         tag = fieldMatcher.group("tag");
                         contentBuilder.append(fieldMatcher.group("content"));
                         nextValidFieldLineTypeSet = ImmutableSet.of(FieldLineType.FIELD, FieldLineType.FIELD_CONTINUATION, FieldLineType.SEPARATOR);
@@ -87,23 +77,23 @@ public class SwiftFieldReader {
                         break;
                     }
                     default:
-                        throw new FieldParseException("Bug: Missing handling for line type " + currentFieldLine.getType().name(), currentFieldLineNumber);
+                        throw new FieldParseException("Bug: Missing handling for line type " + currentFieldLine.getType().name(), getFieldLineNumber());
                 }
 
-                // finish field
-                if (nextFieldLine == null || FIELD_START_LINE_TYPE_SET.contains(nextFieldLine.getType())) {
-                    field = new GeneralField(
-                            tag,
-                            contentBuilder.toString()
-                    );
+                currentFieldLine = readFieldLine(lineReader);
+                if (currentFieldLine == null || FIELD_START_LINE_TYPE_SET.contains(currentFieldLine.getType())) {
+                    break;
                 }
             }
 
-            return field;
+            return new GeneralField(
+                    tag,
+                    contentBuilder.toString()
+            );
+        } catch (FieldParseException e) {
+                throw e;
         } catch (Exception e) {
-            if (e instanceof FieldParseException)
-                throw (FieldParseException) e;
-            throw new FieldParseException(e.getMessage(), currentFieldLineNumber, e);
+            throw new FieldParseException(e.getMessage(), getFieldLineNumber(), e);
         }
     }
 
@@ -113,7 +103,6 @@ public class SwiftFieldReader {
             throw new FieldParseException("Expected FieldLine '" + expectedFieldLineTypeSet + "', but was '" + fieldLineType + "'", lineReader.getLineNumber());
         }
     }
-
 
     private FieldLineType determineMessageLineType(String messageLine) {
         Preconditions.checkArgument(messageLine != null && !messageLine.isEmpty(), "messageLine can't be null or empty");
@@ -160,6 +149,4 @@ public class SwiftFieldReader {
         FIELD_CONTINUATION,
         SEPARATOR
     }
-
-
 }
