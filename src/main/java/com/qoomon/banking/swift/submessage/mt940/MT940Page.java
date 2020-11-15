@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.submessage.mt940;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.submessage.Page;
 import com.qoomon.banking.swift.submessage.PageSeparator;
 import com.qoomon.banking.swift.submessage.field.*;
 import org.joda.money.CurrencyUnit;
@@ -131,7 +132,7 @@ import static com.qoomon.banking.swift.submessage.field.FieldUtils.swiftTextOf;
  *
  * @see <a href="http://www.sepaforcorporates.com/swift-for-corporates/account-statement-mt940-file-format-overview/">http://www.sepaforcorporates.com/swift-for-corporates/account-statement-mt940-file-format-overview/</a>
  */
-public class MT940Page {
+public class MT940Page implements Page {
 
     public static final String MESSAGE_ID_940 = "940";
 
@@ -285,6 +286,10 @@ public class MT940Page {
         return informationToAccountOwner;
     }
 
+    @Override
+    public String getId() {
+        return MESSAGE_ID_940;
+    }
 
     public String getContent() {
         StringBuilder contentBuilder = new StringBuilder();

@@ -1,6 +1,7 @@
 package com.qoomon.banking.swift.submessage.mt942;
 
 import com.google.common.base.Preconditions;
+import com.qoomon.banking.swift.submessage.Page;
 import com.qoomon.banking.swift.submessage.PageSeparator;
 import com.qoomon.banking.swift.submessage.field.*;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
@@ -16,7 +17,7 @@ import static com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark
 /**
  *
  */
-public class MT942Page {
+public class MT942Page implements Page {
 
     public static final String MESSAGE_ID_942 = "942";
 
@@ -199,6 +200,11 @@ public class MT942Page {
 
     public Optional<TransactionSummary> getTransactionSummaryCredit() {
         return transactionSummaryCredit;
+    }
+
+    @Override
+    public String getId() {
+        return MESSAGE_ID_942;
     }
 
     public String getContent() {

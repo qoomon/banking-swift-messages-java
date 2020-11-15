@@ -3,6 +3,7 @@ package com.qoomon.banking.swift.submessage.mt942;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
+import com.qoomon.banking.swift.submessage.PageReader;
 import com.qoomon.banking.swift.submessage.PageSeparator;
 import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
@@ -21,17 +22,9 @@ import static com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark
 /**
  * Parser for {@link MT942Page}
  */
-public class MT942PageReader {
-
-    private static final Set<String> MESSAGE_START_FIELD_TAG_SET = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
-
-    private static final Set<String> MESSAGE_END_FIELD_TAG_SET = ImmutableSet.of(PageSeparator.TAG);
+public class MT942PageReader extends PageReader<MT942Page> {
 
     private final SwiftFieldReader fieldReader;
-
-    private GeneralField currentField = null;
-
-    private GeneralField nextField = null;
 
 
     public MT942PageReader(Reader textReader) {
@@ -41,45 +34,35 @@ public class MT942PageReader {
         this.fieldReader = new SwiftFieldReader(textReader);
     }
 
-    public List<MT942Page> readAll() throws SwiftMessageParseException {
-        List<MT942Page> result = new LinkedList<>();
-        MT942Page page;
-        while ((page = read()) != null) {
-            result.add(page);
-        }
-        return result;
-    }
-
+    @Override
     public MT942Page read() throws SwiftMessageParseException {
+        // message fields
+        TransactionReferenceNumber transactionReferenceNumber = null;
+        RelatedReference relatedReference = null;
+        AccountIdentification accountIdentification = null;
+        StatementNumber statementNumber = null;
+        FloorLimitIndicator floorLimitIndicatorDebit = null;
+        FloorLimitIndicator floorLimitIndicatorCredit = null;
+        DateTimeIndicator dateTimeIndicator = null;
+        List<TransactionGroup> transactionList = new LinkedList<>();
+        TransactionSummary transactionSummaryDebit = null;
+        TransactionSummary transactionSummaryCredit = null;
+        InformationToAccountOwner informationToAccountOwner = null;
+
         try {
-            if (currentField == null) {
-                nextField = fieldReader.readField();
-            }
-
-            MT942Page page = null;
-
-            // message fields
-            TransactionReferenceNumber transactionReferenceNumber = null;
-            RelatedReference relatedReference = null;
-            AccountIdentification accountIdentification = null;
-            StatementNumber statementNumber = null;
-            FloorLimitIndicator floorLimitIndicatorDebit = null;
-            FloorLimitIndicator floorLimitIndicatorCredit = null;
-            DateTimeIndicator dateTimeIndicator = null;
-            List<TransactionGroup> transactionList = new LinkedList<>();
-            TransactionSummary transactionSummaryDebit = null;
-            TransactionSummary transactionSummaryCredit = null;
-            InformationToAccountOwner informationToAccountOwner = null;
-
-            Set<String> nextValidFieldSet = MESSAGE_START_FIELD_TAG_SET;
-
-            while (page == null && nextField != null) {
-
-                ensureValidNextField(nextField, nextValidFieldSet, fieldReader);
-
+            Set<String> nextValidFieldSet = ImmutableSet.of(TransactionReferenceNumber.FIELD_TAG_20);
+            GeneralField currentField = null;
+            while (true) {
                 GeneralField previousField = currentField;
-                currentField = nextField;
-                nextField = fieldReader.readField();
+                currentField = fieldReader.readField();
+                if (currentField == null && previousField == null) {
+                    return null;
+                }
+
+                ensureValidField(currentField, nextValidFieldSet, fieldReader);
+                if (currentField.getTag().equals(PageSeparator.TAG)) {
+                    break;
+                }
 
                 switch (currentField.getTag()) {
                     case TransactionReferenceNumber.FIELD_TAG_20: {
@@ -220,37 +203,25 @@ public class MT942PageReader {
                         throw new PageParserException("Parse error: unexpected field '" + currentField.getTag() + "'", fieldReader.getFieldLineNumber());
 
                 }
-
-                // finish message
-                if (MESSAGE_END_FIELD_TAG_SET.contains(currentField.getTag())) {
-                    page = new MT942Page(
-                            transactionReferenceNumber,
-                            relatedReference,
-                            accountIdentification,
-                            statementNumber,
-                            floorLimitIndicatorDebit,
-                            floorLimitIndicatorCredit,
-                            dateTimeIndicator,
-                            transactionList,
-                            transactionSummaryDebit,
-                            transactionSummaryCredit,
-                            informationToAccountOwner
-                    );
-                } else if (nextField == null) {
-                    throw new PageParserException("Unfinished page. Missing page delimiter " + MESSAGE_END_FIELD_TAG_SET, fieldReader.getFieldLineNumber());
-                }
             }
 
-            return page;
-        } catch (Exception e) {
+            return new MT942Page(
+                    transactionReferenceNumber,
+                    relatedReference,
+                    accountIdentification,
+                    statementNumber,
+                    floorLimitIndicatorDebit,
+                    floorLimitIndicatorCredit,
+                    dateTimeIndicator,
+                    transactionList,
+                    transactionSummaryDebit,
+                    transactionSummaryCredit,
+                    informationToAccountOwner
+            );
+        } catch (
+                Exception e) {
             throw new SwiftMessageParseException(e.getMessage(), fieldReader.getFieldLineNumber(), e);
         }
-    }
 
-    private static void ensureValidNextField(GeneralField field, Set<String> expectedFieldTagSet, SwiftFieldReader fieldReader) {
-        String fieldTag = field != null ? field.getTag() : null;
-        if (!expectedFieldTagSet.contains(fieldTag)) {
-            throw new PageParserException("Expected Field '" + expectedFieldTagSet + "', but was '" + fieldTag + "'", fieldReader.getFieldLineNumber());
-        }
     }
 }
