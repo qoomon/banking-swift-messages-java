@@ -97,18 +97,4 @@ public class FloorLimitIndicator implements SwiftField {
             throw new IllegalStateException("Invalid field values within " + getClass().getSimpleName() + " instance", e);
         }
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FloorLimitIndicator that = (FloorLimitIndicator) o;
-        return debitCreditMark.equals(that.debitCreditMark) &&
-                amount.equals(that.amount);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(debitCreditMark, amount);
-    }
 }

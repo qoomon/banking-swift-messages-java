@@ -109,8 +109,8 @@ public class MT942Page {
                         "floorLimitIndicatorDebit and floorLimitIndicatorCredit marks need to be both blank or DEBIT and CREDIT");
 
             if (debitMark == null) {
-                Preconditions.checkArgument(floorLimitIndicatorDebit.getAmount().equals(floorLimitIndicatorCredit.getAmount()),
-                        "floorLimitIndicatorDebit and floorLimitIndicatorCredit amounts needs to be equal, if marks are blank");
+                Preconditions.checkArgument(floorLimitIndicatorDebit == floorLimitIndicatorCredit,
+                        "floorLimitIndicatorDebit and floorLimitIndicatorCredit needs to be the same instance, if floorLimitIndicatorDebit mark is blank");
             }
         }
 
