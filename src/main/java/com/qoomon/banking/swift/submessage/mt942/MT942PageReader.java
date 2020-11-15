@@ -242,14 +242,12 @@ public class MT942PageReader {
             }
 
             return page;
-        } catch (SwiftMessageParseException e) {
-            throw e;
         } catch (Exception e) {
             throw new SwiftMessageParseException(e.getMessage(), fieldReader.getFieldLineNumber(), e);
         }
     }
 
-    private void ensureValidNextField(GeneralField field, Set<String> expectedFieldTagSet, SwiftFieldReader fieldReader) throws SwiftMessageParseException {
+    private static void ensureValidNextField(GeneralField field, Set<String> expectedFieldTagSet, SwiftFieldReader fieldReader) {
         String fieldTag = field != null ? field.getTag() : null;
         if (!expectedFieldTagSet.contains(fieldTag)) {
             throw new PageParserException("Expected Field '" + expectedFieldTagSet + "', but was '" + fieldTag + "'", fieldReader.getFieldLineNumber());
