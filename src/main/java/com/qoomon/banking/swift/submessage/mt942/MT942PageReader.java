@@ -8,6 +8,8 @@ import com.qoomon.banking.swift.submessage.PageSeparator;
 import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
+import com.qoomon.banking.swift.submessage.field.subfield.EarlierMonthImpliesFollowingYearEntryDateResolutionStrategy;
+import com.qoomon.banking.swift.submessage.field.subfield.EntryDateResolutionStrategy;
 import org.joda.money.BigMoney;
 import org.joda.money.CurrencyUnit;
 
@@ -25,13 +27,19 @@ import static com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark
 public class MT942PageReader extends PageReader<MT942Page> {
 
     private final SwiftFieldReader fieldReader;
+    private final EntryDateResolutionStrategy entryDateResolutionStrategy;
 
 
     public MT942PageReader(Reader textReader) {
+        this(textReader, new EarlierMonthImpliesFollowingYearEntryDateResolutionStrategy());
+    }
+
+    public MT942PageReader(Reader textReader, EntryDateResolutionStrategy entryDateResolutionStrategy) {
 
         Preconditions.checkArgument(textReader != null, "textReader can't be null");
 
         this.fieldReader = new SwiftFieldReader(textReader);
+        this.entryDateResolutionStrategy = entryDateResolutionStrategy;
     }
 
     @Override
@@ -149,7 +157,7 @@ public class MT942PageReader extends PageReader<MT942Page> {
                         break;
                     }
                     case StatementLine.FIELD_TAG_61: {
-                        StatementLine statementLine = StatementLine.of(currentField);
+                        StatementLine statementLine = StatementLine.of(currentField, entryDateResolutionStrategy);
                         transactionList.add(new TransactionGroup(statementLine, null));
                         nextValidFieldSet = ImmutableSet.of(
                                 StatementLine.FIELD_TAG_61,

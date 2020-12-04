@@ -2,6 +2,7 @@ package com.qoomon.banking.swift.submessage.field;
 
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditType;
+import com.qoomon.banking.swift.submessage.field.subfield.EarlierMonthImpliesFollowingYearEntryDateResolutionStrategy;
 import com.qoomon.banking.swift.submessage.field.subfield.TransactionTypeIdentificationCode;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class StatementLineTest {
         GeneralField generalField = new GeneralField(StatementLine.FIELD_TAG_61, "160130" + "C" + "R" + "123,456" + "NSTO" + "abcdef" + "//xyz" + "\nfoobar");
 
         // When
-        StatementLine field = StatementLine.of(generalField);
+        StatementLine field = StatementLine.of(generalField, new EarlierMonthImpliesFollowingYearEntryDateResolutionStrategy());
 
         // Then
         assertThat(field.getTag()).isEqualTo(generalField.getTag());

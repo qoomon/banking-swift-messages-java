@@ -7,6 +7,8 @@ import com.qoomon.banking.swift.submessage.PageReader;
 import com.qoomon.banking.swift.submessage.PageSeparator;
 import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
+import com.qoomon.banking.swift.submessage.field.subfield.EarlierMonthImpliesFollowingYearEntryDateResolutionStrategy;
+import com.qoomon.banking.swift.submessage.field.subfield.EntryDateResolutionStrategy;
 
 import java.io.Reader;
 import java.util.LinkedList;
@@ -19,13 +21,19 @@ import java.util.Set;
 public class MT940PageReader extends PageReader<MT940Page> {
 
     private final SwiftFieldReader fieldReader;
+    private final EntryDateResolutionStrategy entryDateResolutionStrategy;
 
 
     public MT940PageReader(Reader textReader) {
+        this(textReader, new EarlierMonthImpliesFollowingYearEntryDateResolutionStrategy());
+    }
+
+    public MT940PageReader(Reader textReader, EntryDateResolutionStrategy entryDateResolutionStrategy) {
 
         Preconditions.checkArgument(textReader != null, "textReader can't be null");
 
         this.fieldReader = new SwiftFieldReader(textReader);
+        this.entryDateResolutionStrategy = entryDateResolutionStrategy;
     }
 
     @Override
@@ -94,7 +102,7 @@ public class MT940PageReader extends PageReader<MT940Page> {
                         break;
                     }
                     case StatementLine.FIELD_TAG_61: {
-                        StatementLine statementLine = StatementLine.of(currentField);
+                        StatementLine statementLine = StatementLine.of(currentField, entryDateResolutionStrategy);
                         transactionList.add(new TransactionGroup(statementLine, null));
                         nextValidFieldSet = ImmutableSet.of(
                                 InformationToAccountOwner.FIELD_TAG_86,
