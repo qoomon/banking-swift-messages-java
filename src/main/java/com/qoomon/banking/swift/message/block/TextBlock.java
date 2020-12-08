@@ -11,7 +11,7 @@ public class TextBlock implements SwiftBlock {
 
     public static final String BLOCK_ID_4 = "4";
 
-    public static final Pattern FIELD_PATTERN = Pattern.compile("([^\\n]+)?\\n((?>:?.*\\n)*-)");
+    public static final Pattern FIELD_PATTERN = Pattern.compile("([^\\n]+)?\\n((?>:?.*\\n)*+-)");
 
     private final Optional<String> infoLine;
 
