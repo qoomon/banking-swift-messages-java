@@ -12,6 +12,21 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 public class TextBlockTest {
 
     @Test
+    public void of_WHEN_valid_block_with_info_line_is_passed_RETURN_new_block() throws Exception {
+
+        // Given
+        GeneralBlock generalBlock = new GeneralBlock(TextBlock.BLOCK_ID_4, "info\nabc\n-");
+
+        // When
+        TextBlock block = TextBlock.of(generalBlock);
+
+        // Then
+        assertThat(block).isNotNull();
+        assertThat(block.getInfoLine()).hasValue("info");
+        assertThat(block.getText()).isEqualTo("abc\n-");
+    }
+
+    @Test
     public void of_WHEN_valid_block_is_passed_RETURN_new_block() throws Exception {
 
         // Given
