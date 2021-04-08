@@ -5,9 +5,7 @@ import com.google.common.collect.Lists;
 import com.qoomon.banking.swift.notation.FieldNotationParseException;
 import com.qoomon.banking.swift.notation.SwiftDecimalFormatter;
 import com.qoomon.banking.swift.notation.SwiftNotation;
-import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
-import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditType;
-import com.qoomon.banking.swift.submessage.field.subfield.TransactionTypeIdentificationCode;
+import com.qoomon.banking.swift.submessage.field.subfield.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -100,6 +98,10 @@ public class StatementLine implements SwiftField {
     }
 
     public static StatementLine of(GeneralField field) throws FieldNotationParseException {
+        return of(field, new EarlierMonthImpliesFollowingYearEntryDateResolutionStrategy());
+    }
+
+    public static StatementLine of(GeneralField field, EntryDateResolutionStrategy entryDateResolutionStrategy) throws FieldNotationParseException {
 
         Preconditions.checkArgument(field.getTag().equals(FIELD_TAG_61), "unexpected field tag '%s'", field.getTag());
 
@@ -110,11 +112,7 @@ public class StatementLine implements SwiftField {
         // calculate entry date
         if (subFields.get(1) != null) {
             MonthDay entryMonthDay = MonthDay.parse(subFields.get(1), ENTRY_DATE_FORMATTER);
-            // calculate entry year
-            int entryYear = entryMonthDay.getMonthValue() >= valueDate.getMonthValue()
-                    ? valueDate.getYear()
-                    : valueDate.getYear() + 1;
-            entryDate = entryMonthDay.atYear(entryYear);
+            entryDate = entryDateResolutionStrategy.resolve(entryMonthDay, valueDate);
         }
         DebitCreditType debitCreditType;
         DebitCreditMark debitCreditMark;
