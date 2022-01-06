@@ -28,8 +28,8 @@ public class StatementLineTest {
         assertThat(field.getTag()).isEqualTo(generalField.getTag());
         assertThat(field.getContent()).isEqualTo(generalField.getContent());
         assertThat(field.getDebitCreditType()).isEqualTo(DebitCreditType.REGULAR);
+        assertThat(field.getSignedAmount()).isEqualTo(new BigDecimal("123.456"));
     }
-
 
     @Test
     public void getSignedAmount_WHEN_regular_debit_transaction_THEN_return_negative_amount() throws Exception {
