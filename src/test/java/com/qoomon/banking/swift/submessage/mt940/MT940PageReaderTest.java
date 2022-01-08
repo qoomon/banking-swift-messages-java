@@ -35,6 +35,7 @@ public class MT940PageReaderTest {
                 ":28C:00102\n" +
                 ":60F:C000103USD672,\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                "supplementary info\n" +
                 ":86:multiline info\n" +
                 "-info\n" +
                 ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
@@ -56,6 +57,29 @@ public class MT940PageReaderTest {
         SoftAssertions softly = new SoftAssertions();
         softly.assertThat(MT940Page.getTransactionGroupList()).hasSize(3);
         softly.assertThat(MT940Page.getTransactionGroupList()).hasSize(3);
+    }
+
+    @Test
+    public void parse_WHEN_supplementary_details_start_with_colon_THEN_it_is_correctly_parsed() throws Exception {
+
+        // Given
+        String mt940MessageText = ":20:02618\n" +
+                ":21:123456/DEV\n" +
+                ":25:6-9412771\n" +
+                ":28C:00102\n" +
+                ":60F:C000103USD672,\n" +
+                ":61:0312091211D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":colon is valid x char set\n" +
+                ":62F:C000103USD987,\n" +
+                "-";
+
+        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
+
+        // When
+        List<MT940Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
+
+        // Then
+        assertThat(pageList).hasSize(1);
     }
 
     @Test

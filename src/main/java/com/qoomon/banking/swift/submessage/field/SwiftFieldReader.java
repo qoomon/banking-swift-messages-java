@@ -91,7 +91,7 @@ public class SwiftFieldReader {
                     contentBuilder.toString()
             );
         } catch (FieldParseException e) {
-                throw e;
+            throw e;
         } catch (Exception e) {
             throw new FieldParseException(e.getMessage(), getFieldLineNumber(), e);
         }
@@ -111,7 +111,10 @@ public class SwiftFieldReader {
             return FieldLineType.SEPARATOR;
         }
         if (messageLine.startsWith(":")) {
-            return FieldLineType.FIELD;
+            Matcher tagMatcher = FIELD_STRUCTURE_PATTERN.matcher(messageLine);
+            if (tagMatcher.matches() && tagMatcher.group("tag") != null) {
+                return FieldLineType.FIELD;
+            }
         }
         return FieldLineType.FIELD_CONTINUATION;
 
