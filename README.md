@@ -28,7 +28,7 @@ If you need more MT formats just let me know and create a new [issue](https://gi
 
 
 #### Usage
-see [tests](https://github.com/qoomon/banking-swift-messages-java/blob/master/src/test/java/com/qoomon/banking/swift/message/SwiftMessageReaderTest.java)
+see [tests](/src/test/java/com/qoomon/banking/swift/message/SwiftMessageReaderTest.java)
 
 
 ## Dev Notes
