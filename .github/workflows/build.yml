@@ -25,7 +25,8 @@ jobs:
     - name: Build with Maven
       run: mvn verify -B -V
 
-    - name: Upload CodeClimate Report
+    - if: github.ref == 'refs/heads/main'
+      name: Upload CodeClimate Report
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         GIT_COMMIT_SHA: ${{ env.GITHUB_SHA }}
