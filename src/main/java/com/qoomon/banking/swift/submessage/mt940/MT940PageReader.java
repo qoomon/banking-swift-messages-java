@@ -5,8 +5,10 @@ import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import com.qoomon.banking.swift.submessage.PageReader;
 import com.qoomon.banking.swift.submessage.PageSeparator;
+import com.qoomon.banking.swift.submessage.TransactionListPostProcessor;
 import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
+import com.qoomon.banking.swift.submessage.field.subfield.ShortestDeltaEntryDateResolutionStrategy;
 
 import java.io.Reader;
 import java.util.LinkedList;
@@ -159,13 +161,14 @@ public class MT940PageReader extends PageReader<MT940Page> {
                 }
             }
 
+            TransactionListPostProcessor postProcessor = new TransactionListPostProcessor(new ShortestDeltaEntryDateResolutionStrategy());
             return new MT940Page(
                     transactionReferenceNumber,
                     relatedReference,
                     accountIdentification,
                     statementNumber,
                     openingBalance,
-                    transactionList,
+                    postProcessor.adjustEntryDates(transactionList, closingBalance.getDate()),
                     closingBalance,
                     closingAvailableBalance,
                     forwardAvailableBalanceList,
