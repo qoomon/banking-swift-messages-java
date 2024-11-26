@@ -5,9 +5,11 @@ import com.google.common.collect.ImmutableSet;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import com.qoomon.banking.swift.submessage.PageReader;
 import com.qoomon.banking.swift.submessage.PageSeparator;
+import com.qoomon.banking.swift.submessage.TransactionListPostProcessor;
 import com.qoomon.banking.swift.submessage.exception.PageParserException;
 import com.qoomon.banking.swift.submessage.field.*;
 import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
+import com.qoomon.banking.swift.submessage.field.subfield.ShortestDeltaEntryDateResolutionStrategy;
 import org.joda.money.BigMoney;
 import org.joda.money.CurrencyUnit;
 
@@ -205,6 +207,7 @@ public class MT942PageReader extends PageReader<MT942Page> {
                 }
             }
 
+            TransactionListPostProcessor postProcessor = new TransactionListPostProcessor(new ShortestDeltaEntryDateResolutionStrategy());
             return new MT942Page(
                     transactionReferenceNumber,
                     relatedReference,
@@ -213,7 +216,7 @@ public class MT942PageReader extends PageReader<MT942Page> {
                     floorLimitIndicatorDebit,
                     floorLimitIndicatorCredit,
                     dateTimeIndicator,
-                    transactionList,
+                    postProcessor.adjustEntryDates(transactionList, dateTimeIndicator.getDateTime().toLocalDate()),
                     transactionSummaryDebit,
                     transactionSummaryCredit,
                     informationToAccountOwner
