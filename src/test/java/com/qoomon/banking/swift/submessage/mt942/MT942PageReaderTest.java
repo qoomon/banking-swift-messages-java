@@ -6,11 +6,9 @@ import com.google.common.io.Resources;
 import com.qoomon.banking.TestUtils;
 import com.qoomon.banking.swift.message.exception.SwiftMessageParseException;
 import com.qoomon.banking.swift.submessage.field.FloorLimitIndicator;
-import com.qoomon.banking.swift.submessage.field.subfield.DebitCreditMark;
-import com.qoomon.banking.swift.submessage.mt940.MT940Page;
 import com.qoomon.banking.swift.submessage.mt940.MT940PageReader;
+import org.assertj.core.api.SoftAssertions;
 import org.joda.money.BigMoney;
-import org.joda.money.CurrencyUnit;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -20,6 +18,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -66,6 +65,37 @@ public class MT942PageReaderTest {
         assertThat(MT942Page.getTransactionGroupList()).hasSize(3);
         assertThat(MT942Page.getStatementNumber().getStatementNumber()).isEqualTo("1");
         assertThat(MT942Page.getStatementNumber().getSequenceNumber()).contains("1");
+    }
+
+    @Test
+    public void parse_WHEN_parse_valid_file_SHOULD_adjust_transactions_entry_dates_year_according_to_date_time_indicator() throws Exception {
+
+        // Given
+        String mt942MessageText = "" +
+                ":20:02761\n" +
+                ":25:6-9412771\n" +
+                ":28C:1/1\n" +
+                ":34F:USD123,\n" +
+                ":13D:0303012359+0500\n" +
+                ":61:0302280127D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:same year\n" +
+                ":61:0312011120D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:previous year\n" +
+                ":90D:75475USD123,\n" +
+                ":90C:75475USD123,\n" +
+                "-";
+
+        MT942PageReader classUnderTest = new MT942PageReader(new StringReader(mt942MessageText));
+
+        // When
+        List<MT942Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
+
+        // Then
+        MT942Page MT942Page = pageList.get(0);
+        SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(MT942Page.getTransactionGroupList().get(0).getStatementLine().getEntryDate()).isEqualTo(LocalDate.parse("2003-01-27"));
+        softly.assertThat(MT942Page.getTransactionGroupList().get(1).getStatementLine().getEntryDate()).isEqualTo(LocalDate.parse("2002-11-20"));
+        softly.assertAll();
     }
 
     @Test
