@@ -13,6 +13,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -56,7 +57,38 @@ public class MT940PageReaderTest {
         MT940Page MT940Page = pageList.get(0);
         SoftAssertions softly = new SoftAssertions();
         softly.assertThat(MT940Page.getTransactionGroupList()).hasSize(3);
-        softly.assertThat(MT940Page.getTransactionGroupList()).hasSize(3);
+        softly.assertAll();
+    }
+
+    @Test
+    public void parse_WHEN_parse_valid_file_SHOULD_adjust_transactions_entry_dates_year_according_to_closing_balance_date() throws Exception {
+
+        // Given
+        String mt940MessageText = "" +
+                ":20:02618\n" +
+                ":21:123456/DEV\n" +
+                ":25:6-9412771\n" +
+                ":28C:00102\n" +
+                ":60F:C000103USD672,\n" +
+                ":61:0309280827D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:same year\n" +
+                ":61:0309300120D880,FTRFBPHP/081203/0003//59512112915002\n" +
+                ":86:next year\n" +
+                ":62F:C030901USD987,\n" +
+                "-";
+
+        MT940PageReader classUnderTest = new MT940PageReader(new StringReader(mt940MessageText));
+
+        // When
+        List<MT940Page> pageList = TestUtils.collectUntilNull(classUnderTest::read);
+
+        // Then
+        assertThat(pageList).hasSize(1);
+        MT940Page MT940Page = pageList.get(0);
+        SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(MT940Page.getTransactionGroupList().get(0).getStatementLine().getEntryDate()).isEqualTo(LocalDate.parse("2003-08-27"));
+        softly.assertThat(MT940Page.getTransactionGroupList().get(1).getStatementLine().getEntryDate()).isEqualTo(LocalDate.parse("2004-01-20"));
+        softly.assertAll();
     }
 
     @Test
