@@ -1,4 +1,4 @@
-# Banking Swift Messages Parser and Composer [![starline](https://starlines.qoo.monster/assets/qoomon/banking-swift-messages-java)](https://github.com/qoomon/starline)
+# Banking Swift Messages Parser and Composer [![starline](https://raw.githubusercontent.com/qoomon/qoomon/refs/heads/main/starlines/qoomon/banking-swift-messages-java/starline.svg)](https://github.com/qoomon/starlines)
 
 Parser for Financial SWIFT Messages
 SWIFT = Society for Worldwide Interbank Financial Telecommunication
